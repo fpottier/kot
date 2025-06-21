@@ -1,0 +1,11 @@
+{0 Kot}
+
+[kot] is an OCaml library that offers an implementation
+of persistent catenable deques.
+
+{1 Installation and Usage}
+
+Type [opam install kot].
+
+In your [dune] file, add [(libraries kot)] to the description of
+your [library] or [executable].

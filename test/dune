@@ -1,0 +1,5 @@
+(executable
+  (name test)
+  (libraries monolith kot)
+  (enabled_if (= %{profile} dev))
+)
