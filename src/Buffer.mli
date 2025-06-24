@@ -31,4 +31,6 @@ val inject : 'a buffer -> 'a -> 'a buffer
 
 val pop2 : 'a buffer -> 'a * 'a * 'a buffer (* requires a full buffer *)
 
+val eject : 'a buffer -> 'a buffer * 'a
+
 val eject2 : 'a buffer -> 'a buffer * 'a * 'a (* requires a full buffer *)

@@ -67,13 +67,6 @@ let[@inline] pop b =
   | B3 (x0, x1, x2) ->
       x0, B2 (x1, x2)
 
-let[@inline] pop2 b =
-  match b with
-  | B3 (x0, x1, x2) ->
-      x0, x1, B1 x2
-  | _ ->
-      assert false
-
 let[@inline] inject b x0 =
   match b with
   | B0 ->
@@ -83,6 +76,20 @@ let[@inline] inject b x0 =
   | B2 (x2, x1) ->
       B3 (x2, x1, x0)
   | B3 _ ->
+      assert false
+
+let[@inline] eject b =
+  match b with
+  | B3 (x0, x1, x2) -> B2 (x0, x1), x2
+  | B2 (x0, x1) -> B1 (x0), x1
+  | B1 x0 -> B0, x0
+  | B0 -> assert false
+
+let[@inline] pop2 b =
+  match b with
+  | B3 (x0, x1, x2) ->
+      x0, x1, B1 x2
+  | _ ->
       assert false
 
 let[@inline] eject2 b =

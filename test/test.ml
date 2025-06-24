@@ -64,6 +64,15 @@ let () =
   let spec = deque ^> option (element *** deque) in
   declare "pop_opt" spec R.pop_opt C.pop_opt;
 
+  let spec = deque ^> element ^> deque in
+  declare "inject" spec R.inject C.inject;
+
+  let spec = R.nonempty % deque ^> deque *** element in
+  declare "eject" spec R.eject C.eject;
+
+  let spec = deque ^> option (deque *** element) in
+  declare "eject_opt" spec R.eject_opt C.eject_opt;
+
   ()
 
 (* -------------------------------------------------------------------------- *)

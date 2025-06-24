@@ -23,6 +23,12 @@ val push : 'a -> 'a deque -> 'a deque
 
 val pop : 'a deque -> 'a * 'a deque
 
+val inject : 'a deque -> 'a -> 'a deque
+
+val eject : 'a deque -> 'a deque * 'a
+
 val pop_opt : 'a deque -> ('a * 'a deque) option
+
+val eject_opt : 'a deque -> ('a deque * 'a) option
 
 val check : 'a deque -> unit
