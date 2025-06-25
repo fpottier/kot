@@ -32,3 +32,7 @@ val pop_opt : 'a deque -> ('a * 'a deque) option
 val eject_opt : 'a deque -> ('a deque * 'a) option
 
 val check : 'a deque -> unit
+
+val map : ('a -> 'b) -> 'a deque -> 'b deque
+
+val fold_left : ('b -> 'a -> 'b) -> 'b -> 'a deque -> 'b

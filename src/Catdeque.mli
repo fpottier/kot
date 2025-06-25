@@ -11,30 +11,28 @@
 (*                                                                            *)
 (******************************************************************************)
 
-type 'a buffer =
-  | B0
-  | B1 of 'a
-  | B2 of 'a * 'a
-  | B3 of 'a * 'a * 'a
+(*
+type 'a catdeque
 
-val size : 'a buffer -> int
+val empty : 'a catdeque
 
-val is_empty : 'a buffer -> bool
+val size : 'a catdeque -> int
 
-val empty : 'a buffer
+val is_empty : 'a catdeque -> bool
 
-val push : 'a -> 'a buffer -> 'a buffer
+val push : 'a -> 'a catdeque -> 'a catdeque
 
-val pop : 'a buffer -> 'a * 'a buffer
+val pop : 'a catdeque -> 'a * 'a catdeque
 
-val inject : 'a buffer -> 'a -> 'a buffer
+val inject : 'a catdeque -> 'a -> 'a catdeque
 
-val eject : 'a buffer -> 'a buffer * 'a
+val eject : 'a catdeque -> 'a catdeque * 'a
 
-val pop2 : 'a buffer -> 'a * 'a * 'a buffer (* requires a full buffer *)
+val pop_opt : 'a catdeque -> ('a * 'a catdeque) option
 
-val eject2 : 'a buffer -> 'a buffer * 'a * 'a (* requires a full buffer *)
+val eject_opt : 'a catdeque -> ('a catdeque * 'a) option
 
-val map : ('a -> 'b) -> 'a buffer -> 'b buffer
+val check : 'a catdeque -> unit
 
-val fold_left : ('b -> 'a -> 'b) -> 'b -> 'a buffer -> 'b
+val concat : 'a catdeque -> 'a catdeque -> 'a catdeque
+*)

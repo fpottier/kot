@@ -185,3 +185,27 @@ and inject : type a. a deque -> a -> a deque =
   fun d x -> match d with 
   | None -> singleton x 
   | Some d -> inject_nonempty d x
+
+let rec map_nonempty : type a b. (a -> b) -> a nonempty_deque -> b nonempty_deque =
+  fun f d ->
+    let { prefix; child; suffix } = !d in
+    let prefix = B.map f prefix in
+    let child = map (fun (a, b) -> (f a, f b)) child in
+    let suffix = B.map f suffix in
+    ref { prefix; child; suffix }
+and map : type a b. (a -> b) -> a deque -> b deque =
+  fun f ->
+  function
+  | None -> None
+  | Some d -> Some (map_nonempty f d)
+
+let rec fold_left : type a b. (b -> a -> b) -> b -> a deque -> b =
+  fun f y ->
+  function
+  | None -> y
+  | Some d ->
+    let { prefix; child; suffix } = !d in
+    let y = B.fold_left f y prefix in
+    let y = fold_left (fun y (x0,x1) -> f (f y x0) x1) y child in
+    let y = B.fold_left f y suffix in
+    y

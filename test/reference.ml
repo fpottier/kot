@@ -21,3 +21,4 @@ let push x xs = x :: xs
 let eject  xs = match List.rev xs with x::xs -> List.rev xs, x  | [] -> assert false
 let eject_opt xs = match List.rev xs with x :: xs -> Some (List.rev xs, x) | [] -> None
 let inject xs x = xs @ [x]
+let concat xs ys = xs @ ys
