@@ -11,7 +11,6 @@
 (*                                                                            *)
 (******************************************************************************)
 
-(*
 type 'a catdeque
 
 val empty : 'a catdeque
@@ -32,7 +31,10 @@ val pop_opt : 'a catdeque -> ('a * 'a catdeque) option
 
 val eject_opt : 'a catdeque -> ('a catdeque * 'a) option
 
+val concat : 'a catdeque -> 'a catdeque -> 'a catdeque
+
 val check : 'a catdeque -> unit
 
-val concat : 'a catdeque -> 'a catdeque -> 'a catdeque
-*)
+val map : ('a -> 'b) -> 'a catdeque -> 'b catdeque
+
+val fold_left : ('b -> 'a -> 'b) -> 'b -> 'a catdeque -> 'b
