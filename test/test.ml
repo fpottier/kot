@@ -75,5 +75,5 @@ let () =
     dprintf "          open %s;;\n" name;
     ()
   in
-  let fuel = 16 in
+  let fuel = 128 in
   main ~prologue fuel
