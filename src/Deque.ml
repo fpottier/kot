@@ -11,7 +11,7 @@
 (*                                                                            *)
 (******************************************************************************)
 
-module B = Buffer
+module B = Buffer3
 
 type 'a deque =
   'a nonempty_deque option
