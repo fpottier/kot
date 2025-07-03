@@ -9,6 +9,7 @@ test:
 	  --tag --line-buffer \
 	  make -C {} random_nodep \
 	  ::: \
+	  Buffer3 \
 	  Deque \
 
 .PHONY: clean
