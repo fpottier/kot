@@ -155,73 +155,78 @@ let rec push : type a. a -> a catdeque -> a catdeque =
   fun x0 c ->
   match c with
   | None -> singleton x0
-  | Some r when is_suffix_only (!r) ->
-    let suffix = (!r).suffix in
-    if B.size suffix = 8 then begin
-      let x1, suffix = B.pop suffix in
-      let x2, suffix = B.pop suffix in
-      let x3, suffix = B.pop suffix in
-      let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
-      let x4, suffix = B.pop suffix in
-      let x5, suffix = B.pop suffix in
-      let middle = B.push x4 (B.push x5 B.empty) in
-      let left_deque = empty in
-      let right_deque = empty in
-      r := { prefix; left_deque; middle; right_deque; suffix };
-      let prefix = B.push x0 prefix in
-      assemble prefix left_deque middle right_deque suffix
+  | Some r ->
+    let { prefix; left_deque; middle; right_deque; suffix } as m = !r in
+    if is_suffix_only m then begin
+      if B.size suffix = 8 then begin
+        let x1, suffix = B.pop suffix in
+        let x2, suffix = B.pop suffix in
+        let x3, suffix = B.pop suffix in
+        let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
+        let x4, suffix = B.pop suffix in
+        let x5, suffix = B.pop suffix in
+        let middle = B.push x4 (B.push x5 B.empty) in
+        let left_deque = empty in
+        let right_deque = empty in
+        r := { prefix; left_deque; middle; right_deque; suffix };
+        let prefix = B.push x0 prefix in
+        assemble prefix left_deque middle right_deque suffix
+      end
+      else
+        assemble B.empty empty B.empty empty (B.push x0 suffix)
+    end else begin
+      if B.size prefix = 6
+      then begin
+        let prefix, x6 = B.eject prefix in
+        let prefix, x5 = B.eject prefix in
+        let prefix' = B.push x5 (B.push x6 B.empty) in
+        let left_deque = push (triple prefix' empty B.empty) left_deque in
+        r := { prefix; left_deque; middle; right_deque; suffix };
+        let prefix = B.push x0 prefix in
+        assemble prefix left_deque middle right_deque suffix
+      end else 
+        let prefix = B.push x0 prefix in
+        assemble prefix left_deque middle right_deque suffix
     end
-    else
-      assemble B.empty empty B.empty empty (B.push x0 suffix)
-  | Some r (* when not (is_suffix_only (!r)) *) ->
-    let { prefix; left_deque; middle; right_deque; suffix } = !r in
-    if B.size prefix = 6
-    then begin
-      let prefix, x6 = B.eject prefix in
-      let prefix, x5 = B.eject prefix in
-      let prefix' = B.push x5 (B.push x6 B.empty) in
-      let left_deque = push (triple prefix' empty B.empty) left_deque in
-      r := { prefix; left_deque; middle; right_deque; suffix }
-    end;
-    let { prefix; left_deque; middle; right_deque; suffix } = !r in
-    let prefix = B.push x0 prefix in
-    assemble prefix left_deque middle right_deque suffix
 
 let rec inject : type a. a catdeque -> a -> a catdeque =
   fun c x0 ->
   match c with
   | None -> singleton x0
-  | Some r when is_suffix_only (!r) ->
-    let suffix = (!r).suffix in
-    if B.size suffix = 8 then begin
-      let x1, suffix = B.pop suffix in
-      let x2, suffix = B.pop suffix in
-      let x3, suffix = B.pop suffix in
-      let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
-      let x4, suffix = B.pop suffix in
-      let x5, suffix = B.pop suffix in
-      let middle = B.push x4 (B.push x5 B.empty) in
-      let left_deque = empty in
-      let right_deque = empty in
-      r := { prefix; left_deque; middle; right_deque; suffix };
+  | Some r ->
+    let { prefix; left_deque; middle; right_deque; suffix } as m = !r in
+    if is_suffix_only m then begin
+      let suffix = m.suffix in
+      if B.size suffix = 8 then begin
+        let x1, suffix = B.pop suffix in
+        let x2, suffix = B.pop suffix in
+        let x3, suffix = B.pop suffix in
+        let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
+        let x4, suffix = B.pop suffix in
+        let x5, suffix = B.pop suffix in
+        let middle = B.push x4 (B.push x5 B.empty) in
+        let left_deque = empty in
+        let right_deque = empty in
+        r := { prefix; left_deque; middle; right_deque; suffix };
+        let suffix = B.inject suffix x0 in
+        assemble prefix left_deque middle right_deque suffix
+      end
+      else
+        assemble B.empty empty B.empty empty (B.inject suffix x0)
+    end else begin
+      if B.size suffix = 6
+      then begin
+        let x1, suffix = B.pop suffix in
+        let x2, suffix = B.pop suffix in
+        let suffix' = B.push x1 (B.push x2 B.empty) in
+        let right_deque = inject right_deque (triple B.empty empty suffix') in
+        r := { prefix; left_deque; middle; right_deque; suffix };
+        let suffix = B.inject suffix x0 in
+        assemble prefix left_deque middle right_deque suffix
+      end else
       let suffix = B.inject suffix x0 in
       assemble prefix left_deque middle right_deque suffix
     end
-    else
-      assemble B.empty empty B.empty empty (B.inject suffix x0)
-  | Some r (* when not (is_suffix_only (!r)) *) ->
-    let { prefix; left_deque; middle; right_deque; suffix } = !r in
-    if B.size suffix = 6
-    then begin
-      let x1, suffix = B.pop suffix in
-      let x2, suffix = B.pop suffix in
-      let suffix' = B.push x1 (B.push x2 B.empty) in
-      let right_deque = inject right_deque (triple B.empty empty suffix') in
-      r := { prefix; left_deque; middle; right_deque; suffix }
-    end;
-    let { prefix; left_deque; middle; right_deque; suffix } = !r in
-    let suffix = B.inject suffix x0 in
-    assemble prefix left_deque middle right_deque suffix
 
 let flip f a b = f b a
 
@@ -271,11 +276,10 @@ let concat : type a. a catdeque -> a catdeque -> a catdeque =
   match d1, d2 with
   | None, _ -> d2
   | _, None -> d1
-  | Some r1, Some r2 
-  (* both are 5-tuples *)
-  when not (is_suffix_only (!r1) || is_suffix_only (!r2)) ->
-    let { prefix = pr1; left_deque = ld1; middle = md1; right_deque = rd1; suffix = sf1 } = !r1 in
-    let { prefix = pr2; left_deque = ld2; middle = md2; right_deque = rd2; suffix = sf2 } = !r2 in
+  | Some r1, Some r2 ->
+  let { prefix = pr1; left_deque = ld1; middle = md1; right_deque = rd1; suffix = sf1 } as m1 = !r1 in
+  let { prefix = pr2; left_deque = ld2; middle = md2; right_deque = rd2; suffix = sf2 } as m2 = !r2 in
+  if not (is_suffix_only m1 || is_suffix_only m2) then begin
     let y, pr2' = B.pop pr2 in
     let sf1', x = B.eject sf1 in
     let middle = B.push x (B.push y B.empty) in
@@ -288,10 +292,10 @@ let concat : type a. a catdeque -> a catdeque -> a catdeque =
     let rd2'' = if B.is_empty p2' then rd2'
                 else push (triple p2' empty B.empty) rd2' in
     assemble pr1 ld1'' middle rd2'' sf2
-  | _, Some r2 when is_suffix_only (!r2) ->
-    B.fold_left inject d1 (!r2).suffix
-  | Some r1, _ (* is_suffix_only (!r2) *) ->
-    push_buffer push (!r1).suffix d2
+  end else if is_suffix_only m2 then
+    B.fold_left inject d1 sf2
+  else (* is_suffix_only (!r2) *)
+    push_buffer push sf1 d2
 
 let naive_pop : type a. a nonempty_catdeque -> a * a catdeque =
   fun r ->
@@ -418,8 +422,6 @@ let pop : type a. a catdeque -> a * a catdeque
 let pop_opt : type a. a catdeque -> (a * a catdeque) option 
   = fun x -> Option.map pop_nonempty x
 
-(* travaux *)
-
 let naive_eject : type a. a nonempty_catdeque -> a catdeque * a =
   fun r ->
   let { prefix; left_deque; middle; right_deque; suffix } = !r in
@@ -536,45 +538,3 @@ let eject : type a. a catdeque -> a catdeque * a
 let eject_opt : type a. a catdeque -> (a catdeque * a) option 
   = fun x -> Option.map eject_nonempty x
 
-
-(* travaux terminés *)
-
-let show_list (show_elem : 'a -> string) (lst : 'a list) : string =
-  let contents = lst |> List.map show_elem |> String.concat "; " in
-  Printf.sprintf "[%s]" contents
-
-let show_buffer : type a. (a -> string) -> a buffer -> string =
-  fun show_elem b ->
-  show_list show_elem (B.fold_left (fun b a -> b @ [a]) [] b)
-
-let indent_more (s : string) : string = s ^ "  "
-
-let rec show_triple : type a. (a -> string) -> string -> a triple -> string =
-  fun show_elem indent t ->
-  Printf.sprintf
-    "{\n%s  first = %s;\n%s  child = %s;\n%s  last = %s\n%s}"
-    indent (show_buffer show_elem t.first)
-    indent (show_catdeque (show_triple show_elem indent) (indent_more indent) t.child)
-    indent (show_buffer show_elem t.last)
-    indent
-
-and show_five_tuple : type a. (a -> string) -> string -> (a five_tuple ref) -> string =
-  fun show_elem indent r ->
-  let { prefix; left_deque; middle; right_deque; suffix } = !r in
-  Printf.sprintf
-    "{\n%s  prefix = %s;\n%s  left_deque = %s;\n%s  middle = %s;\n%s  right_deque = %s;\n%s  suffix = %s\n%s}"
-    indent (show_buffer show_elem prefix)
-    indent (show_catdeque (show_triple show_elem (indent_more indent)) (indent_more indent) left_deque)
-    indent (show_buffer show_elem middle)
-    indent (show_catdeque (show_triple show_elem (indent_more indent)) (indent_more indent) right_deque)
-    indent (show_buffer show_elem suffix)
-    indent
-
-and show_catdeque : type a. (a -> string) -> string -> a catdeque -> string =
-  fun show_elem indent cd ->
-  match cd with
-  | None -> "empty"
-  | Some nonempty ->
-    Printf.sprintf "Some (ref %s)" (show_five_tuple show_elem (indent_more indent) nonempty)
-
-let debug cd = print_endline (show_catdeque string_of_int "" cd)
