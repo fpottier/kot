@@ -16,8 +16,8 @@ open Monolith
 module R = Reference
 
 (* This is the candidate implementation. *)
-module C = Kot.Deque
-let name = "Kot.Deque"
+module C = Kot.Catdeque
+let name = "Kot.Catdeque"
 
 (* -------------------------------------------------------------------------- *)
 
@@ -73,6 +73,10 @@ let () =
   let spec = deque ^> option (deque *** element) in
   declare "eject_opt" spec R.eject_opt C.eject_opt;
 
+  let spec = deque ^> deque ^> deque in
+  declare "concat" spec R.concat C.concat;
+
+
   ()
 
 (* -------------------------------------------------------------------------- *)
@@ -84,5 +88,5 @@ let () =
     dprintf "          open %s;;\n" name;
     ()
   in
-  let fuel = 128 in
+  let fuel = 32 in
   main ~prologue fuel

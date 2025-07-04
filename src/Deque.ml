@@ -128,3 +128,84 @@ and push : type a. a -> a deque -> a deque = fun x d ->
       singleton x
   | Some d ->
       push_nonempty x d
+
+let rec eject_nonempty : type a. a nonempty_deque -> a deque * a = fun d -> 
+  let { prefix; child; suffix } = !d in 
+  match B.is_empty suffix, child with 
+  | true, Some c -> 
+    (* The rear buffer is empty; the child deque is nonempty. *) 
+    (* Eject a pair [(x, y)] off the child deque. *) 
+    let child, (x, y) = eject_nonempty c in 
+    (* Inject [x] and [y] into the (empty) rear buffer. *) 
+    (* Update the deque [d] in place. *) 
+    let suffix = B.B2 (x, y) in d := { prefix; child; suffix }; 
+    (* Extract [y]. Create a new deque whose rear buffer is a singleton. *) 
+    let suffix = B.B1 (x) in 
+    assemble prefix child suffix, y
+  | false, _ -> 
+    (* The rear buffer is nonempty. *) 
+    (* Eject an element [x] off the rear buffer. *) 
+    let suffix, x = B.eject suffix in 
+    assemble prefix child suffix, x 
+  | true, None -> 
+    (* The rear buffer and child deque are empty. *) 
+    (* The front buffer must be nonempty. *) 
+    assert (not (B.is_empty prefix)); 
+    (* Eject an element [x] off the front buffer. *) 
+    let prefix, x = B.eject prefix in 
+    assemble prefix child suffix, x
+
+let eject_opt d = match d with 
+  | None -> None 
+  | Some d -> Some (eject_nonempty d)
+
+let eject d = match d with 
+  | None -> invalid_arg "Deque.eject: deque is empty" 
+  | Some d -> eject_nonempty d
+
+let rec inject_nonempty : type a. a nonempty_deque -> a -> a deque = fun d w -> 
+  let { prefix; child; suffix } = !d in 
+  match suffix with 
+    | B.B3 (x, y, z) -> 
+      (* The rear buffer is full. *) 
+      (* Extract two elements [y] and [z] out of the rear buffer and inject the pair [(y, z)] into the child deque. *) 
+      let child = inject child (x, y) in 
+      let suffix = B.B1 (z) in 
+      (* Update the deque [d] in place. *) 
+      d := { prefix; child; suffix }; 
+      (* Inject [w] into what remains of the rear buffer. *) 
+      let suffix = B.B2 (z, w) in 
+      Some (ref { prefix; child; suffix }) 
+    | B.B2 _ | B.B1 _ | B.B0 -> 
+      (* Inject [w] into the rear buffer. *) 
+      let suffix = B.inject suffix w in 
+      Some (ref { prefix; child; suffix })
+
+and inject : type a. a deque -> a -> a deque = 
+  fun d x -> match d with 
+  | None -> singleton x 
+  | Some d -> inject_nonempty d x
+
+let rec map_nonempty : type a b. (a -> b) -> a nonempty_deque -> b nonempty_deque =
+  fun f d ->
+    let { prefix; child; suffix } = !d in
+    let prefix = B.map f prefix in
+    let child = map (fun (a, b) -> (f a, f b)) child in
+    let suffix = B.map f suffix in
+    ref { prefix; child; suffix }
+and map : type a b. (a -> b) -> a deque -> b deque =
+  fun f ->
+  function
+  | None -> None
+  | Some d -> Some (map_nonempty f d)
+
+let rec fold_left : type a b. (b -> a -> b) -> b -> a deque -> b =
+  fun f y ->
+  function
+  | None -> y
+  | Some d ->
+    let { prefix; child; suffix } = !d in
+    let y = B.fold_left f y prefix in
+    let y = fold_left (fun y (x0,x1) -> f (f y x0) x1) y child in
+    let y = B.fold_left f y suffix in
+    y

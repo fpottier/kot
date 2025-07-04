@@ -22,16 +22,3 @@ let eject  xs = match List.rev xs with x::xs -> List.rev xs, x  | [] -> assert f
 let eject_opt xs = match List.rev xs with x :: xs -> Some (List.rev xs, x) | [] -> None
 let inject xs x = xs @ [x]
 let concat xs ys = xs @ ys
-
-(* Alternative array-based implementation:
-
-type 'a t = 'a array
-let empty = [||]
-let size = Array.length
-let is_empty xs = Array.length xs = 0
-let nonempty xs = not (is_empty xs)
-let pop     xs = let n = Array.length xs in xs.(0), Array.sub xs 1 (n-1)
-let pop_opt xs = let n = Array.length xs in if n > 0 then Some (pop xs) else None
-let push x xs = Array.concat [ [|x|]; xs ]
-
- *)
