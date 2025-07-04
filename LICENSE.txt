@@ -1,7 +1,4 @@
-In the following, "the Library" refers to the files that form the Oma
-library.
-
-The Library is distributed under the terms of the GNU Library General
+This Library is distributed under the terms of the GNU Library General
 Public License version 2 (included below).
 
 As a special exception to the GNU Library General Public License, you
