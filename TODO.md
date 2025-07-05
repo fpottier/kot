@@ -4,9 +4,10 @@
   and instantiate it with bounded buffers of capacity at most 8.
   Test `Buffer8` independently.
 
-* If we are interested in making the code more efficient,
-  then we should avoid using sequences of `B.push` and `B.pop`
-  and introduce more operations on buffers.
+* To reduce allocation and make the code more efficient,
+  we should avoid using sequences of small operations on buffers
+  (`B.push`, `B.pop`, `B.inject`, `B.eject`)
+  and introduce composite operations on buffers.
 
 * We could potentially distinguish several distinct types of buffers
   (prefix, middle, suffix), each of which is subject to its own size
