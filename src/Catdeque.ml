@@ -11,8 +11,8 @@
 (*                                                                            *)
 (******************************************************************************)
 
-module B = Deque
-type 'a buffer = 'a Deque.deque
+module B = Buffer8
+type 'a buffer = 'a B.buffer
 
 type 'a catdeque =
   'a nonempty_catdeque option
