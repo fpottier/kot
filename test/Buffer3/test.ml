@@ -1,10 +1,11 @@
 (******************************************************************************)
 (*                                                                            *)
-(*                                  Kot                                  *)
+(*                                     Kot                                    *)
 (*                                                                            *)
-(*                       François Pottier, Inria Paris                        *)
+(*                         François Pottier, Inria Paris                      *)
+(*                         Juliette Ponsonnet, ENS Lyon                       *)
 (*                                                                            *)
-(*       Copyright 2024--2024 Inria. All rights reserved. This file is        *)
+(*       Copyright 2025--2025 Inria. All rights reserved. This file is        *)
 (*       distributed under the terms of the GNU Library General Public        *)
 (*       License, with an exception, as described in the file LICENSE.        *)
 (*                                                                            *)
@@ -16,22 +17,15 @@ open Monolith
 module R = Reference
 
 (* This is the candidate implementation. *)
-module C = Kot.Deque
-let name = "Kot.Deque"
+module C = Kot.Buffer3
+let name = "Kot.Buffer3"
 
 (* -------------------------------------------------------------------------- *)
 
-(* The abstract type [deque]. *)
+(* The abstract type [buffer]. *)
 
-(* This type is equipped with a well-formedness check,
-   which ignores the model (the reference side). *)
-
-let check (_model : _ R.t) =
-  C.check,
-  constant "check"
-
-let deque =
-  declare_abstract_type ~check ()
+let buffer =
+  declare_abstract_type ()
 
 (* -------------------------------------------------------------------------- *)
 
@@ -44,34 +38,25 @@ let element =
 
 (* Declare the operations. *)
 
+let nonfull b =
+  R.size b < 3
+
 let () =
 
-  let spec = deque in
+  let spec = buffer in
   declare "empty" spec R.empty C.empty;
 
-  let spec = deque ^> int in
+  let spec = buffer ^> int in
   declare "size" spec R.size C.size;
 
-  let spec = deque ^> bool in
+  let spec = buffer ^> bool in
   declare "is_empty" spec R.is_empty C.is_empty;
 
-  let spec = element ^> deque ^> deque in
+  let spec = element ^> (nonfull % buffer) ^> buffer in
   declare "push" spec R.push C.push;
 
-  let spec = R.nonempty % deque ^> element *** deque in
+  let spec = R.nonempty % buffer ^> element *** buffer in
   declare "pop" spec R.pop C.pop;
-
-  let spec = deque ^> option (element *** deque) in
-  declare "pop_opt" spec R.pop_opt C.pop_opt;
-
-  let spec = deque ^> element ^> deque in
-  declare "inject" spec R.inject C.inject;
-
-  let spec = R.nonempty % deque ^> deque *** element in
-  declare "eject" spec R.eject C.eject;
-
-  let spec = deque ^> option (deque *** element) in
-  declare "eject_opt" spec R.eject_opt C.eject_opt;
 
   ()
 

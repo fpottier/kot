@@ -2,16 +2,16 @@
 (*                                                                            *)
 (*                                     Kot                                    *)
 (*                                                                            *)
-(*                        François Pottier, Inria Paris                       *)
+(*                         François Pottier, Inria Paris                      *)
 (*                         Juliette Ponsonnet, ENS Lyon                       *)
 (*                                                                            *)
-(*       Copyright 2024--2024 Inria. All rights reserved. This file is        *)
+(*       Copyright 2025--2025 Inria. All rights reserved. This file is        *)
 (*       distributed under the terms of the GNU Library General Public        *)
 (*       License, with an exception, as described in the file LICENSE.        *)
 (*                                                                            *)
 (******************************************************************************)
 
-module B = Buffer
+module B = Buffer3
 
 type 'a deque =
   'a nonempty_deque option

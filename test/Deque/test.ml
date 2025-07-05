@@ -1,10 +1,11 @@
 (******************************************************************************)
 (*                                                                            *)
-(*                                  Kot                                  *)
+(*                                     Kot                                    *)
 (*                                                                            *)
-(*                       François Pottier, Inria Paris                        *)
+(*                         François Pottier, Inria Paris                      *)
+(*                         Juliette Ponsonnet, ENS Lyon                       *)
 (*                                                                            *)
-(*       Copyright 2024--2024 Inria. All rights reserved. This file is        *)
+(*       Copyright 2025--2025 Inria. All rights reserved. This file is        *)
 (*       distributed under the terms of the GNU Library General Public        *)
 (*       License, with an exception, as described in the file LICENSE.        *)
 (*                                                                            *)
@@ -16,8 +17,8 @@ open Monolith
 module R = Reference
 
 (* This is the candidate implementation. *)
-module C = Kot.Catdeque
-let name = "Kot.Catdeque"
+module C = Kot.Deque
+let name = "Kot.Deque"
 
 (* -------------------------------------------------------------------------- *)
 
@@ -73,10 +74,6 @@ let () =
   let spec = deque ^> option (deque *** element) in
   declare "eject_opt" spec R.eject_opt C.eject_opt;
 
-  let spec = deque ^> deque ^> deque in
-  declare "concat" spec R.concat C.concat;
-
-
   ()
 
 (* -------------------------------------------------------------------------- *)
@@ -88,5 +85,5 @@ let () =
     dprintf "          open %s;;\n" name;
     ()
   in
-  let fuel = 32 in
+  let fuel = 128 in
   main ~prologue fuel
