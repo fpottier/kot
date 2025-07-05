@@ -11,6 +11,7 @@ test:
 	  ::: \
 	  Buffer3 \
 	  Deque \
+	  Buffer8 \
 	  Cadeque \
 
 .PHONY: clean
