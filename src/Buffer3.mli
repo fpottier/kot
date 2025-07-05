@@ -17,11 +17,11 @@ type 'a buffer =
   | B2 of 'a * 'a
   | B3 of 'a * 'a * 'a
 
+val empty : 'a buffer
+
 val size : 'a buffer -> int
 
 val is_empty : 'a buffer -> bool
-
-val empty : 'a buffer
 
 val push : 'a -> 'a buffer -> 'a buffer
 
