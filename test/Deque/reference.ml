@@ -18,9 +18,10 @@ let is_empty xs = match xs with [] -> true | _ :: _ -> false
 let nonempty xs = not (is_empty xs)
 let pop     xs = match xs with x :: xs -> x, xs | [] -> assert false
 let pop_opt xs = match xs with x :: xs -> Some (x, xs) | [] -> None
+let pop2    xs = match xs with x0 :: x1 :: xs -> x0, x1, xs | _ -> assert false
 let push x xs = x :: xs
-let eject  xs = match List.rev xs with x::xs -> List.rev xs, x  | [] -> assert false
-let eject_opt xs = match List.rev xs with x :: xs -> Some (List.rev xs, x) | [] -> None
+let eject  xs = let x, xs = pop (List.rev xs) in List.rev xs, x
+let eject_opt xs = match xs with [] -> None | _ -> Some (eject xs)
 let inject xs x = xs @ [x]
 let concat xs ys = xs @ ys
 
