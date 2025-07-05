@@ -17,6 +17,9 @@ type 'a buffer =
   | B2 of 'a * 'a
   | B3 of 'a * 'a * 'a
 
+let empty =
+  B0
+
 let[@inline] size b =
   match b with
   | B0   -> 0
@@ -28,22 +31,6 @@ let[@inline] is_empty b =
   match b with
   | B0 -> true
   | _  -> false
-
-(* TODO
-let[@inline] is_full b =
-  match b with
-  | B3 _ -> true
-  | _    -> false
-
-let[@inline] singleton x0 =
-  B1 x0
-
-let[@inline] doubleton x0 x1 =
-  B2 (x0, x1)
- *)
-
-let empty =
-  B0
 
 let[@inline] push x0 b =
   match b with
@@ -80,10 +67,14 @@ let[@inline] inject b x0 =
 
 let[@inline] eject b =
   match b with
-  | B3 (x0, x1, x2) -> B2 (x0, x1), x2
-  | B2 (x0, x1) -> B1 (x0), x1
-  | B1 x0 -> B0, x0
-  | B0 -> assert false
+  | B0 ->
+      assert false
+  | B1 (x0) ->
+      B0, x0
+  | B2 (x0, x1) ->
+      B1 (x0), x1
+  | B3 (x0, x1, x2) ->
+      B2 (x0, x1), x2
 
 let[@inline] pop2 b =
   match b with
@@ -101,14 +92,28 @@ let[@inline] eject2 b =
 
 let[@inline] map f b =
   match b with
-  | B0 -> B0
-  | B1 x -> B1 (f x)
-  | B2 (x0, x1) -> B2 (f x0, f x1)
-  | B3 (x0, x1, x2) -> B3 (f x0, f x1, f x2)
+  | B0 ->
+      B0
+  | B1 (x0) ->
+      B1 (f x0)
+  | B2 (x0, x1) ->
+      B2 (f x0, f x1)
+  | B3 (x0, x1, x2) ->
+      B3 (f x0, f x1, f x2)
 
-let[@inline] fold_left f y b =
+let[@inline] fold_left f accu b =
   match b with
-  | B0 -> y
-  | B1 x0 -> f y x0
-  | B2 (x0, x1) -> f (f y x0) x1
-  | B3 (x0, x1, x2) -> f (f (f y x0) x1) x2
+  | B0 ->
+      accu
+  | B1 (x0) ->
+      let accu = f accu x0 in
+      accu
+  | B2 (x0, x1) ->
+      let accu = f accu x0 in
+      let accu = f accu x1 in
+      accu
+  | B3 (x0, x1, x2) ->
+      let accu = f accu x0 in
+      let accu = f accu x1 in
+      let accu = f accu x2 in
+      accu
