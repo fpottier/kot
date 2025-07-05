@@ -41,8 +41,8 @@ let empty = None
 
 let is_empty = Option.is_none
 
-let rec map : type a b. (a -> b) -> a catdeque -> b catdeque = 
-  fun f -> 
+let rec map : type a b. (a -> b) -> a catdeque -> b catdeque =
+  fun f ->
   function
   | None -> None
   | Some r ->
@@ -61,8 +61,8 @@ and map_triple : type a b. (a -> b) -> a triple -> b triple =
   { first; child; last }
 
 
-let rec fold_left : type a b. (b -> a -> b) -> b -> a catdeque -> b = 
-  fun f y -> 
+let rec fold_left : type a b. (b -> a -> b) -> b -> a catdeque -> b =
+  fun f y ->
   function
   | None -> y
   | Some r ->
@@ -139,7 +139,7 @@ let assemble prefix left_deque middle right_deque suffix =
     assert (size left_deque = 0);
     assert (size right_deque = 0);
     if B.size suffix = 0 then empty
-    else 
+    else
       Some (ref { prefix; left_deque; middle; right_deque; suffix })
   end
   else
@@ -184,7 +184,7 @@ let rec push : type a. a -> a catdeque -> a catdeque =
         r := { prefix; left_deque; middle; right_deque; suffix };
         let prefix = B.push x0 prefix in
         assemble prefix left_deque middle right_deque suffix
-      end else 
+      end else
         let prefix = B.push x0 prefix in
         assemble prefix left_deque middle right_deque suffix
     end
@@ -260,7 +260,7 @@ let partition_buffer_right b =
     let b, x0 = B.eject b in
     b, B.push x0 (B.push x1 (B.push x2 B.empty))
 
-let push_buffer push b d2 = 
+let push_buffer push b d2 =
     (* TODO(Juliette): rewrite more elegantly maybe? *)
     let sf = ref b in
     let d2 = ref d2 in
@@ -320,8 +320,8 @@ let inspect_first : type a. a nonempty_catdeque -> a =
   let { prefix; suffix; _ } as m = !r in
   if is_suffix_only m then fst (B.pop suffix) else
   (* not suffix-only, prefix is nonempty *)
-  fst (B.pop prefix) 
-  
+  fst (B.pop prefix)
+
 let rec pop_nonempty : type a. a nonempty_catdeque -> a * a catdeque =
   fun ptr ->
   let { prefix; left_deque; middle; right_deque; suffix } as d = !ptr in
@@ -336,7 +336,7 @@ let rec pop_nonempty : type a. a nonempty_catdeque -> a * a catdeque =
         | None when not (is_empty t.child)
             -> naive_pop left_deque
         | _ -> pop_nonempty left_deque
-      in 
+      in
       let { first = x; child = d'; last = y } = t in
       begin match B.size x, B.size y with
       | 3, _ ->
@@ -349,9 +349,9 @@ let rec pop_nonempty : type a. a nonempty_catdeque -> a * a catdeque =
         if is_empty d' && B.is_empty y
           then ptr := { d with prefix = p'; left_deque = l }
         else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-          let l' = concat d' (push (triple y empty B.empty) l) 
+          let l' = concat d' (push (triple y empty B.empty) l)
           in ptr := { d with prefix = p'; left_deque = l' }
-      | 0, 3 -> 
+      | 0, 3 ->
         (* x is empty *therefore* d' is empty  *)
         assert (is_empty d');
         let a, y' = B.pop y in
@@ -419,7 +419,7 @@ let pop : type a. a catdeque -> a * a catdeque
   | None -> assert false
   | Some r -> pop_nonempty r
 
-let pop_opt : type a. a catdeque -> (a * a catdeque) option 
+let pop_opt : type a. a catdeque -> (a * a catdeque) option
   = fun x -> Option.map pop_nonempty x
 
 let naive_eject : type a. a nonempty_catdeque -> a catdeque * a =
@@ -436,8 +436,8 @@ let last_nonempty tr =
   else None
 
 let inspect_last : type a. a nonempty_catdeque -> a =
-  fun r -> snd (B.eject (!r).suffix) 
-  
+  fun r -> snd (B.eject (!r).suffix)
+
 let rec eject_nonempty : type a. a nonempty_catdeque -> a catdeque * a =
   fun ptr ->
   let { prefix; left_deque; middle; right_deque; suffix } as d = !ptr in
@@ -452,7 +452,7 @@ let rec eject_nonempty : type a. a nonempty_catdeque -> a catdeque * a =
         | None when not (is_empty t.child)
             -> naive_eject right_deque
         | _ -> eject_nonempty right_deque
-      in 
+      in
       let { first = x; child = d'; last = y } = t in
       begin match B.size x, B.size y with
       | _, 3 ->
@@ -467,7 +467,7 @@ let rec eject_nonempty : type a. a nonempty_catdeque -> a catdeque * a =
         else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
           let l' = concat (inject l (triple B.empty empty x)) d'
           in ptr := { d with suffix = s'; right_deque = l' }
-      | 3, 0 -> 
+      | 3, 0 ->
         (* y is empty *therefore* d' is empty  *)
         assert (is_empty d');
         let x', a = B.eject x in
@@ -535,6 +535,5 @@ let eject : type a. a catdeque -> a catdeque * a
   | None -> assert false
   | Some r -> eject_nonempty r
 
-let eject_opt : type a. a catdeque -> (a catdeque * a) option 
+let eject_opt : type a. a catdeque -> (a catdeque * a) option
   = fun x -> Option.map eject_nonempty x
-
