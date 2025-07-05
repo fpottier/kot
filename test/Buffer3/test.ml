@@ -38,6 +38,9 @@ let element =
 
 (* Declare the operations. *)
 
+let full b =
+  R.size b = 3
+
 let nonfull b =
   R.size b < 3
 
@@ -57,6 +60,17 @@ let () =
 
   let spec = R.nonempty % buffer ^> element *** buffer in
   declare "pop" spec R.pop C.pop;
+
+  let spec = (nonfull % buffer) ^> element ^> buffer in
+  declare "inject" spec R.inject C.inject;
+
+  let spec = R.nonempty % buffer ^> buffer *** element in
+  declare "eject" spec R.eject C.eject;
+
+  let spec = full % buffer ^> triple element element buffer in
+  declare "pop2" spec R.pop2 C.pop2;
+
+  (* [map] and [fold_left] are not tested *)
 
   ()
 
