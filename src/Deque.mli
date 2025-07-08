@@ -11,30 +11,30 @@
 (*                                                                            *)
 (******************************************************************************)
 
-type 'a catdeque
+type 'a deque
 
-val empty : 'a catdeque
+val empty : 'a deque
 
-val size : 'a catdeque -> int
+val size : 'a deque -> int
 
-val is_empty : 'a catdeque -> bool
+val is_empty : 'a deque -> bool
 
-val push : 'a -> 'a catdeque -> 'a catdeque
+val push : 'a -> 'a deque -> 'a deque
 
-val pop : 'a catdeque -> 'a * 'a catdeque
+val pop : 'a deque -> 'a * 'a deque
 
-val inject : 'a catdeque -> 'a -> 'a catdeque
+val inject : 'a deque -> 'a -> 'a deque
 
-val eject : 'a catdeque -> 'a catdeque * 'a
+val eject : 'a deque -> 'a deque * 'a
 
-val pop_opt : 'a catdeque -> ('a * 'a catdeque) option
+val pop_opt : 'a deque -> ('a * 'a deque) option
 
-val eject_opt : 'a catdeque -> ('a catdeque * 'a) option
+val eject_opt : 'a deque -> ('a deque * 'a) option
 
-val concat : 'a catdeque -> 'a catdeque -> 'a catdeque
+val concat : 'a deque -> 'a deque -> 'a deque
 
-val check : 'a catdeque -> unit
+val check : 'a deque -> unit
 
-val map : ('a -> 'b) -> 'a catdeque -> 'b catdeque
+val map : ('a -> 'b) -> 'a deque -> 'b deque
 
-val fold_left : ('b -> 'a -> 'b) -> 'b -> 'a catdeque -> 'b
+val fold_left : ('b -> 'a -> 'b) -> 'b -> 'a deque -> 'b

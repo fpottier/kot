@@ -14,16 +14,16 @@
 module B = Buffer8
 type 'a buffer = 'a B.buffer
 
-type 'a catdeque =
-  'a nonempty_catdeque option
-and 'a nonempty_catdeque = 'a five_tuple ref
+type 'a deque =
+  'a nonempty_deque option
+and 'a nonempty_deque = 'a five_tuple ref
 and 'a five_tuple = {
   (* contains three to six elements (temporarily two during operations) *)
   prefix : 'a buffer;
-  left_deque : 'a triple catdeque;
+  left_deque : 'a triple deque;
   (* contains exactly two elements *)
   middle : 'a buffer;
-  right_deque : 'a triple catdeque;
+  right_deque : 'a triple deque;
   (* contains three to six elements (temporarily two during operations) *)
   (* OR one to eight elements in a suffix-only representation *)
   suffix : 'a buffer;
@@ -32,7 +32,7 @@ and 'a five_tuple = {
 and 'a triple = {
   (* contains two or three elements *)
   first : 'a buffer;
-  child : 'a triple catdeque;
+  child : 'a triple deque;
   (* contains two or three elements *)
   last : 'a buffer;
 }
@@ -41,7 +41,7 @@ let empty = None
 
 let is_empty = Option.is_none
 
-let rec map : type a b. (a -> b) -> a catdeque -> b catdeque =
+let rec map : type a b. (a -> b) -> a deque -> b deque =
   fun f ->
   function
   | None -> None
@@ -61,7 +61,7 @@ and map_triple : type a b. (a -> b) -> a triple -> b triple =
   { first; child; last }
 
 
-let rec fold_left : type a b. (b -> a -> b) -> b -> a catdeque -> b =
+let rec fold_left : type a b. (b -> a -> b) -> b -> a deque -> b =
   fun f y ->
   function
   | None -> y
@@ -98,7 +98,7 @@ let bounded_size b min max =
   let size = B.size b in
   min <= size && size <= max
 
-let rec check : type a. a catdeque -> unit = function
+let rec check : type a. a deque -> unit = function
   | None -> ()
   | Some r ->
     let { prefix; left_deque; middle; right_deque; suffix } = !r in
@@ -151,7 +151,7 @@ let triple first child last =
     then assert (B.size first * B.size last <> 0);
   { first; child; last }
 
-let rec push : type a. a -> a catdeque -> a catdeque =
+let rec push : type a. a -> a deque -> a deque =
   fun x0 c ->
   match c with
   | None -> singleton x0
@@ -189,7 +189,7 @@ let rec push : type a. a -> a catdeque -> a catdeque =
         assemble prefix left_deque middle right_deque suffix
     end
 
-let rec inject : type a. a catdeque -> a -> a catdeque =
+let rec inject : type a. a deque -> a -> a deque =
   fun c x0 ->
   match c with
   | None -> singleton x0
@@ -271,7 +271,7 @@ let push_buffer push b d2 =
     done;
     !d2
 
-let concat : type a. a catdeque -> a catdeque -> a catdeque =
+let concat : type a. a deque -> a deque -> a deque =
   fun d1 d2 ->
   match d1, d2 with
   | None, _ -> d2
@@ -297,7 +297,7 @@ let concat : type a. a catdeque -> a catdeque -> a catdeque =
   else (* is_suffix_only (!r2) *)
     push_buffer push sf1 d2
 
-let naive_pop : type a. a nonempty_catdeque -> a * a catdeque =
+let naive_pop : type a. a nonempty_deque -> a * a deque =
   fun r ->
   let { prefix; left_deque; middle; right_deque; suffix } as m = !r in
   if is_suffix_only m
@@ -315,14 +315,14 @@ let first_nonempty tr =
   then Some (tr.last)
   else None
 
-let inspect_first : type a. a nonempty_catdeque -> a =
+let inspect_first : type a. a nonempty_deque -> a =
   fun r ->
   let { prefix; suffix; _ } as m = !r in
   if is_suffix_only m then fst (B.pop suffix) else
   (* not suffix-only, prefix is nonempty *)
   fst (B.pop prefix)
 
-let rec pop_nonempty : type a. a nonempty_catdeque -> a * a catdeque =
+let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
   fun ptr ->
   let { prefix; left_deque; middle; right_deque; suffix } as d = !ptr in
   if not (is_suffix_only d || B.size prefix > 3) then begin
@@ -414,15 +414,15 @@ let rec pop_nonempty : type a. a nonempty_catdeque -> a * a catdeque =
     end;
   naive_pop ptr
 
-let pop : type a. a catdeque -> a * a catdeque
+let pop : type a. a deque -> a * a deque
   = function
   | None -> assert false
   | Some r -> pop_nonempty r
 
-let pop_opt : type a. a catdeque -> (a * a catdeque) option
+let pop_opt : type a. a deque -> (a * a deque) option
   = fun x -> Option.map pop_nonempty x
 
-let naive_eject : type a. a nonempty_catdeque -> a catdeque * a =
+let naive_eject : type a. a nonempty_deque -> a deque * a =
   fun r ->
   let { prefix; left_deque; middle; right_deque; suffix } = !r in
     let suffix, x = B.eject suffix in
@@ -435,10 +435,10 @@ let last_nonempty tr =
   then Some tr.first
   else None
 
-let inspect_last : type a. a nonempty_catdeque -> a =
+let inspect_last : type a. a nonempty_deque -> a =
   fun r -> snd (B.eject (!r).suffix)
 
-let rec eject_nonempty : type a. a nonempty_catdeque -> a catdeque * a =
+let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
   fun ptr ->
   let { prefix; left_deque; middle; right_deque; suffix } as d = !ptr in
   if not (is_suffix_only d || B.size suffix > 3) then begin
@@ -530,10 +530,10 @@ let rec eject_nonempty : type a. a nonempty_catdeque -> a catdeque * a =
     end;
   naive_eject ptr
 
-let eject : type a. a catdeque -> a catdeque * a
+let eject : type a. a deque -> a deque * a
   = function
   | None -> assert false
   | Some r -> eject_nonempty r
 
-let eject_opt : type a. a catdeque -> (a catdeque * a) option
+let eject_opt : type a. a deque -> (a deque * a) option
   = fun x -> Option.map eject_nonempty x

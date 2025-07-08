@@ -1,8 +1,7 @@
 # To Do
 
-* Make `Catdeque` a functor over `Buffer`,
+* Make `Deque` a functor over `Buffer`,
   and instantiate it with bounded buffers of capacity at most 8.
-  Test `Buffer8` independently.
 
 * To reduce allocation and make the code more efficient,
   we should avoid using sequences of small operations on buffers
