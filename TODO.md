@@ -18,3 +18,8 @@
   saving an indirection.
 
 * Test concurrent accesses, *without* an atomic field.
+
+* Extend the data structures with a `length` field so that
+  `length` runs in constant time.
+
+* Test `map` and `fold_left`.

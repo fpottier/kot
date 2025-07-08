@@ -1,7 +1,14 @@
 {0 Kot}
 
 [kot] is an OCaml library that offers an implementation
-of persistent catenable deques.
+of {b persistent catenable deques}.
+It is based on the paper
+{{: http://www.aladdin.cs.cmu.edu/papers/pdfs/y2000/catenable.pdf} Simple Confluently Persistent Catenable Lists}
+by Haim Kaplan, Chris Okasaki, and Robert E. Tarjan (2000).
+
+{1 API}
+
+The main module is {!Kot.Deque}.
 
 {1 Installation and Usage}
 
