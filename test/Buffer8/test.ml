@@ -39,7 +39,7 @@ let element =
 (* Declare the operations. *)
 
 let nonfull b =
-  R.size b < 8
+  R.length b < 8
 
 let () =
 
@@ -47,7 +47,7 @@ let () =
   declare "empty" spec R.empty C.empty;
 
   let spec = buffer ^> int in
-  declare "size" spec R.size C.size;
+  declare "length" spec R.length C.length;
 
   let spec = buffer ^> bool in
   declare "is_empty" spec R.is_empty C.is_empty;

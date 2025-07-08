@@ -51,7 +51,7 @@ let () =
   declare "empty" spec R.empty C.empty;
 
   let spec = deque ^> int in
-  declare "size" spec R.size C.size;
+  declare "length" spec R.length C.length;
 
   let spec = deque ^> bool in
   declare "is_empty" spec R.is_empty C.is_empty;

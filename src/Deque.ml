@@ -37,6 +37,9 @@ and 'a triple = {
   last : 'a buffer;
 }
 
+type 'a t =
+  'a deque
+
 let empty = None
 
 let is_empty = Option.is_none
@@ -82,44 +85,44 @@ and fold_left_triple : type a b. (b -> a -> b) -> b -> a triple -> b =
 
 let reduce f g a b = fold_left (fun x y -> f x (g y)) a b
 
-let rec size = function
+let rec length = function
   | None -> 0
   | Some r ->
     let { prefix; left_deque; middle; right_deque; suffix } = !r in
-    let left_size = reduce (+) size_triple 0 left_deque in
-    let right_size = reduce (+) size_triple 0 right_deque in
-    B.size prefix + B.size middle + B.size suffix + left_size + right_size
-and size_triple = function
+    let left_length = reduce (+) length_triple 0 left_deque in
+    let right_length = reduce (+) length_triple 0 right_deque in
+    B.length prefix + B.length middle + B.length suffix + left_length + right_length
+and length_triple = function
   | { first; child; last } ->
-    let size_child = fold_left (+) 0 (map size_triple child) in
-    B.size first + size_child + B.size last
+    let length_child = fold_left (+) 0 (map length_triple child) in
+    B.length first + length_child + B.length last
 
-let bounded_size b min max =
-  let size = B.size b in
-  min <= size && size <= max
+let bounded_length b min max =
+  let length = B.length b in
+  min <= length && length <= max
 
 let rec check : type a. a deque -> unit = function
   | None -> ()
   | Some r ->
     let { prefix; left_deque; middle; right_deque; suffix } = !r in
-    if B.size middle = 0
+    if B.length middle = 0
       then begin
-        assert (B.size prefix = 0);
-        assert (size left_deque = 0);
-        assert (size right_deque = 0);
-        assert (bounded_size suffix 1 8)
+        assert (B.length prefix = 0);
+        assert (length left_deque = 0);
+        assert (length right_deque = 0);
+        assert (bounded_length suffix 1 8)
       end
       else begin
-        assert (B.size middle = 2);
-        assert (bounded_size prefix 3 6);
-        assert (bounded_size suffix 3 6);
+        assert (B.length middle = 2);
+        assert (bounded_length prefix 3 6);
+        assert (bounded_length suffix 3 6);
         check left_deque;
         check right_deque;
       end
 and check_triple : type a. a triple -> unit = function
   | { first; child; last } ->
-    assert (bounded_size first 2 3);
-    assert (bounded_size last 2 3);
+    assert (bounded_length first 2 3);
+    assert (bounded_length last 2 3);
     check child
 
 let is_suffix_only {middle; _} = B.is_empty middle
@@ -133,12 +136,12 @@ let singleton x = Some (ref {
 })
 
 let assemble prefix left_deque middle right_deque suffix =
-  if B.size middle = 0
+  if B.length middle = 0
   then begin
-    assert (B.size prefix = 0);
-    assert (size left_deque = 0);
-    assert (size right_deque = 0);
-    if B.size suffix = 0 then empty
+    assert (B.length prefix = 0);
+    assert (length left_deque = 0);
+    assert (length right_deque = 0);
+    if B.length suffix = 0 then empty
     else
       Some (ref { prefix; left_deque; middle; right_deque; suffix })
   end
@@ -146,9 +149,9 @@ let assemble prefix left_deque middle right_deque suffix =
     Some (ref { prefix; left_deque; middle; right_deque; suffix })
 
 let triple first child last =
-  assert (B.size first + B.size last <> 0);
+  assert (B.length first + B.length last <> 0);
   if not (is_empty child)
-    then assert (B.size first * B.size last <> 0);
+    then assert (B.length first * B.length last <> 0);
   { first; child; last }
 
 let rec push : type a. a -> a deque -> a deque =
@@ -158,7 +161,7 @@ let rec push : type a. a -> a deque -> a deque =
   | Some r ->
     let { prefix; left_deque; middle; right_deque; suffix } as m = !r in
     if is_suffix_only m then begin
-      if B.size suffix = 8 then begin
+      if B.length suffix = 8 then begin
         let x1, suffix = B.pop suffix in
         let x2, suffix = B.pop suffix in
         let x3, suffix = B.pop suffix in
@@ -175,7 +178,7 @@ let rec push : type a. a -> a deque -> a deque =
       else
         assemble B.empty empty B.empty empty (B.push x0 suffix)
     end else begin
-      if B.size prefix = 6
+      if B.length prefix = 6
       then begin
         let prefix, x6 = B.eject prefix in
         let prefix, x5 = B.eject prefix in
@@ -197,7 +200,7 @@ let rec inject : type a. a deque -> a -> a deque =
     let { prefix; left_deque; middle; right_deque; suffix } as m = !r in
     if is_suffix_only m then begin
       let suffix = m.suffix in
-      if B.size suffix = 8 then begin
+      if B.length suffix = 8 then begin
         let x1, suffix = B.pop suffix in
         let x2, suffix = B.pop suffix in
         let x3, suffix = B.pop suffix in
@@ -214,7 +217,7 @@ let rec inject : type a. a deque -> a -> a deque =
       else
         assemble B.empty empty B.empty empty (B.inject suffix x0)
     end else begin
-      if B.size suffix = 6
+      if B.length suffix = 6
       then begin
         let x1, suffix = B.pop suffix in
         let x2, suffix = B.pop suffix in
@@ -232,7 +235,7 @@ let flip f a b = f b a
 
 (* partitions a buffer into two buffers containing two or three elements, possibly leaving the second one empty *)
 let partition_buffer_left b =
-  let s = B.size b in
+  let s = B.length b in
   if s <= 3
     then b, B.empty
   else if s = 4 then
@@ -247,7 +250,7 @@ let partition_buffer_left b =
 
 (* partitions a buffer into two buffers containing two or three elements, possibly leaving the first one empty *)
 let partition_buffer_right b =
-  let s = B.size b in
+  let s = B.length b in
   if s <= 3
     then B.empty, b
   else if s = 4 then
@@ -325,20 +328,20 @@ let inspect_first : type a. a nonempty_deque -> a =
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
   fun ptr ->
   let { prefix; left_deque; middle; right_deque; suffix } as d = !ptr in
-  if not (is_suffix_only d || B.size prefix > 3) then begin
-  (* B.size prefix = 3 *)
+  if not (is_suffix_only d || B.length prefix > 3) then begin
+  (* B.length prefix = 3 *)
   match left_deque, right_deque with
     | Some left_deque (* not empty *), _ ->
       let t = inspect_first left_deque in
       let (t, l) = match first_nonempty t with
-        | Some b when B.size b = 3
+        | Some b when B.length b = 3
             -> naive_pop left_deque
         | None when not (is_empty t.child)
             -> naive_pop left_deque
         | _ -> pop_nonempty left_deque
       in
       let { first = x; child = d'; last = y } = t in
-      begin match B.size x, B.size y with
+      begin match B.length x, B.length y with
       | 3, _ ->
         let a, x' = B.pop x in
         let p' = B.inject prefix a in
@@ -367,14 +370,14 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
     | None, Some right_deque ->
       let t = inspect_first right_deque in
       let (t, r) = match first_nonempty t with
-        | Some b when B.size b = 3
+        | Some b when B.length b = 3
             -> naive_pop right_deque
         | _ when not (is_empty t.child)
             -> naive_pop right_deque
         | _ -> pop_nonempty right_deque
       in
       let { first = x; child = d'; last = y } = t in
-      begin match B.size x, B.size y with
+      begin match B.length x, B.length y with
       | 3, _ ->
         let a, m = B.pop middle in
         let p = B.inject prefix a in
@@ -402,7 +405,7 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
       | _ -> assert false
       end
     | _ (* is_empty left_deque, is_empty right_deque *) ->
-      if B.size suffix = 3
+      if B.length suffix = 3
         then let suffix = B.(fold_left inject prefix (fold_left inject middle suffix))
               in ptr := { d with middle = B.empty; prefix = B.empty; suffix }
       else
@@ -441,20 +444,20 @@ let inspect_last : type a. a nonempty_deque -> a =
 let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
   fun ptr ->
   let { prefix; left_deque; middle; right_deque; suffix } as d = !ptr in
-  if not (is_suffix_only d || B.size suffix > 3) then begin
-  (* B.size prefix = 3 *)
+  if not (is_suffix_only d || B.length suffix > 3) then begin
+  (* B.length prefix = 3 *)
   match left_deque, right_deque with
     | _, Some right_deque (* not empty *) ->
       let t = inspect_last right_deque in
       let l, t = match last_nonempty t with
-        | Some b when B.size b = 3
+        | Some b when B.length b = 3
             -> naive_eject right_deque
         | None when not (is_empty t.child)
             -> naive_eject right_deque
         | _ -> eject_nonempty right_deque
       in
       let { first = x; child = d'; last = y } = t in
-      begin match B.size x, B.size y with
+      begin match B.length x, B.length y with
       | _, 3 ->
         let y', a = B.eject y in
         let s' = B.push a suffix in
@@ -483,14 +486,14 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
     | Some left_deque, None ->
       let t = inspect_last left_deque in
       let (r, t) = match last_nonempty t with
-        | Some b when B.size b = 3
+        | Some b when B.length b = 3
             -> naive_eject left_deque
         | _ when not (is_empty t.child)
             -> naive_eject left_deque
         | _ -> eject_nonempty left_deque
       in
       let { first = x; child = d'; last = y } = t in
-      begin match B.size x, B.size y with
+      begin match B.length x, B.length y with
       | _, 3 ->
         let m, a = B.eject middle in
         let s = B.push a suffix in
@@ -518,7 +521,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       | _ -> assert false
       end
     | _ (* is_empty left_deque, is_empty right_deque *) ->
-      if B.size prefix = 3
+      if B.length prefix = 3
         then let suffix = B.(fold_left inject prefix (fold_left inject middle suffix))
               in ptr := { d with middle = B.empty; prefix = B.empty; suffix }
       else

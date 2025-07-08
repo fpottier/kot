@@ -20,7 +20,7 @@ type 'a buffer =
 let empty =
   B0
 
-let[@inline] size b =
+let[@inline] length b =
   match b with
   | B0   -> 0
   | B1 _ -> 1

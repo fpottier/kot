@@ -15,7 +15,7 @@ type 'a buffer
 
 val empty : 'a buffer
 
-val size : 'a buffer -> int
+val length : 'a buffer -> int
 
 val is_empty : 'a buffer -> bool
 

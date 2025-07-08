@@ -15,7 +15,7 @@ type 'a deque
 
 val empty : 'a deque
 
-val size : 'a deque -> int
+val length : 'a deque -> int
 
 val is_empty : 'a deque -> bool
 

@@ -13,7 +13,7 @@
 
 type 'a t = 'a list
 let empty = []
-let size = List.length
+let length = List.length
 let is_empty xs = match xs with [] -> true | _ :: _ -> false
 let nonempty xs = not (is_empty xs)
 let pop     xs = match xs with x :: xs -> x, xs | [] -> assert false
@@ -29,7 +29,7 @@ let concat xs ys = xs @ ys
 
 type 'a t = 'a array
 let empty = [||]
-let size = Array.length
+let length = Array.length
 let is_empty xs = Array.length xs = 0
 let nonempty xs = not (is_empty xs)
 let pop     xs = let n = Array.length xs in xs.(0), Array.sub xs 1 (n-1)

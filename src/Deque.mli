@@ -15,7 +15,8 @@ type 'a deque
 
 val empty : 'a deque
 
-val size : 'a deque -> int
+(**[length d] is the number of elements in the sequence [d]. *)
+val length : 'a t -> int
 
 val is_empty : 'a deque -> bool
 
