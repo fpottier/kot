@@ -17,8 +17,8 @@ open Monolith
 module R = Reference
 
 (* This is the candidate implementation. *)
-module C = Kot.Catdeque
-let name = "Kot.Catdeque"
+module C = Kot.Deque
+let name = "Kot.Deque"
 
 (* -------------------------------------------------------------------------- *)
 

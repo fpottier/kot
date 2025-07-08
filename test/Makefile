@@ -12,7 +12,7 @@ test:
 	  Buffer3 \
 	  NCDeque \
 	  Buffer8 \
-	  Cadeque \
+	  Deque \
 
 .PHONY: clean
 clean:
