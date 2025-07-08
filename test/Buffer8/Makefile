@@ -1,1 +1,1 @@
-../Deque/Makefile
+../NonCatenableDeque/Makefile
