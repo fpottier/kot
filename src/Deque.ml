@@ -305,7 +305,7 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
   fun ptr ->
   let { prefix; left; middle; right; suffix } as d = !ptr in
   if not (is_suffix_only d || B.length prefix > 3) then begin
-  (* B.length prefix = 3 *)
+  assert(B.length prefix = 3);
   match left, right with
     | Some left (* not empty *), _ ->
       let t = inspect_first left in
@@ -421,7 +421,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
   fun ptr ->
   let { prefix; left; middle; right; suffix } as d = !ptr in
   if not (is_suffix_only d || B.length suffix > 3) then begin
-  (* B.length prefix = 3 *)
+  assert(B.length suffix = 3);
   match left, right with
     | _, Some right (* not empty *) ->
       let t = inspect_last right in
