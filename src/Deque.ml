@@ -132,9 +132,6 @@ let singleton x = Some (ref {
 let assemble prefix left middle right suffix =
   if B.length middle = 0
   then begin
-    assert (B.length prefix = 0);
-    assert (length left = 0);
-    assert (length right = 0);
     if B.length suffix = 0 then empty
     else
       Some (ref { prefix; left; middle; right; suffix })
