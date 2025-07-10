@@ -130,12 +130,8 @@ let singleton x = Some (ref {
 })
 
 let assemble prefix left middle right suffix =
-  if B.length middle = 0
-  then begin
-    if B.length suffix = 0 then empty
-    else
-      Some (ref { prefix; left; middle; right; suffix })
-  end
+  if B.length middle = 0 && B.length suffix = 0 then
+    empty
   else
     Some (ref { prefix; left; middle; right; suffix })
 
