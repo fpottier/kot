@@ -257,17 +257,6 @@ let partition_buffer_right b =
     let b, x0 = B.eject b in
     b, B.push x0 (B.push x1 (B.push x2 B.empty))
 
-let push_buffer push b d2 =
-    (* TODO(Juliette): rewrite more elegantly maybe? *)
-    let sf = ref b in
-    let d2 = ref d2 in
-    while not (B.is_empty !sf) do
-      let sf', x = B.eject !sf in
-      sf := sf';
-      d2 := push x !d2
-    done;
-    !d2
-
 let concat : type a. a deque -> a deque -> a deque =
   fun d1 d2 ->
   match d1, d2 with
@@ -292,7 +281,7 @@ let concat : type a. a deque -> a deque -> a deque =
   end else if is_suffix_only m2 then
     B.fold_left inject d1 sf2
   else (* is_suffix_only (!r2) *)
-    push_buffer push sf1 d2
+    B.fold_right push sf1 d2
 
 let naive_pop : type a. a nonempty_deque -> a * a deque =
   fun r ->
@@ -458,7 +447,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let rd' = inject l (triple x d' y') in
         ptr := { d with suffix = s'; right = rd' }
       | _, 2 ->
-        let s' = push_buffer B.push y suffix in
+        let s' = B.fold_right B.push y suffix in
         if is_empty d' && B.is_empty x
           then ptr := { d with suffix = s'; right = l }
         else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
@@ -472,7 +461,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let rd' = inject l (triple x' d' y) in
         ptr := { d with suffix = s'; right = rd' }
       | 2, 0 ->
-        let s' = push_buffer B.push x suffix in
+        let s' = B.fold_right B.push x suffix in
         (* here we know y and d' are empty *)
         ptr := { d with suffix = s'; right = l }
       | _ -> assert false
@@ -496,7 +485,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let l' = inject r (triple x d' y') in
         ptr := { d with prefix = s; middle = m'; left = l' }
       | _, 2 ->
-        let s = push_buffer B.push middle suffix in
+        let s = B.fold_right B.push middle suffix in
         let l' = if is_empty d' && B.is_empty x
             then r else concat d' (push (triple x empty B.empty) r)
         in
@@ -510,7 +499,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let l' = inject r (triple x' d' y) in
         ptr := { d with suffix = s; middle = m'; left = l' }
       | 2, 0 ->
-        let s = push_buffer B.push middle suffix in
+        let s = B.fold_right B.push middle suffix in
         ptr := { d with suffix = s; middle = x; left = r }
       | _ -> assert false
       end
