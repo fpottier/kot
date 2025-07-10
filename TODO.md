@@ -22,4 +22,8 @@
 * Extend the data structures with a `length` field so that
   `length` runs in constant time.
 
-* Test `map` and `fold_left`.
+* Test `map`, `fold_left`, `fold_right`, etc.
+
+* Experiment with array-based versions of `Buffer`.
+  E.g., immutable arrays (simplest option).
+  Or, mutable chunks in the style of `Sek`.
