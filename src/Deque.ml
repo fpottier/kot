@@ -99,9 +99,9 @@ let rec check : type a. a deque -> unit = function
   | None -> ()
   | Some r ->
     let { prefix; left; middle; right; suffix } = !r in
-    if B.length middle = 0
+    if B.is_empty middle
       then begin
-        assert (B.length prefix = 0);
+        assert (B.is_empty prefix);
         assert (length left = 0);
         assert (length right = 0);
         assert (bounded_length suffix 1 8)
@@ -130,7 +130,7 @@ let singleton x = Some (ref {
 })
 
 let assemble prefix left middle right suffix =
-  if B.length middle = 0 && B.length suffix = 0 then
+  if B.is_empty middle && B.is_empty suffix then
     empty
   else
     Some (ref { prefix; left; middle; right; suffix })
