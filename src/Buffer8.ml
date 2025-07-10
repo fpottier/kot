@@ -203,3 +203,60 @@ let[@inline] fold_left f accu b =
       let accu = f accu x6 in
       let accu = f accu x7 in
       accu
+
+let[@inline] fold_right f b accu =
+  match b with
+  | B0 ->
+      accu
+  | B1 (x0) ->
+      let accu = f x0 accu in
+      accu
+  | B2 (x0, x1) ->
+      let accu = f x1 accu in
+      let accu = f x0 accu in
+      accu
+  | B3 (x0, x1, x2) ->
+      let accu = f x2 accu in
+      let accu = f x1 accu in
+      let accu = f x0 accu in
+      accu
+  | B4 (x0, x1, x2, x3) ->
+      let accu = f x3 accu in
+      let accu = f x2 accu in
+      let accu = f x1 accu in
+      let accu = f x0 accu in
+      accu
+  | B5 (x0, x1, x2, x3, x4) ->
+      let accu = f x4 accu in
+      let accu = f x3 accu in
+      let accu = f x2 accu in
+      let accu = f x1 accu in
+      let accu = f x0 accu in
+      accu
+  | B6 (x0, x1, x2, x3, x4, x5) ->
+      let accu = f x5 accu in
+      let accu = f x4 accu in
+      let accu = f x3 accu in
+      let accu = f x2 accu in
+      let accu = f x1 accu in
+      let accu = f x0 accu in
+      accu
+  | B7 (x0, x1, x2, x3, x4, x5, x6) ->
+      let accu = f x6 accu in
+      let accu = f x5 accu in
+      let accu = f x4 accu in
+      let accu = f x3 accu in
+      let accu = f x2 accu in
+      let accu = f x1 accu in
+      let accu = f x0 accu in
+      accu
+  | B8 (x0, x1, x2, x3, x4, x5, x6, x7) ->
+      let accu = f x7 accu in
+      let accu = f x6 accu in
+      let accu = f x5 accu in
+      let accu = f x4 accu in
+      let accu = f x3 accu in
+      let accu = f x2 accu in
+      let accu = f x1 accu in
+      let accu = f x0 accu in
+      accu

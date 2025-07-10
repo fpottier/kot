@@ -30,3 +30,5 @@ val eject : 'a buffer -> 'a buffer * 'a
 val map : ('a -> 'b) -> 'a buffer -> 'b buffer
 
 val fold_left : ('b -> 'a -> 'b) -> 'b -> 'a buffer -> 'b
+
+val fold_right : ('a -> 'b -> 'b) -> 'a buffer -> 'b -> 'b
