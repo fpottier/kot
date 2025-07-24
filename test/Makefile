@@ -12,6 +12,7 @@ test:
 	  Buffer3 \
 	  NCDeque \
 	  Buffer8 \
+	  LBuffer \
 	  Deque \
 
 .PHONY: clean
