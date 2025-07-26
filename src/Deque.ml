@@ -11,7 +11,12 @@
 (*                                                                            *)
 (******************************************************************************)
 
-module B = Buffer8
+module B = struct
+  include Buffer8
+  let iter (type a) (f : a -> unit) (b : a buffer) : unit =
+    fold_left (fun () x -> f x) () b
+end
+
 type 'a buffer = 'a B.buffer
 
 type 'a deque =
@@ -95,16 +100,22 @@ let buffer_length_is_between b min max =
   let length = B.length b in
   min <= length && length <= max
 
-let rec check : type a. a deque -> unit = function
+let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d ->
+  match d with
   | None ->
       ()
   | Some r ->
       let { prefix; left; middle; right; suffix } = !r in
-      check left;
-      check right;
+      (* Check each component of this 5-tuple. *)
+      B.iter check_elem prefix;
+      check_deque (check_triple check_elem) left;
+      B.iter check_elem middle;
+      check_deque (check_triple check_elem) right;
+      B.iter check_elem suffix;
+      (* Check the length constraints at this level. *)
       if B.is_empty middle then begin
         assert (buffer_length_is_between prefix 0 0);
-        assert (length left = 0);
+        assert (length left  = 0);
         assert (length right = 0);
         assert (buffer_length_is_between suffix 1 8)
       end
@@ -114,11 +125,18 @@ let rec check : type a. a deque -> unit = function
         assert (buffer_length_is_between suffix 3 6);
       end
 
-and check_triple : type a. a triple -> unit = function
-  | { first; child; last } ->
-      assert (buffer_length_is_between first 2 3);
-      assert (buffer_length_is_between last 2 3);
-      check child
+and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
+  let { first; child; last } = t in
+  (* Check each component of this 5-tuple. *)
+  B.iter check_elem first;
+  check_deque (check_triple check_elem) child;
+  B.iter check_elem last;
+  (* Check the length constraints at this level. *)
+  assert (buffer_length_is_between first 2 3); (* TODO assertion fails *)
+  assert (buffer_length_is_between  last 2 3)
+
+let check d =
+  check_deque (fun _x -> ()) d
 
 let is_suffix_only {middle; _} = B.is_empty middle
 
