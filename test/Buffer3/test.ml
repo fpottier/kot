@@ -67,6 +67,12 @@ let () =
   let spec = R.nonempty % buffer ^> buffer *** element in
   declare "eject" spec R.eject C.eject;
 
+  let spec = R.nonempty % buffer ^> element in
+  declare "first" spec R.first C.first;
+
+  let spec = R.nonempty % buffer ^> element in
+  declare "last" spec R.last C.last;
+
   let spec = full % buffer ^> triple element element buffer in
   declare "pop2" spec R.pop2 C.pop2;
 
