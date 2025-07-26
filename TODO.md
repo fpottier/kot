@@ -12,6 +12,8 @@
   perform benchmarks,
   using various implementations of buffers.
   Compare `Buffer8` versus `LinkedBuffer`.
+  In `LinkedBuffer`, a `length` field could be used
+  to obtain constant-time `length`.
 
 * Experiment with array-based versions of `Buffer`.
   E.g., immutable arrays (simplest option).
