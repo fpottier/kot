@@ -39,6 +39,29 @@ let[@inline] pop b =
       | [] ->
           assert false
 
+(* [last xs] is the last element of the list [xs]. *)
+
+let rec last1 x xs =
+  match xs with
+  | [] ->
+      x
+  | x :: xs ->
+      last1 x xs
+
+let[@inline] last xs =
+  match xs with
+  | [] ->
+      assert false
+  | x :: xs ->
+      last1 x xs
+
+let[@inline] first b =
+  match b.front with
+  | x :: _ ->
+      x
+  | [] ->
+      last b.back
+
 let[@inline] inject b x =
   { b with back = x :: b.back }
 
@@ -52,6 +75,13 @@ let[@inline] eject b =
           { back = xs; front = [] }, x
       | [] ->
           assert false
+
+let[@inline] last b =
+  match b.back with
+  | x :: _ ->
+      x
+  | [] ->
+      last b.front
 
 let[@inline] map f b =
   { front = List.map f b.front; back = List.map f b.back }

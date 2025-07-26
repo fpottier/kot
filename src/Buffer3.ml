@@ -54,6 +54,17 @@ let[@inline] pop b =
   | B3 (x0, x1, x2) ->
       x0, B2 (x1, x2)
 
+let[@inline] first b =
+  match b with
+  | B0 ->
+      assert false
+  | B1 x0 ->
+      x0
+  | B2 (x0, _) ->
+      x0
+  | B3 (x0, _, _) ->
+      x0
+
 let[@inline] inject b x0 =
   match b with
   | B0 ->
@@ -75,6 +86,17 @@ let[@inline] eject b =
       B1 (x0), x1
   | B3 (x0, x1, x2) ->
       B2 (x0, x1), x2
+
+let[@inline] last b =
+  match b with
+  | B0 ->
+      assert false
+  | B1 (x0) ->
+      x0
+  | B2 (_, x1) ->
+      x1
+  | B3 (_, _, x2) ->
+      x2
 
 let[@inline] pop2 b =
   match b with

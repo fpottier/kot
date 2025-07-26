@@ -84,6 +84,27 @@ let[@inline] pop b =
   | B8 (x0, x1, x2, x3, x4, x5, x6, x7) ->
       x0, B7 (x1, x2, x3, x4, x5, x6, x7)
 
+let[@inline] first b =
+  match b with
+  | B0 ->
+      assert false
+  | B1 x0 ->
+      x0
+  | B2 (x0, _) ->
+      x0
+  | B3 (x0, _, _) ->
+      x0
+  | B4 (x0, _, _, _) ->
+      x0
+  | B5 (x0, _, _, _, _) ->
+      x0
+  | B6 (x0, _, _, _, _, _) ->
+      x0
+  | B7 (x0, _, _, _, _, _, _) ->
+      x0
+  | B8 (x0, _, _, _, _, _, _, _) ->
+      x0
+
 let[@inline] inject b x0 =
   match b with
   | B0 ->
@@ -125,6 +146,27 @@ let[@inline] eject b =
       B6 (x0, x1, x2, x3, x4, x5), x6
   | B8 (x0, x1, x2, x3, x4, x5, x6, x7) ->
       B7 (x0, x1, x2, x3, x4, x5, x6), x7
+
+let[@inline] last b =
+  match b with
+  | B0 ->
+      assert false
+  | B1 (x0) ->
+      x0
+  | B2 (_, x1) ->
+      x1
+  | B3 (_, _, x2) ->
+      x2
+  | B4 (_, _, _, x3) ->
+      x3
+  | B5 (_, _, _, _, x4) ->
+      x4
+  | B6 (_, _, _, _, _, x5) ->
+      x5
+  | B7 (_, _, _, _, _, _, x6) ->
+      x6
+  | B8 (_, _, _, _, _, _, _, x7) ->
+      x7
 
 let[@inline] map f b =
   match b with
