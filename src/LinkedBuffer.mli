@@ -11,24 +11,5 @@
 (*                                                                            *)
 (******************************************************************************)
 
-type 'a buffer
-
-val empty : 'a buffer
-
-val length : 'a buffer -> int
-
-val is_empty : 'a buffer -> bool
-
-val push : 'a -> 'a buffer -> 'a buffer
-
-val pop : 'a buffer -> 'a * 'a buffer
-
-val inject : 'a buffer -> 'a -> 'a buffer
-
-val eject : 'a buffer -> 'a buffer * 'a
-
-val map : ('a -> 'b) -> 'a buffer -> 'b buffer
-
-val fold_left : ('b -> 'a -> 'b) -> 'b -> 'a buffer -> 'b
-
-val fold_right : ('a -> 'b -> 'b) -> 'a buffer -> 'b -> 'b
+(** @inline *)
+include Signatures.BUFFER

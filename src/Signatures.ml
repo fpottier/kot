@@ -11,15 +11,28 @@
 (*                                                                            *)
 (******************************************************************************)
 
-type 'a buffer =
-  | B0
-  | B1 of 'a
-  | B2 of 'a * 'a
-  | B3 of 'a * 'a * 'a
+module type BUFFER = sig
 
-(** @inline *)
-include Signatures.BUFFER with type 'a buffer := 'a buffer
+  type 'a buffer
 
-val pop2 : 'a buffer -> 'a * 'a * 'a buffer (* requires a full buffer *)
+  val empty : 'a buffer
 
-val eject2 : 'a buffer -> 'a buffer * 'a * 'a (* requires a full buffer *)
+  val length : 'a buffer -> int
+
+  val is_empty : 'a buffer -> bool
+
+  val push : 'a -> 'a buffer -> 'a buffer
+
+  val pop : 'a buffer -> 'a * 'a buffer
+
+  val inject : 'a buffer -> 'a -> 'a buffer
+
+  val eject : 'a buffer -> 'a buffer * 'a
+
+  val map : ('a -> 'b) -> 'a buffer -> 'b buffer
+
+  val fold_left : ('b -> 'a -> 'b) -> 'b -> 'a buffer -> 'b
+
+  val fold_right : ('a -> 'b -> 'b) -> 'a buffer -> 'b -> 'b
+
+end

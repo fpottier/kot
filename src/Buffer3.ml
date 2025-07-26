@@ -117,3 +117,20 @@ let[@inline] fold_left f accu b =
       let accu = f accu x1 in
       let accu = f accu x2 in
       accu
+
+let[@inline] fold_right f b accu =
+  match b with
+  | B0 ->
+      accu
+  | B1 (x0) ->
+      let accu = f x0 accu in
+      accu
+  | B2 (x0, x1) ->
+      let accu = f x1 accu in
+      let accu = f x0 accu in
+      accu
+  | B3 (x0, x1, x2) ->
+      let accu = f x2 accu in
+      let accu = f x1 accu in
+      let accu = f x0 accu in
+      accu
