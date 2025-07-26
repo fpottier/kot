@@ -6,6 +6,7 @@
   we should avoid using sequences of small operations on buffers
   (`B.push`, `B.pop`, `B.inject`, `B.eject`)
   and introduce composite operations on buffers.
+  See `pop2` and `eject2` in `Buffer3.mli`.
 
 * Once the above point has been addressed,
   perform benchmarks,
@@ -24,9 +25,21 @@
 
 * Make `Deque` a functor over `Buffer`.
 
+* Add comments in every signature.
+
+* Document.
+
 ## Tests
 
 * In each buffer and deque data structure,
   test `map`, `fold_left`, `fold_right`.
 
 * Test concurrent accesses, *without* an atomic field.
+
+## Future features
+
+* Add a `length` field to the data structure
+  so that the operation `length` has constant time complexity.
+
+* Offer random access functions (`get`, `set`)
+  with logarithmic time complexity.
