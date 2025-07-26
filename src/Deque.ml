@@ -297,9 +297,9 @@ let first_nonempty tr =
 let inspect_first : type a. a nonempty_deque -> a =
   fun r ->
   let { prefix; suffix; _ } as m = !r in
-  if is_suffix_only m then fst (B.pop suffix) else
+  if is_suffix_only m then B.first suffix else
   (* not suffix-only, prefix is nonempty *)
-  fst (B.pop prefix)
+  B.first prefix
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
   fun ptr ->
@@ -415,7 +415,7 @@ let last_nonempty tr =
   else None
 
 let inspect_last : type a. a nonempty_deque -> a =
-  fun r -> snd (B.eject (!r).suffix)
+  fun r -> B.last (!r).suffix
 
 let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
   fun ptr ->
