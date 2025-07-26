@@ -91,33 +91,34 @@ and length_triple = function
     let length_child = fold_left (+) 0 (map length_triple child) in
     B.length first + length_child + B.length last
 
-let bounded_length b min max =
+let buffer_length_is_between b min max =
   let length = B.length b in
   min <= length && length <= max
 
 let rec check : type a. a deque -> unit = function
-  | None -> ()
+  | None ->
+      ()
   | Some r ->
-    let { prefix; left; middle; right; suffix } = !r in
-    if B.is_empty middle
-      then begin
-        assert (B.is_empty prefix);
+      let { prefix; left; middle; right; suffix } = !r in
+      check left;
+      check right;
+      if B.is_empty middle then begin
+        assert (buffer_length_is_between prefix 0 0);
         assert (length left = 0);
         assert (length right = 0);
-        assert (bounded_length suffix 1 8)
+        assert (buffer_length_is_between suffix 1 8)
       end
       else begin
+        assert (buffer_length_is_between prefix 3 6);
         assert (B.length middle = 2);
-        assert (bounded_length prefix 3 6);
-        assert (bounded_length suffix 3 6);
-        check left;
-        check right;
+        assert (buffer_length_is_between suffix 3 6);
       end
+
 and check_triple : type a. a triple -> unit = function
   | { first; child; last } ->
-    assert (bounded_length first 2 3);
-    assert (bounded_length last 2 3);
-    check child
+      assert (buffer_length_is_between first 2 3);
+      assert (buffer_length_is_between last 2 3);
+      check child
 
 let is_suffix_only {middle; _} = B.is_empty middle
 
