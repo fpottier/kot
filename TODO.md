@@ -23,6 +23,8 @@
 
 ## Cleanup
 
+* Share the test code for the three buffer implementations.
+
 * Make `Deque` a functor over `Buffer`.
 
 * Add comments in every signature.
