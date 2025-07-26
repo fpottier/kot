@@ -127,13 +127,17 @@ let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d 
 
 and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
   let { first; child; last } = t in
-  (* Check each component of this 5-tuple. *)
+  (* Check each component of this triple. *)
   B.iter check_elem first;
   check_deque (check_triple check_elem) child;
   B.iter check_elem last;
   (* Check the length constraints at this level. *)
-  assert (buffer_length_is_between first 2 3); (* TODO assertion fails *)
-  assert (buffer_length_is_between  last 2 3)
+  let fo = buffer_length_is_between first 2 3 in
+  let lo = buffer_length_is_between  last 2 3 in
+  let fe = B.is_empty first in
+  let le = B.is_empty  last in
+  let ce = is_empty child in
+  assert ((ce && ((fo && le) || (lo && fe) || (lo && fo))) || (not ce && fo && lo))
 
 let check d =
   check_deque (fun _x -> ()) d
