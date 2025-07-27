@@ -303,6 +303,9 @@ let[@inline] fold_right f b accu =
       let accu = f x0 accu in
       accu
 
+let doubleton x y =
+  B2 (x, y)
+
 let split23l b =
   match b with
   | B2 _

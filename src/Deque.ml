@@ -230,7 +230,7 @@ let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
       | false, false ->
           let y, pr2' = B.pop pr2 in
           let sf1', x = B.eject sf1 in
-          let middle = B.push x (B.push y B.empty) in
+          let middle = B.doubleton x y in
           let s1', s1'' = B.split23l sf1' in
           let ld1' = inject ld1 (triple md1 rd1 s1') in
           let ld1'' = if B.is_empty s1'' then ld1'
@@ -242,7 +242,7 @@ let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
           assemble_ pr1 ld1'' middle rd2'' sf2
       | _, true ->
           (* [d2] is suffix-only. *)
-        B.fold_left inject d1 sf2
+          B.fold_left inject d1 sf2
       | true, _ ->
           (* [d1] is suffix-only. *)
           B.fold_right push sf1 d2

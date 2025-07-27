@@ -49,6 +49,10 @@ module type BUFFER8 = sig
 
   include BUFFER
 
+  (**[doubleton x y] constructs a buffer whose length is 2 and whose elements
+     are [x] and [y]. *)
+  val doubleton : 'a -> 'a -> 'a buffer
+
   (**[split23l] expects a buffer whose length is comprised between 2 and 5.
      This buffer is split into two buffers [b1] and [b2] such that [b1] has
      length 2 or 3 and [b2] has length 0 or 2 or 3. *)
