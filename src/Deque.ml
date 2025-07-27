@@ -133,8 +133,8 @@ let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d 
       (* Check the length constraints at this level. *)
       if B.is_empty middle then begin
         assert (buffer_length_is_between prefix 0 0);
-        assert (length left  = 0);
-        assert (length right = 0);
+        assert (is_empty left);
+        assert (is_empty right);
         assert (buffer_length_is_between suffix 1 8)
       end
       else begin
