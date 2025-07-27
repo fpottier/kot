@@ -243,38 +243,6 @@ let rec inject : type a. a deque -> a -> a deque =
         assemble_ prefix left middle right suffix
     end
 
-(* partitions a buffer into two buffers containing two or three elements, possibly leaving the second one empty *)
-let partition_buffer_left b =
-  assert (B.length_is_between b 2 5);
-  let s = B.length b in
-  if s <= 3
-    then b, B.empty
-  else if s = 4 then
-    let b, x1 = B.eject b in
-    let b, x0 = B.eject b in
-    b, B.push x0 (B.push x1 B.empty)
-  else
-    let b, x2 = B.eject b in
-    let b, x1 = B.eject b in
-    let b, x0 = B.eject b in
-    b, B.push x0 (B.push x1 (B.push x2 B.empty))
-
-(* partitions a buffer into two buffers containing two or three elements, possibly leaving the first one empty *)
-let partition_buffer_right b =
-  assert (B.length_is_between b 2 5);
-  let s = B.length b in
-  if s <= 3
-    then B.empty, b
-  else if s = 4 then
-    let b, x1 = B.eject b in
-    let b, x0 = B.eject b in
-    b, B.push x0 (B.push x1 B.empty)
-  else
-    let b, x2 = B.eject b in
-    let b, x1 = B.eject b in
-    let b, x0 = B.eject b in
-    b, B.push x0 (B.push x1 (B.push x2 B.empty))
-
 let concat : type a. a deque -> a deque -> a deque =
   fun d1 d2 ->
   match d1, d2 with
@@ -287,11 +255,11 @@ let concat : type a. a deque -> a deque -> a deque =
     let y, pr2' = B.pop pr2 in
     let sf1', x = B.eject sf1 in
     let middle = B.push x (B.push y B.empty) in
-    let s1', s1'' = partition_buffer_left sf1' in
+    let s1', s1'' = B.split23l sf1' in
     let ld1' = inject ld1 (triple md1 rd1 s1') in
     let ld1'' = if B.is_empty s1'' then ld1'
                 else inject ld1' (triple s1'' empty B.empty) in
-    let p2', p2'' = partition_buffer_right pr2' in
+    let p2', p2'' = B.split23r pr2' in
     let rd2' = push (triple p2'' ld2 md2) rd2 in
     let rd2'' = if B.is_empty p2' then rd2'
                 else push (triple p2' empty B.empty) rd2' in

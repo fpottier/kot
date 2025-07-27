@@ -302,3 +302,27 @@ let[@inline] fold_right f b accu =
       let accu = f x1 accu in
       let accu = f x0 accu in
       accu
+
+let split23l b =
+  match b with
+  | B2 _
+  | B3 _ ->
+      b, empty
+  | B4 (x0, x1, x2, x3) ->
+      B2 (x0, x1), B2 (x2, x3)
+  | B5 (x0, x1, x2, x3, x4) ->
+      B2 (x0, x1), B3 (x2, x3, x4)
+  | B0 | B1 _ | B6 _ | B7 _ | B8 _ ->
+      assert false
+
+let split23r b =
+  match b with
+  | B2 _
+  | B3 _ ->
+      empty, b
+  | B4 (x0, x1, x2, x3) ->
+      B2 (x0, x1), B2 (x2, x3)
+  | B5 (x0, x1, x2, x3, x4) ->
+      B2 (x0, x1), B3 (x2, x3, x4)
+  | B0 | B1 _ | B6 _ | B7 _ | B8 _ ->
+      assert false

@@ -12,4 +12,4 @@
 (******************************************************************************)
 
 (** @inline *)
-include Signatures.BUFFER
+include Signatures.BUFFER8

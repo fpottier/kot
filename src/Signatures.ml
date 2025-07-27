@@ -44,3 +44,19 @@ module type BUFFER = sig
   val fold_right : ('a -> 'b -> 'b) -> 'a buffer -> 'b -> 'b
 
 end
+
+module type BUFFER8 = sig
+
+  include BUFFER
+
+  (**[split23l b] requires the length of the buffer [b] to be comprised between
+     2 and 5, inclusive. This buffer is split into two buffers [b1] and [b2]
+     such that [b1] has length 2 or 3 and [b2] has length 0 or 2 or 3. *)
+  val split23l : 'a buffer -> 'a buffer * 'a buffer
+
+  (**[split23r b] requires the length of the buffer [b] to be comprised between
+     2 and 5, inclusive. This buffer is split into two buffers [b1] and [b2]
+     such that [b1] has length 0 or 2 or 3 and [b2] has length 2 or 3. *)
+  val split23r : 'a buffer -> 'a buffer * 'a buffer
+
+end
