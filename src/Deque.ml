@@ -154,10 +154,9 @@ let assemble prefix left middle right suffix : _ deque =
   else
     Some (ref { prefix; left; middle; right; suffix })
 
-let triple first child last =
-  assert (B.length first + B.length last <> 0);
-  if not (is_empty child)
-    then assert (B.length first * B.length last <> 0);
+(* [triple] constructs the triple [{ first; child; last }]. *)
+
+let triple first child last : _ triple =
   { first; child; last }
 
 let rec push : type a. a -> a deque -> a deque =
