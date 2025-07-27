@@ -169,9 +169,7 @@ let rec push : type a. a -> a deque -> a deque = fun x0 c ->
       let { prefix; left; middle; right; suffix } = !r in
       if B.is_empty middle then begin
         if B.length suffix = 8 then begin
-          let prefix, middle, suffix = B.split8 suffix
-          and left = empty
-          and right = empty in
+          let prefix, middle, suffix = B.split8 suffix in
           r := { prefix; left; middle; right; suffix };
           assemble_ (B.push x0 prefix) left middle right suffix
         end
@@ -197,9 +195,7 @@ let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
       let { prefix; left; middle; right; suffix } = !r in
       if B.is_empty middle then begin
         if B.length suffix = 8 then begin
-          let prefix, middle, suffix = B.split8 suffix
-          and left = empty
-          and right = empty in
+          let prefix, middle, suffix = B.split8 suffix in
           r := { prefix; left; middle; right; suffix };
           assemble_ prefix left middle right (B.inject suffix x0)
         end
