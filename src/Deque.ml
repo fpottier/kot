@@ -141,7 +141,14 @@ let singleton x =
 
 (* -------------------------------------------------------------------------- *)
 
-let assemble prefix left middle right suffix =
+(* [assemble] constructs a deque whose content is the 5-tuple
+   [{ prefix; left; middle; right; suffix }].
+
+   If [middle] and [suffix] are both empty then this 5-tuple must be
+   entirely empty; in this case, the empty deque is returned. Otherwise,
+   a new 5-tuple and a new deque are allocated. *)
+
+let assemble prefix left middle right suffix : _ deque =
   if B.is_empty middle && B.is_empty suffix then
     empty
   else
