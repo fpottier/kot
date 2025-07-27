@@ -228,17 +228,17 @@ let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
       let { prefix = prefix2; left = left2; middle = middle2; right = right2; suffix = suffix2 } = !r2 in
       match B.is_empty middle1, B.is_empty middle2 with
       | false, false ->
-          let y, prefix2' = B.pop prefix2 in
-          let suffix1', x = B.eject suffix1 in
+          let y, prefix2 = B.pop prefix2 in
+          let suffix1, x = B.eject suffix1 in
           let middle = B.doubleton x y in
-          let suffix1', suffix1'' = B.split23l suffix1' in
-          let left1' = inject left1 (triple middle1 right1 suffix1') in
-          let left1'' = if B.is_empty suffix1'' then left1'
-                      else inject left1' (triple suffix1'' empty B.empty) in
-          let prefix2', prefix2'' = B.split23r prefix2' in
-          let right2' = push (triple prefix2'' left2 middle2) right2 in
-          let right2'' = if B.is_empty prefix2' then right2'
-                      else push (triple prefix2' empty B.empty) right2' in
+          let suffix1, suffix1' = B.split23l suffix1 in
+          let left1' = inject left1 (triple middle1 right1 suffix1) in
+          let left1'' = if B.is_empty suffix1' then left1'
+                      else inject left1' (triple suffix1' empty B.empty) in
+          let prefix2, prefix2' = B.split23r prefix2 in
+          let right2' = push (triple prefix2' left2 middle2) right2 in
+          let right2'' = if B.is_empty prefix2 then right2'
+                      else push (triple prefix2 empty B.empty) right2' in
           assemble_ prefix1 left1'' middle right2'' suffix2
       | _, true ->
           (* [d2] is suffix-only. *)
