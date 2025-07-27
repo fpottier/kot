@@ -66,59 +66,6 @@ let empty = None
 
 let is_empty = Option.is_none
 
-let rec map : type a b. (a -> b) -> a deque -> b deque =
-  fun f ->
-  function
-  | None -> None
-  | Some r ->
-    let { prefix; left; middle; right; suffix } = !r in
-    let prefix = B.map f prefix in
-    let left = map (map_triple f) left in
-    let middle = B.map f middle in
-    let right = map (map_triple f) right in
-    let suffix = B.map f suffix in
-    Some (ref { prefix; left; middle; right; suffix })
-and map_triple : type a b. (a -> b) -> a triple -> b triple =
-  fun f { first; child; last } ->
-  let first = B.map f first in
-  let child = map (map_triple f) child in
-  let last = B.map f last in
-  { first; child; last }
-
-
-let rec fold_left : type a b. (b -> a -> b) -> b -> a deque -> b =
-  fun f y ->
-  function
-  | None -> y
-  | Some r ->
-    let { prefix; left; middle; right; suffix } = !r in
-    let y = B.fold_left f y prefix in
-    let y = fold_left (fold_left_triple f) y left in
-    let y = B.fold_left f y middle in
-    let y = fold_left (fold_left_triple f) y right in
-    let y = B.fold_left f y suffix in
-    y
-and fold_left_triple : type a b. (b -> a -> b) -> b -> a triple -> b =
-  fun f y { first; child; last } ->
-  let y = B.fold_left f y first in
-  let y = fold_left (fold_left_triple f) y child in
-  let y = B.fold_left f y last in
-  y
-
-let reduce f g a b = fold_left (fun x y -> f x (g y)) a b
-
-let rec length = function
-  | None -> 0
-  | Some r ->
-    let { prefix; left; middle; right; suffix } = !r in
-    let left_length = reduce (+) length_triple 0 left in
-    let right_length = reduce (+) length_triple 0 right in
-    B.length prefix + B.length middle + B.length suffix + left_length + right_length
-and length_triple = function
-  | { first; child; last } ->
-    let length_child = fold_left (+) 0 (map length_triple child) in
-    B.length first + length_child + B.length last
-
 let buffer_length_is_between b min max =
   let length = B.length b in
   min <= length && length <= max
@@ -577,3 +524,56 @@ let eject : type a. a deque -> a deque * a
 
 let eject_opt : type a. a deque -> (a deque * a) option
   = fun x -> Option.map eject_nonempty x
+
+let rec map : type a b. (a -> b) -> a deque -> b deque =
+  fun f ->
+  function
+  | None -> None
+  | Some r ->
+    let { prefix; left; middle; right; suffix } = !r in
+    let prefix = B.map f prefix in
+    let left = map (map_triple f) left in
+    let middle = B.map f middle in
+    let right = map (map_triple f) right in
+    let suffix = B.map f suffix in
+    Some (ref { prefix; left; middle; right; suffix })
+and map_triple : type a b. (a -> b) -> a triple -> b triple =
+  fun f { first; child; last } ->
+  let first = B.map f first in
+  let child = map (map_triple f) child in
+  let last = B.map f last in
+  { first; child; last }
+
+
+let rec fold_left : type a b. (b -> a -> b) -> b -> a deque -> b =
+  fun f y ->
+  function
+  | None -> y
+  | Some r ->
+    let { prefix; left; middle; right; suffix } = !r in
+    let y = B.fold_left f y prefix in
+    let y = fold_left (fold_left_triple f) y left in
+    let y = B.fold_left f y middle in
+    let y = fold_left (fold_left_triple f) y right in
+    let y = B.fold_left f y suffix in
+    y
+and fold_left_triple : type a b. (b -> a -> b) -> b -> a triple -> b =
+  fun f y { first; child; last } ->
+  let y = B.fold_left f y first in
+  let y = fold_left (fold_left_triple f) y child in
+  let y = B.fold_left f y last in
+  y
+
+let reduce f g a b = fold_left (fun x y -> f x (g y)) a b
+
+let rec length = function
+  | None -> 0
+  | Some r ->
+    let { prefix; left; middle; right; suffix } = !r in
+    let left_length = reduce (+) length_triple 0 left in
+    let right_length = reduce (+) length_triple 0 right in
+    B.length prefix + B.length middle + B.length suffix + left_length + right_length
+and length_triple = function
+  | { first; child; last } ->
+    let length_child = fold_left (+) 0 (map length_triple child) in
+    B.length first + length_child + B.length last
