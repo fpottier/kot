@@ -66,15 +66,10 @@ type 'a t =
 
 (* -------------------------------------------------------------------------- *)
 
-(* The empty deque is represented by [None], and only by [None]. *)
+(* A 5-tuple whose [middle] buffer is empty is "suffix only". *)
 
-let empty =
-  None
-
-let is_empty =
-  Option.is_none
-
-(* -------------------------------------------------------------------------- *)
+let[@inline] is_suffix_only {middle; _} =
+  B.is_empty middle
 
 (* The data structure obeys the following invariant. *)
 
@@ -93,8 +88,8 @@ let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d 
       (* Check the length constraints at this level. *)
       if B.is_empty middle then begin
         assert (B.length_is_between prefix 0 0);
-        assert (is_empty left);
-        assert (is_empty right);
+        assert (left = None);
+        assert (right = None);
         assert (B.length_is_between suffix 1 8)
       end
       else begin
@@ -114,23 +109,37 @@ and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
   let lo = B.length_is_between  last 2 3 in
   let fe = B.is_empty first in
   let le = B.is_empty  last in
-  if is_empty child then
-    assert ((fo && le) || (lo && fe) || (lo && fo))
-  else
-    assert (fo && lo)
+  match child with
+  | None ->
+      assert ((fo && le) || (lo && fe) || (lo && fo))
+  | Some _ ->
+      assert (fo && lo)
 
 let check d =
   check_deque (fun _x -> ()) d
 
-let is_suffix_only {middle; _} = B.is_empty middle
+(* -------------------------------------------------------------------------- *)
 
-let singleton x = Some (ref {
-  prefix = B.empty;
-  left = empty;
-  middle = B.empty;
-  right = empty;
-  suffix = B.push x B.empty
-})
+(* The empty deque is represented by [None], and only by [None]. *)
+
+let empty =
+  None
+
+let is_empty =
+  Option.is_none
+
+(* A singleton deque is constructed as follows. *)
+
+let singleton x =
+  Some (ref {
+    prefix = B.empty;
+    left = empty;
+    middle = B.empty;
+    right = empty;
+    suffix = B.push x B.empty
+  })
+
+(* -------------------------------------------------------------------------- *)
 
 let assemble prefix left middle right suffix =
   if B.is_empty middle && B.is_empty suffix then
