@@ -185,12 +185,10 @@ let rec push : type a. a -> a deque -> a deque = fun x0 c ->
           let prefix' = B.push x5 (B.push x6 B.empty) in
           let left = push (triple prefix' empty B.empty) left in
           r := { prefix; left; middle; right; suffix };
-          let prefix = B.push x0 prefix in
-          assemble_ prefix left middle right suffix
+          assemble_ (B.push x0 prefix) left middle right suffix
         end
         else
-          let prefix = B.push x0 prefix in
-          assemble_ prefix left middle right suffix
+          assemble_ (B.push x0 prefix) left middle right suffix
       end
 
 let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
@@ -217,12 +215,10 @@ let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
           let suffix' = B.push x1 (B.push x2 B.empty) in
           let right = inject right (triple B.empty empty suffix') in
           r := { prefix; left; middle; right; suffix };
-          let suffix = B.inject suffix x0 in
-          assemble_ prefix left middle right suffix
+          assemble_ prefix left middle right (B.inject suffix x0)
         end
         else
-          let suffix = B.inject suffix x0 in
-          assemble_ prefix left middle right suffix
+          assemble_ prefix left middle right (B.inject suffix x0)
       end
 
 let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
