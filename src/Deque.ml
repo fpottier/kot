@@ -66,11 +66,6 @@ type 'a t =
 
 (* -------------------------------------------------------------------------- *)
 
-(* A 5-tuple whose [middle] buffer is empty is "suffix only". *)
-
-let[@inline] is_suffix_only {middle; _} =
-  B.is_empty middle
-
 (* The data structure obeys the following invariant. *)
 
 let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d ->
@@ -87,6 +82,7 @@ let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d 
       B.iter check_elem suffix;
       (* Check the length constraints at this level. *)
       if B.is_empty middle then begin
+        (* A 5-tuple whose middle buffer is empty is "suffix-only". *)
         assert (B.length_is_between prefix 0 0);
         assert (left = None);
         assert (right = None);
@@ -250,32 +246,33 @@ let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
   | _, None ->
       d1
   | Some r1, Some r2 ->
-      let { prefix = pr1; left = ld1; middle = md1; right = rd1; suffix = sf1 } as m1 = !r1 in
-      let { prefix = pr2; left = ld2; middle = md2; right = rd2; suffix = sf2 } as m2 = !r2 in
-      if not (is_suffix_only m1 || is_suffix_only m2) then begin
-        let y, pr2' = B.pop pr2 in
-        let sf1', x = B.eject sf1 in
-        let middle = B.push x (B.push y B.empty) in
-        let s1', s1'' = B.split23l sf1' in
-        let ld1' = inject ld1 (triple md1 rd1 s1') in
-        let ld1'' = if B.is_empty s1'' then ld1'
-                    else inject ld1' (triple s1'' empty B.empty) in
-        let p2', p2'' = B.split23r pr2' in
-        let rd2' = push (triple p2'' ld2 md2) rd2 in
-        let rd2'' = if B.is_empty p2' then rd2'
-                    else push (triple p2' empty B.empty) rd2' in
-        assemble_ pr1 ld1'' middle rd2'' sf2
-      end
-      else if is_suffix_only m2 then
+      let { prefix = pr1; left = ld1; middle = md1; right = rd1; suffix = sf1 } = !r1 in
+      let { prefix = pr2; left = ld2; middle = md2; right = rd2; suffix = sf2 } = !r2 in
+      match B.is_empty md1, B.is_empty md2 with
+      | false, false ->
+          let y, pr2' = B.pop pr2 in
+          let sf1', x = B.eject sf1 in
+          let middle = B.push x (B.push y B.empty) in
+          let s1', s1'' = B.split23l sf1' in
+          let ld1' = inject ld1 (triple md1 rd1 s1') in
+          let ld1'' = if B.is_empty s1'' then ld1'
+                      else inject ld1' (triple s1'' empty B.empty) in
+          let p2', p2'' = B.split23r pr2' in
+          let rd2' = push (triple p2'' ld2 md2) rd2 in
+          let rd2'' = if B.is_empty p2' then rd2'
+                      else push (triple p2' empty B.empty) rd2' in
+          assemble_ pr1 ld1'' middle rd2'' sf2
+      | _, true ->
+          (* [d2] is suffix-only. *)
         B.fold_left inject d1 sf2
-      else (* is_suffix_only m1 *)
-        B.fold_right push sf1 d2
+      | true, _ ->
+          (* [d1] is suffix-only. *)
+          B.fold_right push sf1 d2
 
 (* NOTE(Juliette): the resulting deque may break the invariants *)
 let naive_pop : type a. a five_tuple -> a * a deque = fun m ->
   let { prefix; left; middle; right; suffix } = m in
-  if is_suffix_only m
-  then
+  if B.is_empty middle then
     let x, suffix = B.pop suffix in
     x, assemble prefix left middle right suffix
   else
@@ -291,15 +288,17 @@ let first_nonempty tr =
 
 let inspect_first : type a. a five_tuple -> a =
   fun m ->
-  let { prefix; suffix; _ } = m in
-  if is_suffix_only m then B.first suffix else
-  (* not suffix-only, prefix is nonempty *)
-  B.first prefix
+  let { prefix; middle; suffix; _ } = m in
+  if B.is_empty middle then
+    B.first suffix
+  else
+    (* not suffix-only, prefix is nonempty *)
+    B.first prefix
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
   fun ptr ->
   let { prefix; left; middle; right; suffix } as d = !ptr in
-  if is_suffix_only d || B.length prefix > 3 then
+  if B.is_empty middle || B.length prefix > 3 then
     naive_pop d
   else
   let balanced_deque = begin
@@ -422,7 +421,7 @@ let inspect_last : type a. a five_tuple -> a =
 let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
   fun ptr ->
   let { prefix; left; middle; right; suffix } as d = !ptr in
-  if is_suffix_only d || B.length suffix > 3 then
+  if B.is_empty middle || B.length suffix > 3 then
     naive_eject d
   else
   let balanced_deque = begin
