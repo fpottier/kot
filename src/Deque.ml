@@ -164,8 +164,8 @@ let rec push : type a. a -> a deque -> a deque =
   match c with
   | None -> singleton x0
   | Some r ->
-    let { prefix; left; middle; right; suffix } as m = !r in
-    if is_suffix_only m then begin
+    let { prefix; left; middle; right; suffix } = !r in
+    if B.is_empty middle then begin
       if B.length suffix = 8 then begin
         let x1, suffix = B.pop suffix in
         let x2, suffix = B.pop suffix in
@@ -202,9 +202,8 @@ let rec inject : type a. a deque -> a -> a deque =
   match c with
   | None -> singleton x0
   | Some r ->
-    let { prefix; left; middle; right; suffix } as m = !r in
-    if is_suffix_only m then begin
-      let suffix = m.suffix in
+    let { prefix; left; middle; right; suffix } = !r in
+    if B.is_empty middle then begin
       if B.length suffix = 8 then begin
         let x1, suffix = B.pop suffix in
         let x2, suffix = B.pop suffix in
