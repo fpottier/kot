@@ -333,3 +333,17 @@ let split8 b =
       B3 (x0, x1, x2), B2 (x3, x4), B3 (x5, x6, x7)
   | _ ->
       assert false
+
+let split642 b =
+  match b with
+  | B6 (x0, x1, x2, x3, x4, x5) ->
+      B4 (x0, x1, x2, x3), B2 (x4, x5)
+  | _ ->
+      assert false
+
+let split624 b =
+  match b with
+  | B6 (x0, x1, x2, x3, x4, x5) ->
+      B2 (x0, x1), B4 (x2, x3, x4, x5)
+  | _ ->
+      assert false

@@ -63,4 +63,12 @@ module type BUFFER8 = sig
      buffers whose lengths are 3, 2, and 3. *)
   val split8 : 'a buffer -> 'a buffer * 'a buffer * 'a buffer
 
+  (***[split642] expects a buffer of length 6. This buffer is split into two
+      buffers whose lengths are 4 and 2. *)
+  val split642 : 'a buffer -> 'a buffer * 'a buffer
+
+  (***[split624] expects a buffer of length 6. This buffer is split into two
+      buffers whose lengths are 2 and 4. *)
+  val split624 : 'a buffer -> 'a buffer * 'a buffer
+
 end

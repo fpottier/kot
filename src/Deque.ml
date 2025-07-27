@@ -180,9 +180,7 @@ let rec push : type a. a -> a deque -> a deque = fun x0 c ->
       end
       else begin
         if B.length prefix = 6 then begin
-          let prefix, x6 = B.eject prefix in
-          let prefix, x5 = B.eject prefix in
-          let prefix' = B.push x5 (B.push x6 B.empty) in
+          let prefix, prefix' = B.split642 prefix in
           let left = push (triple prefix' empty B.empty) left in
           r := { prefix; left; middle; right; suffix };
           assemble_ (B.push x0 prefix) left middle right suffix
@@ -210,9 +208,7 @@ let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
       end
       else begin
         if B.length suffix = 6 then begin
-          let x1, suffix = B.pop suffix in
-          let x2, suffix = B.pop suffix in
-          let suffix' = B.push x1 (B.push x2 B.empty) in
+          let suffix', suffix = B.split624 suffix in
           let right = inject right (triple B.empty empty suffix') in
           r := { prefix; left; middle; right; suffix };
           assemble_ prefix left middle right (B.inject suffix x0)
