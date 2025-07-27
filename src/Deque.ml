@@ -161,6 +161,10 @@ let[@inline] assemble prefix left middle right suffix : _ deque =
 let[@inline] triple first child last : _ triple =
   { first; child; last }
 
+(* -------------------------------------------------------------------------- *)
+
+(* Insertion at the front end. *)
+
 let rec push : type a. a -> a deque -> a deque = fun x c ->
   match c with
   | None ->
@@ -184,6 +188,8 @@ let rec push : type a. a -> a deque -> a deque = fun x c ->
         else
           assemble_ (B.push x prefix) left middle right suffix
 
+(* Insertion at the rear end. *)
+
 let rec inject : type a. a deque -> a -> a deque = fun c x ->
   match c with
   | None ->
@@ -206,6 +212,10 @@ let rec inject : type a. a deque -> a -> a deque = fun c x ->
           assemble_ prefix left middle right (B.inject suffix x)
         else
           assemble_ prefix left middle right (B.inject suffix x)
+
+(* -------------------------------------------------------------------------- *)
+
+(* Concatenation. *)
 
 let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
   match d1, d2 with
@@ -236,6 +246,8 @@ let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
       | true, _ ->
           (* [d1] is suffix-only. *)
           B.fold_right push sf1 d2
+
+(* -------------------------------------------------------------------------- *)
 
 (* NOTE(Juliette): the resulting deque may break the invariants *)
 let naive_pop : type a. a five_tuple -> a * a deque = fun m ->
@@ -370,6 +382,8 @@ let pop : type a. a deque -> a * a deque
 let pop_opt : type a. a deque -> (a * a deque) option
   = fun x -> Option.map pop_nonempty x
 
+(* -------------------------------------------------------------------------- *)
+
 let naive_eject : type a. a five_tuple -> a deque * a =
   fun m ->
   let { prefix; left; middle; right; suffix } = m in
@@ -493,6 +507,8 @@ let eject : type a. a deque -> a deque * a
 let eject_opt : type a. a deque -> (a deque * a) option
   = fun x -> Option.map eject_nonempty x
 
+(* -------------------------------------------------------------------------- *)
+
 let rec map : type a b. (a -> b) -> a deque -> b deque =
   fun f ->
   function
@@ -531,6 +547,8 @@ and fold_left_triple : type a b. (b -> a -> b) -> b -> a triple -> b =
   let y = fold_left (fold_left_triple f) y child in
   let y = B.fold_left f y last in
   y
+
+(* -------------------------------------------------------------------------- *)
 
 let reduce f g a b = fold_left (fun x y -> f x (g y)) a b
 
