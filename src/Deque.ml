@@ -245,6 +245,7 @@ let rec inject : type a. a deque -> a -> a deque =
 
 (* partitions a buffer into two buffers containing two or three elements, possibly leaving the second one empty *)
 let partition_buffer_left b =
+  assert (B.length_is_between b 2 5);
   let s = B.length b in
   if s <= 3
     then b, B.empty
@@ -260,6 +261,7 @@ let partition_buffer_left b =
 
 (* partitions a buffer into two buffers containing two or three elements, possibly leaving the first one empty *)
 let partition_buffer_right b =
+  assert (B.length_is_between b 2 5);
   let s = B.length b in
   if s <= 3
     then B.empty, b
