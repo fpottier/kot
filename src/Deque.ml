@@ -235,8 +235,6 @@ let rec inject : type a. a deque -> a -> a deque =
       assemble prefix left middle right suffix
     end
 
-let flip f a b = f b a
-
 (* partitions a buffer into two buffers containing two or three elements, possibly leaving the second one empty *)
 let partition_buffer_left b =
   let s = B.length b in
