@@ -166,11 +166,12 @@ let rec push : type a. a -> a deque -> a deque = fun x0 c ->
   | None ->
       singleton x0
   | Some r ->
-      let { prefix; left; middle; right; suffix } = !r in
+      let f = !r in
+      let { prefix; left; middle; right; suffix } = f in
       if B.is_empty middle then begin
         if B.length suffix = 8 then begin
           let prefix, middle, suffix = B.split8 suffix in
-          r := { prefix; left; middle; right; suffix };
+          r := { f with prefix; middle; suffix };
           assemble_ (B.push x0 prefix) left middle right suffix
         end
         else
@@ -180,7 +181,7 @@ let rec push : type a. a -> a deque -> a deque = fun x0 c ->
         if B.length prefix = 6 then begin
           let prefix, prefix' = B.split642 prefix in
           let left = push (triple prefix' empty B.empty) left in
-          r := { prefix; left; middle; right; suffix };
+          r := { f with prefix; left };
           assemble_ (B.push x0 prefix) left middle right suffix
         end
         else
@@ -192,11 +193,12 @@ let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
   | None ->
       singleton x0
   | Some r ->
-      let { prefix; left; middle; right; suffix } = !r in
+      let f = !r in
+      let { prefix; left; middle; right; suffix } = f in
       if B.is_empty middle then begin
         if B.length suffix = 8 then begin
           let prefix, middle, suffix = B.split8 suffix in
-          r := { prefix; left; middle; right; suffix };
+          r := { f with prefix; middle; suffix };
           assemble_ prefix left middle right (B.inject suffix x0)
         end
         else
@@ -206,7 +208,7 @@ let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
         if B.length suffix = 6 then begin
           let suffix', suffix = B.split624 suffix in
           let right = inject right (triple B.empty empty suffix') in
-          r := { prefix; left; middle; right; suffix };
+          r := { f with right; suffix };
           assemble_ prefix left middle right (B.inject suffix x0)
         end
         else
