@@ -32,6 +32,11 @@ type 'a buffer =
 
 (* The data structure. *)
 
+(* The reference is a stable reference: every update of this reference
+   overwrites a previous 5-tuple with a new 5-tuple that represents the
+   same sequence of elements. Thus, even though this data structure
+   involves mutable state, it appears immutable to the user. *)
+
 type 'a deque =
   'a nonempty_deque option
 
