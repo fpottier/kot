@@ -114,8 +114,10 @@ and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
   let lo = B.length_is_between  last 2 3 in
   let fe = B.is_empty first in
   let le = B.is_empty  last in
-  let ce = is_empty child in
-  assert ((ce && ((fo && le) || (lo && fe) || (lo && fo))) || (not ce && fo && lo))
+  if is_empty child then
+    assert ((fo && le) || (lo && fe) || (lo && fo))
+  else
+    assert (fo && lo)
 
 let check d =
   check_deque (fun _x -> ()) d
