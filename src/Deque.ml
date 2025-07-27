@@ -165,113 +165,114 @@ let[@inline] assemble prefix left middle right suffix : _ deque =
 let[@inline] triple first child last : _ triple =
   { first; child; last }
 
-let rec push : type a. a -> a deque -> a deque =
-  fun x0 c ->
+let rec push : type a. a -> a deque -> a deque = fun x0 c ->
   match c with
-  | None -> singleton x0
+  | None ->
+      singleton x0
   | Some r ->
-    let { prefix; left; middle; right; suffix } = !r in
-    if B.is_empty middle then begin
-      if B.length suffix = 8 then begin
-        let x1, suffix = B.pop suffix in
-        let x2, suffix = B.pop suffix in
-        let x3, suffix = B.pop suffix in
-        let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
-        let x4, suffix = B.pop suffix in
-        let x5, suffix = B.pop suffix in
-        let middle = B.push x4 (B.push x5 B.empty) in
-        let left = empty in
-        let right = empty in
-        r := { prefix; left; middle; right; suffix };
-        let prefix = B.push x0 prefix in
-        assemble_ prefix left middle right suffix
+      let { prefix; left; middle; right; suffix } = !r in
+      if B.is_empty middle then begin
+        if B.length suffix = 8 then begin
+          let x1, suffix = B.pop suffix in
+          let x2, suffix = B.pop suffix in
+          let x3, suffix = B.pop suffix in
+          let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
+          let x4, suffix = B.pop suffix in
+          let x5, suffix = B.pop suffix in
+          let middle = B.push x4 (B.push x5 B.empty) in
+          let left = empty in
+          let right = empty in
+          r := { prefix; left; middle; right; suffix };
+          let prefix = B.push x0 prefix in
+          assemble_ prefix left middle right suffix
+        end
+        else
+          assemble_ B.empty empty B.empty empty (B.push x0 suffix)
       end
-      else
-        assemble_ B.empty empty B.empty empty (B.push x0 suffix)
-    end
-    else begin
-      if B.length prefix = 6 then begin
-        let prefix, x6 = B.eject prefix in
-        let prefix, x5 = B.eject prefix in
-        let prefix' = B.push x5 (B.push x6 B.empty) in
-        let left = push (triple prefix' empty B.empty) left in
-        r := { prefix; left; middle; right; suffix };
-        let prefix = B.push x0 prefix in
-        assemble_ prefix left middle right suffix
+      else begin
+        if B.length prefix = 6 then begin
+          let prefix, x6 = B.eject prefix in
+          let prefix, x5 = B.eject prefix in
+          let prefix' = B.push x5 (B.push x6 B.empty) in
+          let left = push (triple prefix' empty B.empty) left in
+          r := { prefix; left; middle; right; suffix };
+          let prefix = B.push x0 prefix in
+          assemble_ prefix left middle right suffix
+        end
+        else
+          let prefix = B.push x0 prefix in
+          assemble_ prefix left middle right suffix
       end
-      else
-        let prefix = B.push x0 prefix in
-        assemble_ prefix left middle right suffix
-    end
 
-let rec inject : type a. a deque -> a -> a deque =
-  fun c x0 ->
+let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
   match c with
-  | None -> singleton x0
+  | None ->
+      singleton x0
   | Some r ->
-    let { prefix; left; middle; right; suffix } = !r in
-    if B.is_empty middle then begin
-      if B.length suffix = 8 then begin
-        let x1, suffix = B.pop suffix in
-        let x2, suffix = B.pop suffix in
-        let x3, suffix = B.pop suffix in
-        let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
-        let x4, suffix = B.pop suffix in
-        let x5, suffix = B.pop suffix in
-        let middle = B.push x4 (B.push x5 B.empty) in
-        let left = empty in
-        let right = empty in
-        r := { prefix; left; middle; right; suffix };
-        let suffix = B.inject suffix x0 in
-        assemble_ prefix left middle right suffix
+      let { prefix; left; middle; right; suffix } = !r in
+      if B.is_empty middle then begin
+        if B.length suffix = 8 then begin
+          let x1, suffix = B.pop suffix in
+          let x2, suffix = B.pop suffix in
+          let x3, suffix = B.pop suffix in
+          let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
+          let x4, suffix = B.pop suffix in
+          let x5, suffix = B.pop suffix in
+          let middle = B.push x4 (B.push x5 B.empty) in
+          let left = empty in
+          let right = empty in
+          r := { prefix; left; middle; right; suffix };
+          let suffix = B.inject suffix x0 in
+          assemble_ prefix left middle right suffix
+        end
+        else
+          assemble_ B.empty empty B.empty empty (B.inject suffix x0)
       end
-      else
-        assemble_ B.empty empty B.empty empty (B.inject suffix x0)
-    end
-    else begin
-      if B.length suffix = 6 then begin
-        let x1, suffix = B.pop suffix in
-        let x2, suffix = B.pop suffix in
-        let suffix' = B.push x1 (B.push x2 B.empty) in
-        let right = inject right (triple B.empty empty suffix') in
-        r := { prefix; left; middle; right; suffix };
-        let suffix = B.inject suffix x0 in
-        assemble_ prefix left middle right suffix
+      else begin
+        if B.length suffix = 6 then begin
+          let x1, suffix = B.pop suffix in
+          let x2, suffix = B.pop suffix in
+          let suffix' = B.push x1 (B.push x2 B.empty) in
+          let right = inject right (triple B.empty empty suffix') in
+          r := { prefix; left; middle; right; suffix };
+          let suffix = B.inject suffix x0 in
+          assemble_ prefix left middle right suffix
+        end
+        else
+          let suffix = B.inject suffix x0 in
+          assemble_ prefix left middle right suffix
       end
-      else
-        let suffix = B.inject suffix x0 in
-        assemble_ prefix left middle right suffix
-    end
 
-let concat : type a. a deque -> a deque -> a deque =
-  fun d1 d2 ->
+let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
   match d1, d2 with
-  | None, _ -> d2
-  | _, None -> d1
+  | None, _ ->
+      d2
+  | _, None ->
+      d1
   | Some r1, Some r2 ->
-  let { prefix = pr1; left = ld1; middle = md1; right = rd1; suffix = sf1 } as m1 = !r1 in
-  let { prefix = pr2; left = ld2; middle = md2; right = rd2; suffix = sf2 } as m2 = !r2 in
-  if not (is_suffix_only m1 || is_suffix_only m2) then begin
-    let y, pr2' = B.pop pr2 in
-    let sf1', x = B.eject sf1 in
-    let middle = B.push x (B.push y B.empty) in
-    let s1', s1'' = B.split23l sf1' in
-    let ld1' = inject ld1 (triple md1 rd1 s1') in
-    let ld1'' = if B.is_empty s1'' then ld1'
-                else inject ld1' (triple s1'' empty B.empty) in
-    let p2', p2'' = B.split23r pr2' in
-    let rd2' = push (triple p2'' ld2 md2) rd2 in
-    let rd2'' = if B.is_empty p2' then rd2'
-                else push (triple p2' empty B.empty) rd2' in
-    assemble_ pr1 ld1'' middle rd2'' sf2
-  end else if is_suffix_only m2 then
-    B.fold_left inject d1 sf2
-  else (* is_suffix_only (!r2) *)
-    B.fold_right push sf1 d2
+      let { prefix = pr1; left = ld1; middle = md1; right = rd1; suffix = sf1 } as m1 = !r1 in
+      let { prefix = pr2; left = ld2; middle = md2; right = rd2; suffix = sf2 } as m2 = !r2 in
+      if not (is_suffix_only m1 || is_suffix_only m2) then begin
+        let y, pr2' = B.pop pr2 in
+        let sf1', x = B.eject sf1 in
+        let middle = B.push x (B.push y B.empty) in
+        let s1', s1'' = B.split23l sf1' in
+        let ld1' = inject ld1 (triple md1 rd1 s1') in
+        let ld1'' = if B.is_empty s1'' then ld1'
+                    else inject ld1' (triple s1'' empty B.empty) in
+        let p2', p2'' = B.split23r pr2' in
+        let rd2' = push (triple p2'' ld2 md2) rd2 in
+        let rd2'' = if B.is_empty p2' then rd2'
+                    else push (triple p2' empty B.empty) rd2' in
+        assemble_ pr1 ld1'' middle rd2'' sf2
+      end
+      else if is_suffix_only m2 then
+        B.fold_left inject d1 sf2
+      else (* is_suffix_only m1 *)
+        B.fold_right push sf1 d2
 
 (* NOTE(Juliette): the resulting deque may break the invariants *)
-let naive_pop : type a. a five_tuple -> a * a deque =
-  fun m ->
+let naive_pop : type a. a five_tuple -> a * a deque = fun m ->
   let { prefix; left; middle; right; suffix } = m in
   if is_suffix_only m
   then
