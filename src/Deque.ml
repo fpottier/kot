@@ -23,6 +23,10 @@ module B = struct
   let iter (type a) (f : a -> unit) (b : a buffer) : unit =
     fold_left (fun () x -> f x) () b
 
+  (* [length_is_between] is also used only by [check]. *)
+  let length_is_between b min max =
+    min <= length b && length b <= max
+
 end
 
 type 'a buffer =
@@ -62,13 +66,17 @@ type 'a t =
 
 (* -------------------------------------------------------------------------- *)
 
-let empty = None
+(* The empty deque is represented by [None], and only by [None]. *)
 
-let is_empty = Option.is_none
+let empty =
+  None
 
-let buffer_length_is_between b min max =
-  let length = B.length b in
-  min <= length && length <= max
+let is_empty =
+  Option.is_none
+
+(* -------------------------------------------------------------------------- *)
+
+(* The data structure obeys the following invariant. *)
 
 let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d ->
   match d with
@@ -84,15 +92,15 @@ let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d 
       B.iter check_elem suffix;
       (* Check the length constraints at this level. *)
       if B.is_empty middle then begin
-        assert (buffer_length_is_between prefix 0 0);
+        assert (B.length_is_between prefix 0 0);
         assert (is_empty left);
         assert (is_empty right);
-        assert (buffer_length_is_between suffix 1 8)
+        assert (B.length_is_between suffix 1 8)
       end
       else begin
-        assert (buffer_length_is_between prefix 3 6);
+        assert (B.length_is_between prefix 3 6);
         assert (B.length middle = 2);
-        assert (buffer_length_is_between suffix 3 6);
+        assert (B.length_is_between suffix 3 6);
       end
 
 and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
@@ -102,8 +110,8 @@ and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
   check_deque (check_triple check_elem) child;
   B.iter check_elem last;
   (* Check the length constraints at this level. *)
-  let fo = buffer_length_is_between first 2 3 in
-  let lo = buffer_length_is_between  last 2 3 in
+  let fo = B.length_is_between first 2 3 in
+  let lo = B.length_is_between  last 2 3 in
   let fe = B.is_empty first in
   let le = B.is_empty  last in
   let ce = is_empty child in
