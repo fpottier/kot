@@ -56,6 +56,9 @@ let () =
   let spec = deque ^> bool in
   declare "is_empty" spec R.is_empty C.is_empty;
 
+  let spec = element ^> deque in
+  declare "singleton" spec R.singleton C.singleton;
+
   let spec = element ^> deque ^> deque in
   declare "push" spec R.push C.push;
 

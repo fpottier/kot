@@ -36,6 +36,10 @@ val length : 'a t -> int
    Time complexity: {i O(1)}. *)
 val is_empty : 'a t -> bool
 
+(**[singleton x] returns a singleton sequence (that is, a sequence of
+   length 1) whose single element is [x]. *)
+val singleton : 'a -> 'a t
+
 (**[push x d] returns a sequence whose elements are the element [x]
    followed with the elements of the sequence [d]. The length of this
    sequence is [1 + length d].
