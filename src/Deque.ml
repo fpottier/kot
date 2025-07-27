@@ -224,28 +224,28 @@ let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
   | _, None ->
       d1
   | Some r1, Some r2 ->
-      let { prefix = pr1; left = ld1; middle = md1; right = rd1; suffix = sf1 } = !r1 in
-      let { prefix = pr2; left = ld2; middle = md2; right = rd2; suffix = sf2 } = !r2 in
-      match B.is_empty md1, B.is_empty md2 with
+      let { prefix = prefix1; left = left1; middle = middle1; right = right1; suffix = suffix1 } = !r1 in
+      let { prefix = prefix2; left = left2; middle = middle2; right = right2; suffix = suffix2 } = !r2 in
+      match B.is_empty middle1, B.is_empty middle2 with
       | false, false ->
-          let y, pr2' = B.pop pr2 in
-          let sf1', x = B.eject sf1 in
+          let y, prefix2' = B.pop prefix2 in
+          let suffix1', x = B.eject suffix1 in
           let middle = B.doubleton x y in
-          let s1', s1'' = B.split23l sf1' in
-          let ld1' = inject ld1 (triple md1 rd1 s1') in
-          let ld1'' = if B.is_empty s1'' then ld1'
-                      else inject ld1' (triple s1'' empty B.empty) in
-          let p2', p2'' = B.split23r pr2' in
-          let rd2' = push (triple p2'' ld2 md2) rd2 in
-          let rd2'' = if B.is_empty p2' then rd2'
-                      else push (triple p2' empty B.empty) rd2' in
-          assemble_ pr1 ld1'' middle rd2'' sf2
+          let suffix1', suffix1'' = B.split23l suffix1' in
+          let left1' = inject left1 (triple middle1 right1 suffix1') in
+          let left1'' = if B.is_empty suffix1'' then left1'
+                      else inject left1' (triple suffix1'' empty B.empty) in
+          let prefix2', prefix2'' = B.split23r prefix2' in
+          let right2' = push (triple prefix2'' left2 middle2) right2 in
+          let right2'' = if B.is_empty prefix2' then right2'
+                      else push (triple prefix2' empty B.empty) right2' in
+          assemble_ prefix1 left1'' middle right2'' suffix2
       | _, true ->
           (* [d2] is suffix-only. *)
-          B.fold_left inject d1 sf2
+          B.fold_left inject d1 suffix2
       | true, _ ->
           (* [d1] is suffix-only. *)
-          B.fold_right push sf1 d2
+          B.fold_right push suffix1 d2
 
 (* -------------------------------------------------------------------------- *)
 
