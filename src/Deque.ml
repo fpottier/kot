@@ -228,18 +228,35 @@ let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
       let { prefix = prefix2; left = left2; middle = middle2; right = right2; suffix = suffix2 } = !r2 in
       match B.is_empty middle1, B.is_empty middle2 with
       | false, false ->
-          let y, prefix2 = B.pop prefix2 in
-          let suffix1, x = B.eject suffix1 in
-          let middle = B.doubleton x y in
-          let suffix1, suffix1' = B.split23l suffix1 in
-          let left1' = inject left1 (triple middle1 right1 suffix1) in
-          let left1'' = if B.is_empty suffix1' then left1'
-                      else inject left1' (triple suffix1' empty B.empty) in
-          let prefix2, prefix2' = B.split23r prefix2 in
-          let right2' = push (triple prefix2' left2 middle2) right2 in
-          let right2'' = if B.is_empty prefix2 then right2'
-                      else push (triple prefix2 empty B.empty) right2' in
-          assemble_ prefix1 left1'' middle right2'' suffix2
+          (* Extract the last element [d1] and the first element of [d2].
+             Form a middle buffer with them. *)
+          let suffix1, x1 = B.eject suffix1
+          and x2, prefix2 = B.pop prefix2 in
+          let middle = B.doubleton x1 x2 in
+          (* The length of [suffix1] is between 2 and 5. Split it into two
+             chunks of length 2 or 3 -- except the second chunk may have
+             length 0. *)
+          let suffix1a, suffix1b = B.split23l suffix1 in
+          (* Inject [middle1], [right1], and [suffix1a], as a triple, into [left1]. *)
+          let left1 = inject left1 (triple middle1 right1 suffix1a) in
+          (* Unless it is empty, inject [suffix1b], as a triple, into [left1]. *)
+          let left1 =
+            if B.is_empty suffix1b then left1
+            else inject left1 (triple suffix1b empty B.empty)
+          in
+          (* The length of [prefix2] is between 2 and 5. Split it into two
+             chunks of length 2 or 3 -- except the first chunk may have
+             length 0. *)
+          let prefix2a, prefix2b = B.split23r prefix2 in
+          (* Push [prefix2b], [left2], and [middle2], as a triple, into [right2]. *)
+          let right2 = push (triple prefix2b left2 middle2) right2 in
+          (* Unless it is empty, push [prefix2a], as a triple, into [right2]. *)
+          let right2 =
+            if B.is_empty prefix2a then right2
+            else push (triple prefix2a empty B.empty) right2
+          in
+          (* Done. *)
+          assemble_ prefix1 left1 middle right2 suffix2
       | _, true ->
           (* [d2] is suffix-only. *)
           B.fold_left inject d1 suffix2
