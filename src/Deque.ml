@@ -141,18 +141,24 @@ let singleton x =
 
 (* -------------------------------------------------------------------------- *)
 
-(* [assemble] constructs a deque whose content is the 5-tuple
+(* [assemble_] and [assemble] construct a deque whose content is the 5-tuple
    [{ prefix; left; middle; right; suffix }].
 
-   If [middle] and [suffix] are both empty then this 5-tuple must be
-   entirely empty; in this case, the empty deque is returned. Otherwise,
-   a new 5-tuple and a new deque are allocated. *)
+   [assemble_] does not allow [middle] and [suffix] to be both empty.
+   It allocates a new 5-tuple and a new deque.
 
-let assemble prefix left middle right suffix : _ deque =
+   [assemble] allows this situation. In this case, this 5-tuple must be
+   entirely empty; then, the empty deque is returned. *)
+
+let[@inline] assemble_ prefix left middle right suffix : _ deque =
+  assert (not (B.is_empty middle && B.is_empty suffix));
+  Some (ref { prefix; left; middle; right; suffix })
+
+let[@inline] assemble prefix left middle right suffix : _ deque =
   if B.is_empty middle && B.is_empty suffix then
     empty
   else
-    Some (ref { prefix; left; middle; right; suffix })
+    assemble_ prefix left middle right suffix
 
 (* [triple] constructs the triple [{ first; child; last }]. *)
 
@@ -178,23 +184,24 @@ let rec push : type a. a -> a deque -> a deque =
         let right = empty in
         r := { prefix; left; middle; right; suffix };
         let prefix = B.push x0 prefix in
-        assemble prefix left middle right suffix
+        assemble_ prefix left middle right suffix
       end
       else
-        assemble B.empty empty B.empty empty (B.push x0 suffix)
-    end else begin
-      if B.length prefix = 6
-      then begin
+        assemble_ B.empty empty B.empty empty (B.push x0 suffix)
+    end
+    else begin
+      if B.length prefix = 6 then begin
         let prefix, x6 = B.eject prefix in
         let prefix, x5 = B.eject prefix in
         let prefix' = B.push x5 (B.push x6 B.empty) in
         let left = push (triple prefix' empty B.empty) left in
         r := { prefix; left; middle; right; suffix };
         let prefix = B.push x0 prefix in
-        assemble prefix left middle right suffix
-      end else
+        assemble_ prefix left middle right suffix
+      end
+      else
         let prefix = B.push x0 prefix in
-        assemble prefix left middle right suffix
+        assemble_ prefix left middle right suffix
     end
 
 let rec inject : type a. a deque -> a -> a deque =
@@ -216,23 +223,24 @@ let rec inject : type a. a deque -> a -> a deque =
         let right = empty in
         r := { prefix; left; middle; right; suffix };
         let suffix = B.inject suffix x0 in
-        assemble prefix left middle right suffix
+        assemble_ prefix left middle right suffix
       end
       else
-        assemble B.empty empty B.empty empty (B.inject suffix x0)
-    end else begin
-      if B.length suffix = 6
-      then begin
+        assemble_ B.empty empty B.empty empty (B.inject suffix x0)
+    end
+    else begin
+      if B.length suffix = 6 then begin
         let x1, suffix = B.pop suffix in
         let x2, suffix = B.pop suffix in
         let suffix' = B.push x1 (B.push x2 B.empty) in
         let right = inject right (triple B.empty empty suffix') in
         r := { prefix; left; middle; right; suffix };
         let suffix = B.inject suffix x0 in
-        assemble prefix left middle right suffix
-      end else
-      let suffix = B.inject suffix x0 in
-      assemble prefix left middle right suffix
+        assemble_ prefix left middle right suffix
+      end
+      else
+        let suffix = B.inject suffix x0 in
+        assemble_ prefix left middle right suffix
     end
 
 (* partitions a buffer into two buffers containing two or three elements, possibly leaving the second one empty *)
@@ -285,7 +293,7 @@ let concat : type a. a deque -> a deque -> a deque =
     let rd2' = push (triple p2'' ld2 md2) rd2 in
     let rd2'' = if B.is_empty p2' then rd2'
                 else push (triple p2' empty B.empty) rd2' in
-    assemble pr1 ld1'' middle rd2'' sf2
+    assemble_ pr1 ld1'' middle rd2'' sf2
   end else if is_suffix_only m2 then
     B.fold_left inject d1 sf2
   else (* is_suffix_only (!r2) *)
@@ -301,7 +309,7 @@ let naive_pop : type a. a five_tuple -> a * a deque =
     x, assemble prefix left middle right suffix
   else
     let x, prefix = B.pop prefix in
-    x, assemble prefix left middle right suffix
+    x, assemble_ prefix left middle right suffix
 
 let first_nonempty tr =
   if not (B.is_empty tr.first)
