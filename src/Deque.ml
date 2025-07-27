@@ -169,18 +169,11 @@ let rec push : type a. a -> a deque -> a deque = fun x0 c ->
       let { prefix; left; middle; right; suffix } = !r in
       if B.is_empty middle then begin
         if B.length suffix = 8 then begin
-          let x1, suffix = B.pop suffix in
-          let x2, suffix = B.pop suffix in
-          let x3, suffix = B.pop suffix in
-          let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
-          let x4, suffix = B.pop suffix in
-          let x5, suffix = B.pop suffix in
-          let middle = B.push x4 (B.push x5 B.empty) in
-          let left = empty in
-          let right = empty in
+          let prefix, middle, suffix = B.split8 suffix
+          and left = empty
+          and right = empty in
           r := { prefix; left; middle; right; suffix };
-          let prefix = B.push x0 prefix in
-          assemble_ prefix left middle right suffix
+          assemble_ (B.push x0 prefix) left middle right suffix
         end
         else
           assemble_ B.empty empty B.empty empty (B.push x0 suffix)
@@ -208,18 +201,11 @@ let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
       let { prefix; left; middle; right; suffix } = !r in
       if B.is_empty middle then begin
         if B.length suffix = 8 then begin
-          let x1, suffix = B.pop suffix in
-          let x2, suffix = B.pop suffix in
-          let x3, suffix = B.pop suffix in
-          let prefix = B.push x1 (B.push x2 (B.push x3 B.empty)) in
-          let x4, suffix = B.pop suffix in
-          let x5, suffix = B.pop suffix in
-          let middle = B.push x4 (B.push x5 B.empty) in
-          let left = empty in
-          let right = empty in
+          let prefix, middle, suffix = B.split8 suffix
+          and left = empty
+          and right = empty in
           r := { prefix; left; middle; right; suffix };
-          let suffix = B.inject suffix x0 in
-          assemble_ prefix left middle right suffix
+          assemble_ prefix left middle right (B.inject suffix x0)
         end
         else
           assemble_ B.empty empty B.empty empty (B.inject suffix x0)

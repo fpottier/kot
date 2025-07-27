@@ -312,7 +312,7 @@ let split23l b =
       B2 (x0, x1), B2 (x2, x3)
   | B5 (x0, x1, x2, x3, x4) ->
       B2 (x0, x1), B3 (x2, x3, x4)
-  | B0 | B1 _ | B6 _ | B7 _ | B8 _ ->
+  | _ ->
       assert false
 
 let split23r b =
@@ -324,5 +324,12 @@ let split23r b =
       B2 (x0, x1), B2 (x2, x3)
   | B5 (x0, x1, x2, x3, x4) ->
       B2 (x0, x1), B3 (x2, x3, x4)
-  | B0 | B1 _ | B6 _ | B7 _ | B8 _ ->
+  | _ ->
+      assert false
+
+let split8 b =
+  match b with
+  | B8 (x0, x1, x2, x3, x4, x5, x6, x7) ->
+      B3 (x0, x1, x2), B2 (x3, x4), B3 (x5, x6, x7)
+  | _ ->
       assert false

@@ -59,4 +59,8 @@ module type BUFFER8 = sig
      such that [b1] has length 0 or 2 or 3 and [b2] has length 2 or 3. *)
   val split23r : 'a buffer -> 'a buffer * 'a buffer
 
+  (**[split8 b] requires the length of the buffer [b] to be 8. This buffer is
+     split in three buffers whose lengths are 3, 2, and 3. *)
+  val split8 : 'a buffer -> 'a buffer * 'a buffer * 'a buffer
+
 end
