@@ -162,7 +162,7 @@ let[@inline] assemble prefix left middle right suffix : _ deque =
 
 (* [triple] constructs the triple [{ first; child; last }]. *)
 
-let triple first child last : _ triple =
+let[@inline] triple first child last : _ triple =
   { first; child; last }
 
 let rec push : type a. a -> a deque -> a deque =
