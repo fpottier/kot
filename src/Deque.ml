@@ -168,25 +168,21 @@ let rec push : type a. a -> a deque -> a deque = fun x0 c ->
   | Some r ->
       let f = !r in
       let { prefix; left; middle; right; suffix } = f in
-      if B.is_empty middle then begin
-        if B.length suffix = 8 then begin
+      if B.is_empty middle then
+        if B.length suffix = 8 then
           let prefix, middle, suffix = B.split8 suffix in
           r := { f with prefix; middle; suffix };
           assemble_ (B.push x0 prefix) left middle right suffix
-        end
         else
           assemble_ B.empty empty B.empty empty (B.push x0 suffix)
-      end
-      else begin
-        if B.length prefix = 6 then begin
+      else
+        if B.length prefix = 6 then
           let prefix, prefix' = B.split642 prefix in
           let left = push (triple prefix' empty B.empty) left in
           r := { f with prefix; left };
           assemble_ (B.push x0 prefix) left middle right suffix
-        end
         else
           assemble_ (B.push x0 prefix) left middle right suffix
-      end
 
 let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
   match c with
@@ -195,25 +191,21 @@ let rec inject : type a. a deque -> a -> a deque = fun c x0 ->
   | Some r ->
       let f = !r in
       let { prefix; left; middle; right; suffix } = f in
-      if B.is_empty middle then begin
-        if B.length suffix = 8 then begin
+      if B.is_empty middle then
+        if B.length suffix = 8 then
           let prefix, middle, suffix = B.split8 suffix in
           r := { f with prefix; middle; suffix };
           assemble_ prefix left middle right (B.inject suffix x0)
-        end
         else
           assemble_ B.empty empty B.empty empty (B.inject suffix x0)
-      end
-      else begin
-        if B.length suffix = 6 then begin
+      else
+        if B.length suffix = 6 then
           let suffix', suffix = B.split624 suffix in
           let right = inject right (triple B.empty empty suffix') in
           r := { f with right; suffix };
           assemble_ prefix left middle right (B.inject suffix x0)
-        end
         else
           assemble_ prefix left middle right (B.inject suffix x0)
-      end
 
 let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
   match d1, d2 with
