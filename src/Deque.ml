@@ -11,18 +11,33 @@
 (*                                                                            *)
 (******************************************************************************)
 
+(* -------------------------------------------------------------------------- *)
+
+(* As a building block, we need buffers (that is, deques) of capacity 8. *)
+
 module B = struct
+
   include Buffer8
+
+  (* [iter] is used only by [check], so its efficiency is not critical. *)
   let iter (type a) (f : a -> unit) (b : a buffer) : unit =
     fold_left (fun () x -> f x) () b
+
 end
 
-type 'a buffer = 'a B.buffer
+type 'a buffer =
+  'a B.buffer
+
+(* -------------------------------------------------------------------------- *)
+
+(* The data structure. *)
 
 type 'a deque =
   'a nonempty_deque option
+
 and 'a nonempty_deque =
   'a five_tuple ref
+
 and 'a five_tuple = {
   prefix : 'a buffer;
   left   : 'a triple deque;
@@ -30,6 +45,7 @@ and 'a five_tuple = {
   right  : 'a triple deque;
   suffix : 'a buffer;
 }
+
 and 'a triple = {
   first  : 'a buffer;
   child  : 'a triple deque;
@@ -38,6 +54,8 @@ and 'a triple = {
 
 type 'a t =
   'a deque
+
+(* -------------------------------------------------------------------------- *)
 
 let empty = None
 
@@ -421,7 +439,7 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
         { d with prefix; middle; suffix }
     end
   in
-    ptr := balanced_deque; 
+    ptr := balanced_deque;
     naive_pop balanced_deque
 
 let pop : type a. a deque -> a * a deque
@@ -451,7 +469,7 @@ let inspect_last : type a. a five_tuple -> a =
 let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
   fun ptr ->
   let { prefix; left; middle; right; suffix } as d = !ptr in
-  if is_suffix_only d || B.length suffix > 3 then 
+  if is_suffix_only d || B.length suffix > 3 then
     naive_eject d
   else
   let balanced_deque = begin
