@@ -339,11 +339,11 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
   match left, right with
   | Some r, _ ->
       (* Case 1 in the paper: [left] is nonempty. *)
-    let leftm = !r in
     let (t, l) =
-      let t = inspect_first leftm in
+      let f = !r in
+      let t = inspect_first f in
       if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
-        naive_pop leftm
+        naive_pop f
       else
         pop_nonempty r
     in
