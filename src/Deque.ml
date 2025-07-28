@@ -337,15 +337,15 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
   let { prefix; left; middle; right; suffix } = f in
   assert (B.length prefix = 3);
   match left, right with
-  | Some left, _ ->
+  | Some r, _ ->
       (* Case 1 in the paper: [left] is nonempty. *)
-    let leftm = !left in
+    let leftm = !r in
     let (t, l) =
       let t = inspect_first leftm in
       if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
         naive_pop leftm
       else
-        pop_nonempty left
+        pop_nonempty r
     in
     let { first = x; child = d'; last = y } = t in
     begin match B.length x, B.length y with
