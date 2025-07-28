@@ -408,7 +408,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let r' = push (triple x' d' y) r in
       { f with prefix = p; middle = m'; right = r' }
     | 2, _ ->
-      let p = B.(fold_left inject prefix middle) in
+      let p = B.fold_left B.inject prefix middle in
       let r' = if is_empty d' && B.is_empty y
           then r else concat d' (push (triple y empty B.empty) r)
       in
@@ -422,14 +422,14 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let r' = push (triple x d' y') r in
       { f with prefix = p; middle = m'; right = r' }
     | 0, 2 ->
-      let p = B.(fold_left inject prefix middle) in
+      let p = B.fold_left B.inject prefix middle in
       { f with prefix = p; middle = y; right = r }
     | _ -> assert false
     end
   | None, None ->
       (* Case 3 in the paper: [left] and [right] are empty. *)
     if B.length suffix = 3
-      then let suffix = B.(fold_left inject prefix (fold_left inject middle suffix))
+      then let suffix = B.fold_left B.inject prefix (B.fold_left B.inject middle suffix)
             in { f with middle = B.empty; prefix = B.empty; suffix }
     else
       let a, m = B.pop middle in
@@ -556,7 +556,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       end
     | _ (* is_empty left, is_empty right *) ->
       if B.length prefix = 3
-        then let suffix = B.(fold_left inject prefix (fold_left inject middle suffix))
+        then let suffix = B.fold_left B.inject prefix (B.fold_left B.inject middle suffix)
               in { d with middle = B.empty; prefix = B.empty; suffix }
       else
         let m, a = B.eject middle in
