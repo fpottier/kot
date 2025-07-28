@@ -280,6 +280,9 @@ let concat d1 d2 =
 
 let naive_pop (type a) (f : a five_tuple) : a * a deque =
   let { prefix; left; middle; right; suffix } = f in
+  (* TODO unclear whether this assertion is correct!
+     in the tests it is never violated,
+     but some call sites of [naive_pop] do not clearly obey it *)
   assert (B.is_empty middle || B.length prefix > 3);
   if B.is_empty middle then
     let x, suffix = B.pop suffix in
