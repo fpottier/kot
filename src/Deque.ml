@@ -338,6 +338,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
   let lfirst = B.length first in
   assert (lfirst = 3 || lfirst = 2 || lfirst = 0);
   match lfirst with
+
   | 3 ->
       (* Move one element from [first], towards the left, into [prefix]. *)
       let x, first = B.pop first in
@@ -345,14 +346,27 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       let t = triple first child last in
       let left = push t left in
       { f with prefix; left }
+
   | 2 ->
+      (* Move all elements from [first], towards the left, into [prefix]. *)
       let prefix = B.concat3x prefix first in
+      (* If [child] and [last] are both empty, then we are done. *)
       if is_empty child && B.is_empty last then
         { f with prefix; left }
-      else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-        let left = concat child (push (triple last empty B.empty) left) in
+      (* Here, the paper is phrased in a way that is slightly unclear.
+         The fragment "If, on the other hand, d' and y are not null"
+         should be replaced with just "Otherwise". *)
+      (* Otherwise, *)
+      else
+        (* When [child] is nonempty, [last] is nonempty. *)
+        (* Therefore, here, [last] must be nonempty. *)
+        let () = assert (not (B.is_empty last)) in
+        let t = triple last empty B.empty in
+        let left = push t left in
+        let left = concat child left in
         { f with prefix; left }
-  | _ ->
+
+  | _ (* 0 *) ->
       assert (lfirst = 0);
       (* Because [first] is empty, [child] is empty as well.
          Therefore [last] must be nonempty. *)
