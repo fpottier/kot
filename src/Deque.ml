@@ -338,6 +338,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
   assert (B.length prefix = 3);
   match left, right with
   | Some left, _ ->
+      (* Case 1 in the paper: [left] is nonempty. *)
     let leftm = !left in
     let (t, l) =
       let t = inspect_first leftm in
@@ -374,6 +375,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
     | _ -> assert false
     end
   | None, Some right ->
+      (* Case 2 in the paper: [right] is nonempty. *)
     let rightm = !right in
     let t = inspect_first rightm in
     let (t, r) =
@@ -410,7 +412,8 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       { f with prefix = p; middle = y; right = r }
     | _ -> assert false
     end
-  | _ (* is_empty left, is_empty right *) ->
+  | None, None ->
+      (* Case 3 in the paper: [left] and [right] are empty. *)
     if B.length suffix = 3
       then let suffix = B.(fold_left inject prefix (fold_left inject middle suffix))
             in { f with middle = B.empty; prefix = B.empty; suffix }
