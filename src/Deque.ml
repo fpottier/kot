@@ -275,6 +275,7 @@ let concat d1 d2 =
 (* NOTE(Juliette): the resulting deque may break the invariants *)
 let naive_pop : type a. a five_tuple -> a * a deque = fun m ->
   let { prefix; left; middle; right; suffix } = m in
+  assert (B.is_empty middle || B.length prefix > 3);
   if B.is_empty middle then
     let x, suffix = B.pop suffix in
     x, assemble prefix left middle right suffix
