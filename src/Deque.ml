@@ -615,16 +615,7 @@ and fold_right_triple : type a s. (a -> s -> s) -> a triple -> s -> s =
 
 (* -------------------------------------------------------------------------- *)
 
-let reduce f g a b = fold_left (fun x y -> f x (g y)) a b
+(* Length. *)
 
-let rec length = function
-  | None -> 0
-  | Some r ->
-    let { prefix; left; middle; right; suffix } = !r in
-    let left_length = reduce (+) length_triple 0 left in
-    let right_length = reduce (+) length_triple 0 right in
-    B.length prefix + B.length middle + B.length suffix + left_length + right_length
-and length_triple = function
-  | { first; child; last } ->
-    let length_child = fold_left (+) 0 (map length_triple child) in
-    B.length first + length_child + B.length last
+let[@inline] length d =
+  fold_left (fun s _x -> s + 1) 0 d
