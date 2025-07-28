@@ -354,8 +354,10 @@ let[@inline] prepare_naive_pop_case_1 (type a)
         { f with prefix; left }
   | _ ->
       assert (lfirst = 0);
-      (* Because [first] is empty, [child] is empty as well. *)
+      (* Because [first] is empty, [child] is empty as well.
+         Therefore [last] must be nonempty. *)
       assert (is_empty child);
+      assert (not (B.is_empty last));
       (* The buffer [last] has length 3 or 2.
          This gives rise to two subsubcases. *)
       let llast = B.length last in
