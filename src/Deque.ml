@@ -107,8 +107,12 @@ and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
   let le = B.is_empty  last in
   match child with
   | None ->
-      assert ((fo && le) || (lo && fe) || (lo && fo))
+      (* When [child] is empty, either both [first] and [last] are ordinary
+         (which means that they have size 2 or 3) or one of them is empty
+         and the other is ordinary. *)
+      assert (fo && lo || fe && lo || fo && le)
   | Some _ ->
+      (* When [child] is nonempty, both [first] and [last] are ordinary. *)
       assert (fo && lo)
 
 let check d =
