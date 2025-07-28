@@ -339,7 +339,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
   match left, right with
   | Some r, _ ->
       (* Case 1 in the paper: [left] is nonempty. *)
-    let (t, l) =
+    let (t, left) =
       let f = !r in
       let t = inspect_first f in
       if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
@@ -352,26 +352,26 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
     | 3, _ ->
       let a, x' = B.pop x in
       let p' = B.inject prefix a in
-      let ld' = push (triple x' d' y) l in
-      { f with prefix = p'; left = ld' }
+      let left = push (triple x' d' y) left in
+      { f with prefix = p'; left }
     | 2, _ ->
       let p' = B.(fold_left inject prefix x) in
       if is_empty d' && B.is_empty y
-        then { f with prefix = p'; left = l }
+        then { f with prefix = p'; left }
       else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-        let l' = concat d' (push (triple y empty B.empty) l)
-        in { f with prefix = p'; left = l' }
+        let left = concat d' (push (triple y empty B.empty) left)
+        in { f with prefix = p'; left }
     | 0, 3 ->
       (* x is empty *therefore* d' is empty  *)
       assert (is_empty d');
       let a, y' = B.pop y in
       let p' = B.inject prefix a in
-      let ld' = push (triple x d' y') l in
-      { f with prefix = p'; left = ld' }
+      let left = push (triple x d' y') left in
+      { f with prefix = p'; left }
     | 0, 2 ->
       let p' = B.fold_left B.inject prefix y in
       (* here we know x and d' are empty *)
-      { f with prefix = p'; left = l }
+      { f with prefix = p'; left }
     | _ -> assert false
     end
   | None, Some right ->
