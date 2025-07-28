@@ -333,20 +333,22 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
     r := f;
     naive_pop f
 
+and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
+  let f = !r in
+  let t = inspect_first f in
+  if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
+    (* TODO unclear why the previous test allows us to call [naive_pop] *)
+    naive_pop f
+  else
+    pop_nonempty r
+
 and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
   let { prefix; left; middle; right; suffix } = f in
   assert (B.length prefix = 3);
   match left, right with
   | Some r, _ ->
       (* Case 1 in the paper: [left] is nonempty. *)
-    let (t, left) =
-      let f = !r in
-      let t = inspect_first f in
-      if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
-        naive_pop f
-      else
-        pop_nonempty r
-    in
+    let (t, left) = pop_triple_nonempty r in
     let { first = x; child = d'; last = y } = t in
     begin match B.length x, B.length y with
     | 3, _ ->
@@ -376,14 +378,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
     end
   | None, Some right ->
       (* Case 2 in the paper: [right] is nonempty. *)
-    let rightm = !right in
-    let t = inspect_first rightm in
-    let (t, r) =
-      if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
-        naive_pop rightm
-      else
-        pop_nonempty right
-    in
+      let t, r = pop_triple_nonempty right in
     let { first = x; child = d'; last = y } = t in
     begin match B.length x, B.length y with
     | 3, _ ->
