@@ -425,6 +425,8 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
 
   | None, Some right ->
       (* Case 2 in the paper: [right] is nonempty. *)
+      (* Therefore [middle] has length 2. *)
+      assert (B.length middle = 2);
       let t, r = pop_triple_nonempty right in
     let { first = x; child = d'; last = y } = t in
     begin match B.length x, B.length y with
@@ -436,7 +438,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let r' = push (triple x' d' y) r in
       { f with prefix = p; middle = m'; right = r' }
     | 2, _ ->
-      let p = B.concat3x prefix middle in
+      let p = B.concat32 prefix middle in
       let r' = if is_empty d' && B.is_empty y
           then r else concat d' (push (triple y empty B.empty) r)
       in
@@ -450,7 +452,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let r' = push (triple x d' y') r in
       { f with prefix = p; middle = m'; right = r' }
     | 0, 2 ->
-      let p = B.concat3x prefix middle in
+      let p = B.concat32 prefix middle in
       { f with prefix = p; middle = y; right = r }
     | _ -> assert false
     end
