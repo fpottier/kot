@@ -452,7 +452,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       let l, t = match last_nonempty t with
         | Some b when B.length b = 3
             -> naive_eject rightm
-        | None when not (is_empty t.child)
+        | _ when not (is_empty t.child)
             -> naive_eject rightm
         | _ -> eject_nonempty right
       in
