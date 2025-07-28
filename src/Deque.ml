@@ -274,16 +274,25 @@ let concat d1 d2 =
 
 (* Extraction at the front end. *)
 
+(* [naive_pop_permitted f] determines whether the call [naive_pop f]
+   is legal.
+   TODO unclear whether this is *the* precondition of [naive_pop]
+   or *one of the possible preconditions* of [naive_pop] *)
+
+let[@inline] naive_pop_permitted (f : 'a five_tuple) : bool =
+  let { prefix; middle; _ } = f in
+  B.is_empty middle || B.length prefix > 3
+
 (* [naive_pop] expects a 5-tuple, which must satisfy the precondition
    [B.is_empty middle || B.length prefix > 3]. In this special case,
    it performs a [pop] operation. *)
 
 let naive_pop (type a) (f : a five_tuple) : a * a deque =
-  let { prefix; left; middle; right; suffix } = f in
   (* TODO unclear whether this assertion is correct!
      in the tests it is never violated,
      but some call sites of [naive_pop] do not clearly obey it *)
-  assert (B.is_empty middle || B.length prefix > 3);
+  assert (naive_pop_permitted f);
+  let { prefix; left; middle; right; suffix } = f in
   if B.is_empty middle then
     let x, suffix = B.pop suffix in
     x, assemble prefix left middle right suffix
@@ -317,8 +326,7 @@ let inspect_first (type a) (f : a five_tuple) : a =
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
-  let { prefix; middle; _ } = f in
-  if B.is_empty middle || B.length prefix > 3 then
+  if naive_pop_permitted f then
     naive_pop f
   else
     let f = prepare_naive_pop f in
