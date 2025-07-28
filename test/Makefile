@@ -14,6 +14,7 @@ test:
 	  Buffer8 \
 	  LBuffer \
 	  Deque \
+	  DequeWF \
 
 .PHONY: clean
 clean:
