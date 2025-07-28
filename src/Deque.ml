@@ -329,35 +329,41 @@ let[@inline] prepare_naive_pop_case_1 (type a)
 : a five_tuple =
   let { prefix; _ } = f in
   let { first; child; last } = t in
+  (* The buffer [first] has length 3, 2, or 0.
+     This gives rise to three subcases. *)
   let lfirst = B.length first in
-  assert (lfirst = 2 || lfirst = 3 || lfirst = 0);
-  if lfirst = 3 then
-    let x, first = B.pop first in
-    let prefix = B.inject prefix x in
-    let left = push (triple first child last) left in
-    { f with prefix; left }
-  else if lfirst = 2 then
-    let prefix = B.fold_left B.inject prefix first in
-    if is_empty child && B.is_empty last then
+  assert (lfirst = 3 || lfirst = 2 || lfirst = 0);
+  match lfirst with
+  | 3 ->
+      (* Move one element from [first], towards the left, into [prefix]. *)
+      let x, first = B.pop first in
+      let prefix = B.inject prefix x in
+      let t = triple first child last in
+      let left = push t left in
       { f with prefix; left }
-    else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-      let left = concat child (push (triple last empty B.empty) left) in
-      { f with prefix; left }
-  else begin
-    assert (lfirst = 0);
-    (* first is empty *therefore* child is empty  *)
-    assert (is_empty child);
-    let llast = B.length last in
-    assert (llast = 3 || llast = 2);
-    if llast = 3 then
-      let a, last = B.pop last in
-      let prefix = B.inject prefix a in
-      let left = push (triple first child last) left in
-      { f with prefix; left }
-    else
-      let prefix = B.fold_left B.inject prefix last in
-      { f with prefix; left }
-  end
+  | 2 ->
+      let prefix = B.fold_left B.inject prefix first in
+      if is_empty child && B.is_empty last then
+        { f with prefix; left }
+      else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
+        let left = concat child (push (triple last empty B.empty) left) in
+        { f with prefix; left }
+  | _ ->
+      assert (lfirst = 0);
+      (* Because [first] is empty, [child] is empty as well. *)
+      assert (is_empty child);
+      (* The buffer [last] has length 3 or 2.
+         This gives rise to two subsubcases. *)
+      let llast = B.length last in
+      assert (llast = 3 || llast = 2);
+      if llast = 3 then
+        let a, last = B.pop last in
+        let prefix = B.inject prefix a in
+        let left = push (triple first child last) left in
+        { f with prefix; left }
+      else
+        let prefix = B.fold_left B.inject prefix last in
+        { f with prefix; left }
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
