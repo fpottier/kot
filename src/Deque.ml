@@ -328,34 +328,34 @@ let[@inline] prepare_naive_pop_case_1 (type a)
   (f : a five_tuple) (t : a triple) (left : a triple deque)
 : a five_tuple =
   let { prefix; _ } = f in
-  let { first = x; child = d'; last = y } = t in
-  let lx = B.length x in
-  assert (lx = 2 || lx = 3 || lx = 0);
-  if lx = 3 then
-    let a, x' = B.pop x in
-    let prefix = B.inject prefix a in
-    let left = push (triple x' d' y) left in
+  let { first; child; last } = t in
+  let lfirst = B.length first in
+  assert (lfirst = 2 || lfirst = 3 || lfirst = 0);
+  if lfirst = 3 then
+    let x, first = B.pop first in
+    let prefix = B.inject prefix x in
+    let left = push (triple first child last) left in
     { f with prefix; left }
-  else if lx = 2 then
-    let prefix = B.(fold_left inject prefix x) in
-    if is_empty d' && B.is_empty y then
+  else if lfirst = 2 then
+    let prefix = B.fold_left B.inject prefix first in
+    if is_empty child && B.is_empty last then
       { f with prefix; left }
     else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-      let left = concat d' (push (triple y empty B.empty) left) in
+      let left = concat child (push (triple last empty B.empty) left) in
       { f with prefix; left }
   else begin
-    assert (lx = 0);
-    (* x is empty *therefore* d' is empty  *)
-    assert (is_empty d');
-    let ly = B.length y in
-    assert (ly = 3 || ly = 2);
-    if ly = 3 then
-      let a, y' = B.pop y in
+    assert (lfirst = 0);
+    (* first is empty *therefore* child is empty  *)
+    assert (is_empty child);
+    let llast = B.length last in
+    assert (llast = 3 || llast = 2);
+    if llast = 3 then
+      let a, last = B.pop last in
       let prefix = B.inject prefix a in
-      let left = push (triple x d' y') left in
+      let left = push (triple first child last) left in
       { f with prefix; left }
     else
-      let prefix = B.fold_left B.inject prefix y in
+      let prefix = B.fold_left B.inject prefix last in
       { f with prefix; left }
   end
 
