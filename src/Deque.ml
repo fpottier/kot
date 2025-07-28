@@ -397,13 +397,19 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
     ptr := balanced_deque;
     naive_pop balanced_deque
 
-let pop : type a. a deque -> a * a deque
-  = function
-  | None -> assert false
-  | Some r -> pop_nonempty r
+let pop d =
+  match d with
+  | None ->
+      assert false
+  | Some r ->
+      pop_nonempty r
 
-let pop_opt : type a. a deque -> (a * a deque) option
-  = fun x -> Option.map pop_nonempty x
+let pop_opt d =
+  match d with
+  | None ->
+      None
+  | Some r ->
+      Some (pop_nonempty r)
 
 (* -------------------------------------------------------------------------- *)
 
@@ -522,13 +528,19 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
     ptr := balanced_deque;
     naive_eject balanced_deque
 
-let eject : type a. a deque -> a deque * a
-  = function
-  | None -> assert false
-  | Some r -> eject_nonempty r
+let eject d =
+  match d with
+  | None ->
+      assert false
+  | Some r ->
+      eject_nonempty r
 
-let eject_opt : type a. a deque -> (a deque * a) option
-  = fun x -> Option.map eject_nonempty x
+let eject_opt d =
+  match d with
+  | None ->
+      None
+  | Some r ->
+      Some (eject_nonempty r)
 
 (* -------------------------------------------------------------------------- *)
 
