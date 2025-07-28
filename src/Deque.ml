@@ -272,9 +272,21 @@ let concat d1 d2 =
 
 (* -------------------------------------------------------------------------- *)
 
-(* NOTE(Juliette): the resulting deque may break the invariants *)
-let naive_pop : type a. a five_tuple -> a * a deque = fun m ->
-  let { prefix; left; middle; right; suffix } = m in
+(* Extraction at the front end. *)
+
+(* [naive_pop] expects a 5-tuple, which must satisfy the precondition
+   [B.is_empty middle || B.length prefix > 3]. In this special case,
+   it performs a [pop] operation. *)
+
+(* However, the resulting deque may not satisfy the data structure's
+   invariant. *)
+
+(* TODO is the precondition correct? *)
+(* TODO explain in what way the invariant can be violated,
+        and how this can be repaired *)
+
+let naive_pop (type a) (f : a five_tuple) : a * a deque =
+  let { prefix; left; middle; right; suffix } = f in
   assert (B.is_empty middle || B.length prefix > 3);
   if B.is_empty middle then
     let x, suffix = B.pop suffix in
