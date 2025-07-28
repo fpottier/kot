@@ -399,7 +399,7 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
 and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
   let f = !r in
   let t = inspect_first f in
-  if not (is_empty t.child) || B.length (first_nonempty_buffer t) = 3 then
+  if not (is_empty t.child) || B.has_length_3 (first_nonempty_buffer t) then
     (* TODO unclear why the previous test allows us to call [naive_pop] *)
     naive_pop f
   else
@@ -450,7 +450,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
     end
   | None, None ->
       (* Case 3 in the paper: [left] and [right] are empty. *)
-    if B.length suffix = 3
+    if B.has_length_3 suffix
       then let suffix = B.concat3x prefix (B.fold_left B.inject middle suffix)
             in { f with middle = B.empty; prefix = B.empty; suffix }
     else
@@ -505,7 +505,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       let rightm = !right in
       let t = inspect_last rightm in
       let l, t = match last_nonempty t with
-        | Some b when B.length b = 3
+        | Some b when B.has_length_3 b
             -> naive_eject rightm
         | _ when not (is_empty t.child)
             -> naive_eject rightm
@@ -542,7 +542,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       let leftm = !left in
       let t = inspect_last leftm in
       let (r, t) = match last_nonempty t with
-        | Some b when B.length b = 3
+        | Some b when B.has_length_3 b
             -> naive_eject leftm
         | _ when not (is_empty t.child)
             -> naive_eject leftm
@@ -577,7 +577,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       | _ -> assert false
       end
     | _ (* is_empty left, is_empty right *) ->
-      if B.length prefix = 3
+      if B.has_length_3 prefix
         then let suffix = B.concat3x prefix (B.fold_left B.inject middle suffix)
               in { d with middle = B.empty; prefix = B.empty; suffix }
       else
