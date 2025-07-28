@@ -318,12 +318,11 @@ let first_nonempty_buffer (type a) (t : a triple) : a buffer =
   end
 
 let inspect_first (type a) (f : a five_tuple) : a =
-  let { prefix; middle; suffix; _ } = f in
-  if B.is_empty middle then begin
+  let { prefix; left; middle; right; suffix } = f in
+  if B.is_empty middle then
     (* This 5-tuple is suffix-only. *)
-    assert (B.is_empty prefix);
+    let () = assert (B.is_empty prefix && left = None && right = None) in
     B.first suffix
-  end
   else
     (* This 5-tuple is not suffix-only. Its prefix must be nonempty. *)
     B.first prefix
