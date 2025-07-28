@@ -224,8 +224,10 @@ let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
   | _, None ->
       d1
   | Some r1, Some r2 ->
-      let { prefix = prefix1; left = left1; middle = middle1; right = right1; suffix = suffix1 } = !r1 in
-      let { prefix = prefix2; left = left2; middle = middle2; right = right2; suffix = suffix2 } = !r2 in
+      let { prefix = prefix1; left = left1; middle = middle1;
+                            right = right1; suffix = suffix1 } = !r1
+      and { prefix = prefix2; left = left2; middle = middle2;
+                            right = right2; suffix = suffix2 } = !r2 in
       match B.is_empty middle1, B.is_empty middle2 with
       | false, false ->
           (* Extract the last element [d1] and the first element of [d2].
