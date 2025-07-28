@@ -331,6 +331,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
   (f : a five_tuple) (t : a triple) (left : a triple deque)
 : a five_tuple =
   let { prefix; _ } = f in
+  assert (B.length prefix = 3);
   let { first; child; last } = t in
   (* The buffer [first] has length 3, 2, or 0.
      This gives rise to three subcases. *)
