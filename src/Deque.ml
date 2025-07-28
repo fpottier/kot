@@ -346,36 +346,14 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
   let { prefix; left; middle; right; suffix } = f in
   assert (B.length prefix = 3);
   match left, right with
+
   | Some r, _ ->
-      (* Case 1 in the paper: [left] is nonempty. *)
-    let (t, left) = pop_triple_nonempty r in
-    let { first = x; child = d'; last = y } = t in
-    begin match B.length x, B.length y with
-    | 3, _ ->
-      let a, x' = B.pop x in
-      let prefix = B.inject prefix a in
-      let left = push (triple x' d' y) left in
-      { f with prefix; left }
-    | 2, _ ->
-      let prefix = B.(fold_left inject prefix x) in
-      if is_empty d' && B.is_empty y
-        then { f with prefix; left }
-      else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-        let left = concat d' (push (triple y empty B.empty) left)
-        in { f with prefix; left }
-    | 0, 3 ->
-      (* x is empty *therefore* d' is empty  *)
-      assert (is_empty d');
-      let a, y' = B.pop y in
-      let prefix = B.inject prefix a in
-      let left = push (triple x d' y') left in
-      { f with prefix; left }
-    | 0, 2 ->
-      let prefix = B.fold_left B.inject prefix y in
-      (* here we know x and d' are empty *)
-      { f with prefix; left }
-    | _ -> assert false
-    end
+      (* Case 1: [left] is a nonempty deque. *)
+      (* Pop one triple [t] out of [left],
+         then jump to the function that handles case 1. *)
+      let t, left = pop_triple_nonempty r in
+      prepare_naive_pop_case_1 f t left
+
   | None, Some right ->
       (* Case 2 in the paper: [right] is nonempty. *)
       let t, r = pop_triple_nonempty right in
@@ -418,6 +396,37 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let a, suffix = B.pop suffix in
       let middle = B.inject m a in
       { f with prefix; middle; suffix }
+
+and[@inline] prepare_naive_pop_case_1 : type a. a five_tuple -> a triple -> a triple deque -> a five_tuple =
+fun f t left ->
+  let { prefix; _ } = f in
+  let { first = x; child = d'; last = y } = t in
+  match B.length x, B.length y with
+  | 3, _ ->
+      let a, x' = B.pop x in
+      let prefix = B.inject prefix a in
+      let left = push (triple x' d' y) left in
+      { f with prefix; left }
+  | 2, _ ->
+      let prefix = B.(fold_left inject prefix x) in
+      if is_empty d' && B.is_empty y then
+        { f with prefix; left }
+      else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
+        let left = concat d' (push (triple y empty B.empty) left) in
+        { f with prefix; left }
+  | lx, 3 ->
+      assert (lx = 0);
+      (* x is empty *therefore* d' is empty  *)
+      assert (is_empty d');
+      let a, y' = B.pop y in
+      let prefix = B.inject prefix a in
+      let left = push (triple x d' y') left in
+      { f with prefix; left }
+  | lx, ly ->
+      assert (lx = 0 && ly = 2);
+      let prefix = B.fold_left B.inject prefix y in
+      (* here we know x and d' are empty *)
+      { f with prefix; left }
 
 let pop d =
   match d with
