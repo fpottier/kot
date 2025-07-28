@@ -80,6 +80,13 @@ let () =
   let spec = deque ^> deque ^> deque in
   declare "concat" spec R.concat C.concat;
 
+  (* TODO test [map] *)
+
+  let spec = foldl (deque ^> list element) in
+  declare "fold_left" spec R.fold_left C.fold_left;
+
+  let spec = foldr (deque ^> list element) in
+  declare "fold_right" spec R.fold_right C.fold_right;
 
   ()
 

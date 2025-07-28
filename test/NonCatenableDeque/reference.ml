@@ -27,6 +27,8 @@ let eject_opt xs = match xs with [] -> None | _ -> Some (eject xs)
 let last xs = List.hd (List.rev xs) (* slow *)
 let inject xs x = xs @ [x]
 let concat xs ys = xs @ ys
+let fold_left = List.fold_left
+let fold_right = List.fold_right
 
 (* Alternative array-based implementation:
 
