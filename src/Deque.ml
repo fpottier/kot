@@ -324,6 +324,41 @@ let inspect_first (type a) (f : a five_tuple) : a =
     (* This 5-tuple is not suffix-only. Its prefix must be nonempty. *)
     B.first prefix
 
+let[@inline] prepare_naive_pop_case_1 (type a)
+  (f : a five_tuple) (t : a triple) (left : a triple deque)
+: a five_tuple =
+  let { prefix; _ } = f in
+  let { first = x; child = d'; last = y } = t in
+  let lx = B.length x in
+  assert (lx = 2 || lx = 3 || lx = 0);
+  if lx = 3 then
+    let a, x' = B.pop x in
+    let prefix = B.inject prefix a in
+    let left = push (triple x' d' y) left in
+    { f with prefix; left }
+  else if lx = 2 then
+    let prefix = B.(fold_left inject prefix x) in
+    if is_empty d' && B.is_empty y then
+      { f with prefix; left }
+    else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
+      let left = concat d' (push (triple y empty B.empty) left) in
+      { f with prefix; left }
+  else begin
+    assert (lx = 0);
+    (* x is empty *therefore* d' is empty  *)
+    assert (is_empty d');
+    let ly = B.length y in
+    assert (ly = 3 || ly = 2);
+    if ly = 3 then
+      let a, y' = B.pop y in
+      let prefix = B.inject prefix a in
+      let left = push (triple x d' y') left in
+      { f with prefix; left }
+    else
+      let prefix = B.fold_left B.inject prefix y in
+      { f with prefix; left }
+  end
+
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
   if naive_pop_permitted f then
@@ -396,40 +431,6 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let a, suffix = B.pop suffix in
       let middle = B.inject m a in
       { f with prefix; middle; suffix }
-
-and[@inline] prepare_naive_pop_case_1 : type a. a five_tuple -> a triple -> a triple deque -> a five_tuple =
-fun f t left ->
-  let { prefix; _ } = f in
-  let { first = x; child = d'; last = y } = t in
-  let lx = B.length x in
-  assert (lx = 2 || lx = 3 || lx = 0);
-  if lx = 3 then
-    let a, x' = B.pop x in
-    let prefix = B.inject prefix a in
-    let left = push (triple x' d' y) left in
-    { f with prefix; left }
-  else if lx = 2 then
-    let prefix = B.(fold_left inject prefix x) in
-    if is_empty d' && B.is_empty y then
-      { f with prefix; left }
-    else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-      let left = concat d' (push (triple y empty B.empty) left) in
-      { f with prefix; left }
-  else begin
-    assert (lx = 0);
-    (* x is empty *therefore* d' is empty  *)
-    assert (is_empty d');
-    let ly = B.length y in
-    assert (ly = 3 || ly = 2);
-    if ly = 3 then
-      let a, y' = B.pop y in
-      let prefix = B.inject prefix a in
-      let left = push (triple x d' y') left in
-      { f with prefix; left }
-    else
-      let prefix = B.fold_left B.inject prefix y in
-      { f with prefix; left }
-  end
 
 let pop d =
   match d with
