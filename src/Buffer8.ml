@@ -306,6 +306,11 @@ let[@inline] fold_right f b accu =
 let doubleton x y =
   B2 (x, y)
 
+let has_length_3 b =
+  match b with
+  | B3 _ -> true
+  | _    -> false
+
 let has_length_6 b =
   match b with
   | B6 _ -> true

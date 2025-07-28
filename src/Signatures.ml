@@ -53,6 +53,9 @@ module type BUFFER8 = sig
      are [x] and [y]. *)
   val doubleton : 'a -> 'a -> 'a buffer
 
+  (**[has_length_3 b] is equivalent to [length b = 3]. *)
+  val has_length_3 : 'a buffer -> bool
+
   (**[has_length_6 b] is equivalent to [length b = 6]. *)
   val has_length_6 : 'a buffer -> bool
 
