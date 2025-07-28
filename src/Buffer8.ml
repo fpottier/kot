@@ -321,6 +321,13 @@ let has_length_8 b =
   | B8 _ -> true
   | _    -> false
 
+let concat32 b1 b2 =
+  match b1, b2 with
+  | B3 (x0, x1, x2), B2 (x3, x4) ->
+      B5 (x0, x1, x2, x3, x4)
+  | _, _ ->
+      assert false
+
 let concat3x b1 b2 =
   match b1 with
   | B3 (x0, x1, x2) ->
