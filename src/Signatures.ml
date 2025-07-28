@@ -45,6 +45,13 @@ module type BUFFER = sig
 
 end
 
+(**The signature [BUFFER8] extends the signature [BUFFER] with extra
+   operations. All of these operations are in principle redundant: that is,
+   they can be implemented in terms of the basic operations offered by
+   [BUFFER]. Nevertheless, it is useful to identify these operations, for two
+   reasons: first, their use makes client code more readable; second, a direct
+   implementation of these operations is more efficient than an indirect
+   implementation in terms of the basic operations. *)
 module type BUFFER8 = sig
 
   include BUFFER
