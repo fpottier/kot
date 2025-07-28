@@ -288,12 +288,14 @@ let naive_pop (type a) (f : a five_tuple) : a * a deque =
     let x, prefix = B.pop prefix in
     x, assemble_ prefix left middle right suffix
 
-let first_nonempty tr =
+let first_nonempty (type a) (tr : a triple) : a buffer =
   if not (B.is_empty tr.first)
-  then Some (tr.first)
-  else if not (B.is_empty tr.last)
-  then Some (tr.last)
-  else None
+  then tr.first
+  else begin
+    assert (is_empty tr.child);
+    assert (not (B.is_empty tr.last));
+    tr.last
+  end
 
 let inspect_first : type a. a five_tuple -> a =
   fun m ->
@@ -316,12 +318,12 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
     | Some left (* not empty *), _ ->
       let leftm = !left in
       let t = inspect_first leftm in
-      let (t, l) = match first_nonempty t with
-        | Some b when B.length b = 3
-            -> naive_pop leftm
-        | None when not (is_empty t.child)
-            -> naive_pop leftm
-        | _ -> pop_nonempty left
+      let (t, l) =
+        let b = first_nonempty t in
+        if B.length b = 3 || not (is_empty t.child) then
+          naive_pop leftm
+        else
+          pop_nonempty left
       in
       let { first = x; child = d'; last = y } = t in
       begin match B.length x, B.length y with
@@ -353,12 +355,12 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
     | None, Some right ->
       let rightm = !right in
       let t = inspect_first rightm in
-      let (t, r) = match first_nonempty t with
-        | Some b when B.length b = 3
-            -> naive_pop rightm
-        | _ when not (is_empty t.child)
-            -> naive_pop rightm
-        | _ -> pop_nonempty right
+      let (t, r) =
+        let b = first_nonempty t in
+        if B.length b = 3 || not (is_empty t.child) then
+          naive_pop rightm
+        else
+          pop_nonempty right
       in
       let { first = x; child = d'; last = y } = t in
       begin match B.length x, B.length y with
