@@ -591,6 +591,28 @@ and fold_left_triple : type a s. (s -> a -> s) -> s -> a triple -> s =
   let s = B.fold_left f s last in
   s
 
+let rec fold_right : type a s. (a -> s -> s) -> a deque -> s -> s =
+  fun f d s ->
+  match d with
+  | None ->
+      s
+  | Some r ->
+      let { prefix; left; middle; right; suffix } = !r in
+      let s = B.fold_right f suffix s in
+      let s = fold_right (fold_right_triple f) right s in
+      let s = B.fold_right f middle s in
+      let s = fold_right (fold_right_triple f) left s in
+      let s = B.fold_right f prefix s in
+      s
+
+and fold_right_triple : type a s. (a -> s -> s) -> a triple -> s -> s =
+  fun f t s ->
+  let { first; child; last } = t in
+  let s = B.fold_right f last s in
+  let s = fold_right (fold_right_triple f) child s in
+  let s = B.fold_right f first s in
+  s
+
 (* -------------------------------------------------------------------------- *)
 
 let reduce f g a b = fold_left (fun x y -> f x (g y)) a b

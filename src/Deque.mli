@@ -100,7 +100,15 @@ val map : ('a -> 'b) -> 'a t -> 'b t
    from left to right.
 
    Time complexity: {i O(n)}. *)
-val fold_left : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b
+val fold_left : ('s -> 'a -> 's) -> 's -> 'a t -> 's
+
+(**[fold_right f d s] is the final state obtained by starting with the
+   initial state [s] and by repeatedly applying the transformation function
+   [f] to the current state and to each element of the sequence [d] in turn,
+   from right to left.
+
+   Time complexity: {i O(n)}. *)
+val fold_right : ('a -> 's -> 's) -> 'a t -> 's -> 's
 
 (**/**)
 
