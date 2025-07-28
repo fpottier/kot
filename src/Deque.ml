@@ -323,10 +323,9 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
   match left, right with
     | Some left (* not empty *), _ ->
       let leftm = !left in
-      let t = inspect_first leftm in
       let (t, l) =
-        let b = first_nonempty t in
-        if B.length b = 3 || not (is_empty t.child) then
+        let t = inspect_first leftm in
+        if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
           naive_pop leftm
         else
           pop_nonempty left
@@ -362,8 +361,7 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
       let rightm = !right in
       let t = inspect_first rightm in
       let (t, r) =
-        let b = first_nonempty t in
-        if B.length b = 3 || not (is_empty t.child) then
+        if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
           naive_pop rightm
         else
           pop_nonempty right
