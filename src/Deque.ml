@@ -315,9 +315,8 @@ let inspect_first (type a) (f : a five_tuple) : a =
     (* This 5-tuple is not suffix-only. Its prefix must be nonempty. *)
     B.first prefix
 
-let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
-  fun ptr ->
-  let { prefix; left; middle; right; suffix } as d = !ptr in
+let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
+  let { prefix; left; middle; right; suffix } as d = !r in
   if B.is_empty middle || B.length prefix > 3 then
     naive_pop d
   else
@@ -409,7 +408,7 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
         { d with prefix; middle; suffix }
     end
   in
-    ptr := balanced_deque;
+    r := balanced_deque;
     naive_pop balanced_deque
 
 let pop d =
