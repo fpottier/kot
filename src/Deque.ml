@@ -380,9 +380,8 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       assert (not (B.is_empty last));
       (* The buffer [last] has length 3 or 2.
          This gives rise to two subsubcases. *)
-      let llast = B.length last in
-      assert (llast = 3 || llast = 2);
-      if llast = 3 then
+      assert (B.length last = 3 || B.length last = 2);
+      if B.has_length_3 last then
         (* Move one element from [last], towards the left, into [prefix]. *)
         let x, last = B.pop last in
         let prefix = B.inject prefix x in
