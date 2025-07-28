@@ -327,6 +327,12 @@ let inspect_first (type a) (f : a five_tuple) : a =
     (* This 5-tuple is not suffix-only. Its prefix must be nonempty. *)
     B.first prefix
 
+(* [prepare_naive_pop_case_1 f t left] requires the 5-tuple [f] to have
+   a prefix buffer of length 3. Furthermore, it expects the left deque
+   of [f] to have been already decomposed into one triple [t] followed
+   with a deque [left]. It returns a 5-tuple that is equivalent to [f]
+   and that is an acceptable argument for [naive_pop]. *)
+
 let[@inline] prepare_naive_pop_case_1 (type a)
   (f : a five_tuple) (t : a triple) (left : a triple deque)
 : a five_tuple =
