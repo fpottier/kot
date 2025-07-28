@@ -288,22 +288,28 @@ let naive_pop (type a) (f : a five_tuple) : a * a deque =
     let x, prefix = B.pop prefix in
     x, assemble_ prefix left middle right suffix
 
-let first_nonempty (type a) (tr : a triple) : a buffer =
-  if not (B.is_empty tr.first)
-  then tr.first
+let first_nonempty (type a) (t : a triple) : a buffer =
+  let { first; child; last } = t in
+  if not (B.is_empty first) then
+    (* The buffer [first] is nonempty. *)
+    first
   else begin
-    assert (is_empty tr.child);
-    assert (not (B.is_empty tr.last));
-    tr.last
+    (* The buffer [first] is empty. The child deque must be empty as well,
+       and the buffer [last] must be nonempty. *)
+    assert (is_empty child);
+    assert (not (B.is_empty last));
+    last
   end
 
-let inspect_first : type a. a five_tuple -> a =
-  fun m ->
-  let { prefix; middle; suffix; _ } = m in
-  if B.is_empty middle then
+let inspect_first (type a) (f : a five_tuple) : a =
+  let { prefix; middle; suffix; _ } = f in
+  if B.is_empty middle then begin
+    (* This 5-tuple is suffix-only. *)
+    assert (B.is_empty prefix);
     B.first suffix
+  end
   else
-    (* not suffix-only, prefix is nonempty *)
+    (* This 5-tuple is not suffix-only. Its prefix must be nonempty. *)
     B.first prefix
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque =
