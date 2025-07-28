@@ -173,14 +173,14 @@ let rec push : type a. a -> a deque -> a deque = fun x c ->
       let f = !r in
       let { prefix; left; middle; right; suffix } = f in
       if B.is_empty middle then
-        if B.length suffix = 8 then
+        if B.has_length_8 suffix then
           let prefix, middle, suffix = B.split8 suffix in
           r := { f with prefix; middle; suffix };
           assemble_ (B.push x prefix) left middle right suffix
         else
           assemble_ B.empty empty B.empty empty (B.push x suffix)
       else
-        if B.length prefix = 6 then
+        if B.has_length_6 prefix then
           let prefix, prefix' = B.split642 prefix in
           let left = push (triple prefix' empty B.empty) left in
           r := { f with prefix; left };
@@ -198,14 +198,14 @@ let rec inject : type a. a deque -> a -> a deque = fun c x ->
       let f = !r in
       let { prefix; left; middle; right; suffix } = f in
       if B.is_empty middle then
-        if B.length suffix = 8 then
+        if B.has_length_8 suffix then
           let prefix, middle, suffix = B.split8 suffix in
           r := { f with prefix; middle; suffix };
           assemble_ prefix left middle right (B.inject suffix x)
         else
           assemble_ B.empty empty B.empty empty (B.inject suffix x)
       else
-        if B.length suffix = 6 then
+        if B.has_length_6 suffix then
           let suffix', suffix = B.split624 suffix in
           let right = inject right (triple B.empty empty suffix') in
           r := { f with right; suffix };

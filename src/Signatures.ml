@@ -53,6 +53,12 @@ module type BUFFER8 = sig
      are [x] and [y]. *)
   val doubleton : 'a -> 'a -> 'a buffer
 
+  (**[has_length_6 b] is equivalent to [length b = 6]. *)
+  val has_length_6 : 'a buffer -> bool
+
+  (**[has_length_8 b] is equivalent to [length b = 8]. *)
+  val has_length_8 : 'a buffer -> bool
+
   (**[split23l] expects a buffer whose length is comprised between 2 and 5.
      This buffer is split into two buffers [b1] and [b2] such that [b1] has
      length 2 or 3 and [b2] has length 0 or 2 or 3. *)
