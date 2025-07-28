@@ -239,9 +239,11 @@ let concat d1 d2 =
              chunks of length 2 or 3 -- except the second chunk may have
              length 0. *)
           let suffix1a, suffix1b = B.split23l suffix1 in
-          (* Inject [middle1], [right1], and [suffix1a], as a triple, into [left1]. *)
+          (* Inject [middle1], [right1], and [suffix1a], as a triple,
+             into [left1]. *)
           let left1 = inject left1 (triple middle1 right1 suffix1a) in
-          (* Unless it is empty, inject [suffix1b], as a triple, into [left1]. *)
+          (* Unless it is empty, inject [suffix1b], as a triple,
+             into [left1]. *)
           let left1 =
             if B.is_empty suffix1b then left1
             else inject left1 (triple suffix1b empty B.empty)
@@ -250,9 +252,11 @@ let concat d1 d2 =
              chunks of length 2 or 3 -- except the first chunk may have
              length 0. *)
           let prefix2a, prefix2b = B.split23r prefix2 in
-          (* Push [prefix2b], [left2], and [middle2], as a triple, into [right2]. *)
+          (* Push [prefix2b], [left2], and [middle2], as a triple,
+             into [right2]. *)
           let right2 = push (triple prefix2b left2 middle2) right2 in
-          (* Unless it is empty, push [prefix2a], as a triple, into [right2]. *)
+          (* Unless it is empty, push [prefix2a], as a triple,
+             into [right2]. *)
           let right2 =
             if B.is_empty prefix2a then right2
             else push (triple prefix2a empty B.empty) right2
