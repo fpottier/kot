@@ -14,7 +14,7 @@
 open Monolith
 
 (* This is the reference implementation. *)
-module R = Reference
+module R = Testlib.Reference
 
 (* This is the candidate implementation. *)
 module C = Kot.LinkedBuffer

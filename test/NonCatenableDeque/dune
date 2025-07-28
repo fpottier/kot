@@ -1,5 +1,5 @@
 (executable
   (name test)
-  (libraries monolith kot)
+  (libraries monolith kot testlib)
   (enabled_if (= %{profile} dev))
 )
