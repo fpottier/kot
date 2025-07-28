@@ -353,27 +353,27 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
     begin match B.length x, B.length y with
     | 3, _ ->
       let a, x' = B.pop x in
-      let p' = B.inject prefix a in
+      let prefix = B.inject prefix a in
       let left = push (triple x' d' y) left in
-      { f with prefix = p'; left }
+      { f with prefix; left }
     | 2, _ ->
-      let p' = B.(fold_left inject prefix x) in
+      let prefix = B.(fold_left inject prefix x) in
       if is_empty d' && B.is_empty y
-        then { f with prefix = p'; left }
+        then { f with prefix; left }
       else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
         let left = concat d' (push (triple y empty B.empty) left)
-        in { f with prefix = p'; left }
+        in { f with prefix; left }
     | 0, 3 ->
       (* x is empty *therefore* d' is empty  *)
       assert (is_empty d');
       let a, y' = B.pop y in
-      let p' = B.inject prefix a in
+      let prefix = B.inject prefix a in
       let left = push (triple x d' y') left in
-      { f with prefix = p'; left }
+      { f with prefix; left }
     | 0, 2 ->
-      let p' = B.fold_left B.inject prefix y in
+      let prefix = B.fold_left B.inject prefix y in
       (* here we know x and d' are empty *)
-      { f with prefix = p'; left }
+      { f with prefix; left }
     | _ -> assert false
     end
   | None, Some right ->
