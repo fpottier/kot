@@ -304,7 +304,7 @@ let naive_pop (type a) (f : a five_tuple) : a * a deque =
     let x, prefix = B.pop prefix in
     x, assemble_ prefix left middle right suffix
 
-let first_nonempty (type a) (t : a triple) : a buffer =
+let first_nonempty_buffer (type a) (t : a triple) : a buffer =
   let { first; child; last } = t in
   if not (B.is_empty first) then
     (* The buffer [first] is nonempty. *)
@@ -397,7 +397,7 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
 and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
   let f = !r in
   let t = inspect_first f in
-  if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
+  if not (is_empty t.child) || B.length (first_nonempty_buffer t) = 3 then
     (* TODO unclear why the previous test allows us to call [naive_pop] *)
     naive_pop f
   else
