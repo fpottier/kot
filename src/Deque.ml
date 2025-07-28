@@ -316,100 +316,102 @@ let inspect_first (type a) (f : a five_tuple) : a =
     B.first prefix
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
-  let { prefix; left; middle; right; suffix } as d = !r in
+  let f = !r in
+  let { prefix; middle; _ } = f in
   if B.is_empty middle || B.length prefix > 3 then
-    naive_pop d
+    naive_pop f
   else
-  let balanced_deque = begin
-  assert(B.length prefix = 3);
+    let f = prepare_naive_pop f in
+    r := f;
+    naive_pop f
+
+and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
+  let { prefix; left; middle; right; suffix } = f in
+  assert (B.length prefix = 3);
   match left, right with
-    | Some left (* not empty *), _ ->
-      let leftm = !left in
-      let (t, l) =
-        let t = inspect_first leftm in
-        if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
-          naive_pop leftm
-        else
-          pop_nonempty left
-      in
-      let { first = x; child = d'; last = y } = t in
-      begin match B.length x, B.length y with
-      | 3, _ ->
-        let a, x' = B.pop x in
-        let p' = B.inject prefix a in
-        let ld' = push (triple x' d' y) l in
-        { d with prefix = p'; left = ld' }
-      | 2, _ ->
-        let p' = B.(fold_left inject prefix x) in
-        if is_empty d' && B.is_empty y
-          then { d with prefix = p'; left = l }
-        else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-          let l' = concat d' (push (triple y empty B.empty) l)
-          in { d with prefix = p'; left = l' }
-      | 0, 3 ->
-        (* x is empty *therefore* d' is empty  *)
-        assert (is_empty d');
-        let a, y' = B.pop y in
-        let p' = B.inject prefix a in
-        let ld' = push (triple x d' y') l in
-        { d with prefix = p'; left = ld' }
-      | 0, 2 ->
-        let p' = B.fold_left B.inject prefix y in
-        (* here we know x and d' are empty *)
-        { d with prefix = p'; left = l }
-      | _ -> assert false
-      end
-    | None, Some right ->
-      let rightm = !right in
-      let t = inspect_first rightm in
-      let (t, r) =
-        if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
-          naive_pop rightm
-        else
-          pop_nonempty right
-      in
-      let { first = x; child = d'; last = y } = t in
-      begin match B.length x, B.length y with
-      | 3, _ ->
-        let a, m = B.pop middle in
-        let p = B.inject prefix a in
-        let b, x' = B.pop x in
-        let m' = B.inject m b in
-        let r' = push (triple x' d' y) r in
-        { d with prefix = p; middle = m'; right = r' }
-      | 2, _ ->
-        let p = B.(fold_left inject prefix middle) in
-        let r' = if is_empty d' && B.is_empty y
-            then r else concat d' (push (triple y empty B.empty) r)
-        in
-        { d with prefix = p; middle = x; right = r' }
-      | 0, 3 ->
-        (* x is empty therefore d' is empty too *)
-        let a, m = B.pop middle in
-        let p = B.inject prefix a in
-        let b, y' = B.pop y in
-        let m' = B.inject m b in
-        let r' = push (triple x d' y') r in
-        { d with prefix = p; middle = m'; right = r' }
-      | 0, 2 ->
-        let p = B.(fold_left inject prefix middle) in
-        { d with prefix = p; middle = y; right = r }
-      | _ -> assert false
-      end
-    | _ (* is_empty left, is_empty right *) ->
-      if B.length suffix = 3
-        then let suffix = B.(fold_left inject prefix (fold_left inject middle suffix))
-              in { d with middle = B.empty; prefix = B.empty; suffix }
+  | Some left, _ ->
+    let leftm = !left in
+    let (t, l) =
+      let t = inspect_first leftm in
+      if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
+        naive_pop leftm
       else
-        let a, m = B.pop middle in
-        let prefix = B.inject prefix a in
-        let a, suffix = B.pop suffix in
-        let middle = B.inject m a in
-        { d with prefix; middle; suffix }
+        pop_nonempty left
+    in
+    let { first = x; child = d'; last = y } = t in
+    begin match B.length x, B.length y with
+    | 3, _ ->
+      let a, x' = B.pop x in
+      let p' = B.inject prefix a in
+      let ld' = push (triple x' d' y) l in
+      { f with prefix = p'; left = ld' }
+    | 2, _ ->
+      let p' = B.(fold_left inject prefix x) in
+      if is_empty d' && B.is_empty y
+        then { f with prefix = p'; left = l }
+      else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
+        let l' = concat d' (push (triple y empty B.empty) l)
+        in { f with prefix = p'; left = l' }
+    | 0, 3 ->
+      (* x is empty *therefore* d' is empty  *)
+      assert (is_empty d');
+      let a, y' = B.pop y in
+      let p' = B.inject prefix a in
+      let ld' = push (triple x d' y') l in
+      { f with prefix = p'; left = ld' }
+    | 0, 2 ->
+      let p' = B.fold_left B.inject prefix y in
+      (* here we know x and d' are empty *)
+      { f with prefix = p'; left = l }
+    | _ -> assert false
     end
-  in
-    r := balanced_deque;
-    naive_pop balanced_deque
+  | None, Some right ->
+    let rightm = !right in
+    let t = inspect_first rightm in
+    let (t, r) =
+      if not (is_empty t.child) || B.length (first_nonempty t) = 3 then
+        naive_pop rightm
+      else
+        pop_nonempty right
+    in
+    let { first = x; child = d'; last = y } = t in
+    begin match B.length x, B.length y with
+    | 3, _ ->
+      let a, m = B.pop middle in
+      let p = B.inject prefix a in
+      let b, x' = B.pop x in
+      let m' = B.inject m b in
+      let r' = push (triple x' d' y) r in
+      { f with prefix = p; middle = m'; right = r' }
+    | 2, _ ->
+      let p = B.(fold_left inject prefix middle) in
+      let r' = if is_empty d' && B.is_empty y
+          then r else concat d' (push (triple y empty B.empty) r)
+      in
+      { f with prefix = p; middle = x; right = r' }
+    | 0, 3 ->
+      (* x is empty therefore d' is empty too *)
+      let a, m = B.pop middle in
+      let p = B.inject prefix a in
+      let b, y' = B.pop y in
+      let m' = B.inject m b in
+      let r' = push (triple x d' y') r in
+      { f with prefix = p; middle = m'; right = r' }
+    | 0, 2 ->
+      let p = B.(fold_left inject prefix middle) in
+      { f with prefix = p; middle = y; right = r }
+    | _ -> assert false
+    end
+  | _ (* is_empty left, is_empty right *) ->
+    if B.length suffix = 3
+      then let suffix = B.(fold_left inject prefix (fold_left inject middle suffix))
+            in { f with middle = B.empty; prefix = B.empty; suffix }
+    else
+      let a, m = B.pop middle in
+      let prefix = B.inject prefix a in
+      let a, suffix = B.pop suffix in
+      let middle = B.inject m a in
+      { f with prefix; middle; suffix }
 
 let pop d =
   match d with
