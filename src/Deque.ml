@@ -217,7 +217,7 @@ let rec inject : type a. a deque -> a -> a deque = fun c x ->
 
 (* Concatenation. *)
 
-let concat : type a. a deque -> a deque -> a deque = fun d1 d2 ->
+let concat d1 d2 =
   match d1, d2 with
   | None, _ ->
       d2
