@@ -532,25 +532,40 @@ let eject_opt : type a. a deque -> (a deque * a) option
 
 (* -------------------------------------------------------------------------- *)
 
-let rec map : type a b. (a -> b) -> a deque -> b deque =
-  fun f ->
-  function
-  | None -> None
+(* Map. *)
+
+(* [map] does not preserve sharing: if a reference is reachable via several
+   paths in the original deque then [map] creates several distinct copies of
+   this reference. In the time complexity analysis, this may at first sight
+   appear problematic, as each copy of the reference needs its own copy of
+   the reference's potential (time credits). Fortunately, this can be
+   achieved by having [map] require [K.n] time credits for a sufficiently
+   large constant [K]. This argument relies on the fact that the number of
+   references in a deque is at most [n] -- in other words, the number of
+   5-tuples in a deque is at most the number of elements. This is true
+   because there are no empty 5-tuples. *)
+
+let rec map : type a b. (a -> b) -> a deque -> b deque = fun f d ->
+  match d with
+  | None ->
+      None
   | Some r ->
-    let { prefix; left; middle; right; suffix } = !r in
-    let prefix = B.map f prefix in
-    let left = map (map_triple f) left in
-    let middle = B.map f middle in
-    let right = map (map_triple f) right in
-    let suffix = B.map f suffix in
-    Some (ref { prefix; left; middle; right; suffix })
-and map_triple : type a b. (a -> b) -> a triple -> b triple =
-  fun f { first; child; last } ->
+      let { prefix; left; middle; right; suffix } = !r in
+      let prefix = B.map f prefix in
+      let left = map (map_triple f) left in
+      let middle = B.map f middle in
+      let right = map (map_triple f) right in
+      let suffix = B.map f suffix in
+      Some (ref { prefix; left; middle; right; suffix })
+
+and map_triple : type a b. (a -> b) -> a triple -> b triple = fun f t ->
+  let { first; child; last } = t in
   let first = B.map f first in
   let child = map (map_triple f) child in
   let last = B.map f last in
   { first; child; last }
 
+(* -------------------------------------------------------------------------- *)
 
 let rec fold_left : type a b. (b -> a -> b) -> b -> a deque -> b =
   fun f y ->
