@@ -567,24 +567,29 @@ and map_triple : type a b. (a -> b) -> a triple -> b triple = fun f t ->
 
 (* -------------------------------------------------------------------------- *)
 
-let rec fold_left : type a b. (b -> a -> b) -> b -> a deque -> b =
-  fun f y ->
-  function
-  | None -> y
+(* Iteration. *)
+
+let rec fold_left : type a s. (s -> a -> s) -> s -> a deque -> s =
+  fun f s d ->
+  match d with
+  | None ->
+      s
   | Some r ->
-    let { prefix; left; middle; right; suffix } = !r in
-    let y = B.fold_left f y prefix in
-    let y = fold_left (fold_left_triple f) y left in
-    let y = B.fold_left f y middle in
-    let y = fold_left (fold_left_triple f) y right in
-    let y = B.fold_left f y suffix in
-    y
-and fold_left_triple : type a b. (b -> a -> b) -> b -> a triple -> b =
-  fun f y { first; child; last } ->
-  let y = B.fold_left f y first in
-  let y = fold_left (fold_left_triple f) y child in
-  let y = B.fold_left f y last in
-  y
+      let { prefix; left; middle; right; suffix } = !r in
+      let s = B.fold_left f s prefix in
+      let s = fold_left (fold_left_triple f) s left in
+      let s = B.fold_left f s middle in
+      let s = fold_left (fold_left_triple f) s right in
+      let s = B.fold_left f s suffix in
+      s
+
+and fold_left_triple : type a s. (s -> a -> s) -> s -> a triple -> s =
+  fun f s t ->
+  let { first; child; last } = t in
+  let s = B.fold_left f s first in
+  let s = fold_left (fold_left_triple f) s child in
+  let s = B.fold_left f s last in
+  s
 
 (* -------------------------------------------------------------------------- *)
 
