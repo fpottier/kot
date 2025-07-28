@@ -342,7 +342,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       let left = push t left in
       { f with prefix; left }
   | 2 ->
-      let prefix = B.fold_left B.inject prefix first in
+      let prefix = B.concat3x prefix first in
       if is_empty child && B.is_empty last then
         { f with prefix; left }
       else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
@@ -362,7 +362,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
         let left = push (triple first child last) left in
         { f with prefix; left }
       else
-        let prefix = B.fold_left B.inject prefix last in
+        let prefix = B.concat3x prefix last in
         { f with prefix; left }
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
@@ -408,7 +408,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let r' = push (triple x' d' y) r in
       { f with prefix = p; middle = m'; right = r' }
     | 2, _ ->
-      let p = B.fold_left B.inject prefix middle in
+      let p = B.concat3x prefix middle in
       let r' = if is_empty d' && B.is_empty y
           then r else concat d' (push (triple y empty B.empty) r)
       in
@@ -422,14 +422,14 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let r' = push (triple x d' y') r in
       { f with prefix = p; middle = m'; right = r' }
     | 0, 2 ->
-      let p = B.fold_left B.inject prefix middle in
+      let p = B.concat3x prefix middle in
       { f with prefix = p; middle = y; right = r }
     | _ -> assert false
     end
   | None, None ->
       (* Case 3 in the paper: [left] and [right] are empty. *)
     if B.length suffix = 3
-      then let suffix = B.fold_left B.inject prefix (B.fold_left B.inject middle suffix)
+      then let suffix = B.concat3x prefix (B.fold_left B.inject middle suffix)
             in { f with middle = B.empty; prefix = B.empty; suffix }
     else
       let a, m = B.pop middle in
@@ -556,7 +556,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       end
     | _ (* is_empty left, is_empty right *) ->
       if B.length prefix = 3
-        then let suffix = B.fold_left B.inject prefix (B.fold_left B.inject middle suffix)
+        then let suffix = B.concat3x prefix (B.fold_left B.inject middle suffix)
               in { d with middle = B.empty; prefix = B.empty; suffix }
       else
         let m, a = B.eject middle in
