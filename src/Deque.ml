@@ -377,11 +377,14 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       let llast = B.length last in
       assert (llast = 3 || llast = 2);
       if llast = 3 then
-        let a, last = B.pop last in
-        let prefix = B.inject prefix a in
-        let left = push (triple first child last) left in
+        (* Move one element from [last], towards the left, into [prefix]. *)
+        let x, last = B.pop last in
+        let prefix = B.inject prefix x in
+        let t = triple first child last in
+        let left = push t left in
         { f with prefix; left }
       else
+        (* Move all elements from [last], towards the left, into [prefix]. *)
         let prefix = B.concat3x prefix last in
         { f with prefix; left }
 
