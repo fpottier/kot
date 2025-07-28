@@ -355,7 +355,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
 
   | 2 ->
       (* Move all elements from [first], towards the left, into [prefix]. *)
-      let prefix = B.concat3x prefix first in
+      let prefix = B.concat32 prefix first in
       (* If [child] and [last] are both empty, then we are done. *)
       if is_empty child && B.is_empty last then
         { f with prefix; left }
@@ -390,7 +390,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
         { f with prefix; left }
       else
         (* Move all elements from [last], towards the left, into [prefix]. *)
-        let prefix = B.concat3x prefix last in
+        let prefix = B.concat32 prefix last in
         { f with prefix; left }
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
