@@ -5,6 +5,10 @@
 * Some operations on buffers (`push`, `inject`, `pop`, `eject`, etc.)
   are applied to buffers whose size is known. Specialize them?
 
+* Conversely, it is possible that some of the specialized operations
+  that we have introduced are used only in areas of the code that are
+  very seldom executed. If so, remove them.
+
 * Instead of an option on a reference,
   we could use an option with a mutable field,
   saving an indirection.
