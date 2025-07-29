@@ -342,6 +342,13 @@ let concat32 b1 b2 =
   | _, _ ->
       assert false
 
+let concat323 b1 b2 b3 =
+  match b1, b2, b3 with
+  | B3 (x0, x1, x2), B2 (x3, x4), B3 (x5, x6, x7) ->
+      B8 (x0, x1, x2, x3, x4, x5, x6, x7)
+  | _, _, _ ->
+      assert false
+
 let concat3x b1 b2 =
   match b1 with
   | B3 (x0, x1, x2) ->
