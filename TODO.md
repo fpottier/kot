@@ -2,22 +2,8 @@
 
 ## Performance
 
-* To reduce allocation and make the code more efficient,
-  we should avoid using sequences of small operations on buffers
-  (`B.push`, `B.pop`, `B.inject`, `B.eject`)
-  and introduce composite operations on buffers.
-  See `pop2` and `eject2` in `Buffer3.mli`.
-
-* Once the above point has been addressed,
-  perform benchmarks,
-  using various implementations of buffers.
-  Compare `Buffer8` versus `LinkedBuffer`.
-  In `LinkedBuffer`, a `length` field could be used
-  to obtain constant-time `length`.
-
-* Experiment with array-based versions of `Buffer`.
-  E.g., immutable arrays (simplest option).
-  Or, mutable chunks in the style of `Sek`.
+* Some operations on buffers (`push`, `inject`, `pop`, `eject`, etc.)
+  are applied to buffers whose size is known. Specialize them?
 
 * Instead of an option on a reference,
   we could use an option with a mutable field,
@@ -26,8 +12,6 @@
 ## Cleanup
 
 * Share the test code for the three buffer implementations.
-
-* Make `Deque` a functor over `Buffer`.
 
 * Add comments in every signature.
 
