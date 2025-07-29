@@ -30,7 +30,8 @@ WC := $(shell if command -v gwc >/dev/null ; then echo gwc ; else echo wc ; fi)
 
 .PHONY: scenarios
 scenarios:
-	@ $(WC) -l DequeBa/output/crashes/* | sort
+	@ $(WC) -l DequeBa/output/crashes/* --total=never | awk '{$$1=$$1};1' | sort
+# awk suppresses leading spaces (of which gwc prints a variable number!)
 
 # [make scenario] assumes that [make test] has been run and that some crash
 # scenarios have been found by [DequeBa]. It shows the shortest such scenario.
@@ -38,6 +39,7 @@ scenarios:
 .PHONY: scenario
 scenario:
 	@ more $$(make scenarios | head -1 | tr -s ' ' | cut -d ' ' -f 2)
+# tr compresses multiple spaces into one, so cut works as desired
 
 .PHONY: clean
 clean:
