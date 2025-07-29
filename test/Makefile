@@ -23,6 +23,21 @@ test:
 #	  NCDeque \
 #	  LBuffer \
 
+# [make scenarios] assumes that [make test] has been run and that some crash
+# scenarios have been found by [DequeBa]. It shows a list of these scenarios.
+
+.PHONY: scenarios
+scenarios:
+	@ wc -l DequeBa/output/crashes/* | sort
+
+# [make scenario] assumes that [make test] has been run and that some crash
+# scenarios have been found by [DequeBa]. It shows the shortest such scenario.
+
+.PHONY: scenario
+scenario:
+	@ more $$(wc -l DequeBa/output/crashes/* | sort | head -1 | tr -s ' ' | cut -d' ' -f 3)
+
+
 .PHONY: clean
 clean:
 	@ git clean -fdX

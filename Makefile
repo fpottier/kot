@@ -26,8 +26,8 @@ all:
 clean:
 	@ git clean -fdX
 
-.PHONY: test
-test:
+.PHONY: test scenarios scenario
+test scenarios scenario:
 	@ make -C test $@
 
 .PHONY: install
