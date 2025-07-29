@@ -342,6 +342,10 @@ let inspect_first (type a) (f : a five_tuple) : a =
     (* This 5-tuple is not suffix-only. Its prefix must be nonempty. *)
     B.first prefix
 
+(* The functions [prepare_pop_case_X] should be studied after reading
+   [prepare_pop]. The motivation for [prepare_pop] is apparent in the
+   main function, [pop_nonempty]. *)
+
 (* [prepare_pop_case_1 f t left] requires the 5-tuple [f] to have
    a prefix buffer of length 3. Furthermore, it expects the left deque
    of [f] to have been already decomposed into one triple [t] followed
