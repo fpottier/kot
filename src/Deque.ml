@@ -462,8 +462,10 @@ and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple
     pop_nonempty r
 
 and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
+  assert (not (naive_pop_safe f));
   let { prefix; left; middle; right; suffix } = f in
   assert (B.length prefix = 3);
+  assert (B.length middle = 2);
   match left, right with
 
   | Some r, _ ->
@@ -475,8 +477,6 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
 
   | None, Some r ->
       (* Case 2: [left] is empty; [right] is nonempty. *)
-      (* [middle] has length 2. *)
-      assert (B.length middle = 2);
       let t, right = pop_triple_nonempty r in
       prepare_pop_case_2 f t right
 
@@ -488,6 +488,7 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
         and prefix = B.empty in
         { f with middle; prefix; suffix }
       else
+        (* TODO [middle] is a doubleton *)
         (* Move one element from [middle], towards the left, into [prefix]. *)
         let a, middle = B.pop middle in
         let prefix = B.inject prefix a in
