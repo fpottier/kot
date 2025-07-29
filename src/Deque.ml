@@ -319,7 +319,7 @@ let concat d1 d2 =
 (* [naive_pop_safe f] is a sufficient condition for [naive_pop f]
    to produce a valid deque. (See below.) *)
 
-let[@inline] naive_pop_safe (f : 'a five_tuple) : bool =
+let[@inline] naive_pop_safe (type a) (f : a five_tuple) : bool =
   let { prefix; middle; _ } = f in
   B.is_empty middle || B.length prefix > 3
 
