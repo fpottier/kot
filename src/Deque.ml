@@ -389,11 +389,14 @@ let[@inline] prepare_naive_pop_case_1 (type a)
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
+  (* If [naive_pop] is safe now, then just do it. Otherwise, update
+     the data structure so that [naive_pop] is safe, and do it. *)
   if naive_pop_safe f then
     naive_pop f
   else
     let f = prepare_naive_pop f in
     r := f;
+    assert (naive_pop_safe f);
     naive_pop f
 
 (* TODO when writing symmetric code for [eject], remember that the
