@@ -278,24 +278,28 @@ let concat d1 d2 =
 
 (* Extraction at the front end. *)
 
-(* [naive_pop_permitted f] determines whether the call [naive_pop f]
-   is legal.
-   TODO unclear whether this is *the* precondition of [naive_pop]
-   or *one of the possible preconditions* of [naive_pop] *)
+(* [naive_pop_safe f] is a sufficient condition for [naive_pop f]
+   to produce a valid deque. (See below.) *)
 
-let[@inline] naive_pop_permitted (f : 'a five_tuple) : bool =
+let[@inline] naive_pop_safe (f : 'a five_tuple) : bool =
   let { prefix; middle; _ } = f in
   B.is_empty middle || B.length prefix > 3
 
-(* [naive_pop] expects a 5-tuple, which must satisfy the precondition
-   [B.is_empty middle || B.length prefix > 3]. In this special case,
-   it performs a [pop] operation. *)
+(* [naive_pop] expects a 5-tuple [f], extracts its first element [x],
+   and returns the remaining elements as a deque [d]. *)
+
+(* There are two distinct scenarios under which [naive_pop] is used.
+
+   In the first scenario, the precondition [naive_pop_safe f] holds.
+   Then, [naive_pop f] returns a valid deque.
+
+   In the second scenario, [naive_pop_safe f] does not necessarily
+   hold. [naive_pop f] returns a pair [(x, d)] where the deque [d]
+   is not valid. Then, for every [x'], the operation [push x' d]
+   will produce a valid deque again. *)
+(* TODO this remains to be confirmed by the proof *)
 
 let naive_pop (type a) (f : a five_tuple) : a * a deque =
-  (* TODO unclear whether this assertion is correct!
-     in the tests it is never violated,
-     but some call sites of [naive_pop] do not clearly obey it *)
-  assert (naive_pop_permitted f);
   let { prefix; left; middle; right; suffix } = f in
   if B.is_empty middle then
     let x, suffix = B.pop suffix in
@@ -393,7 +397,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
-  if naive_pop_permitted f then
+  if naive_pop_safe f then
     naive_pop f
   else
     let f = prepare_naive_pop f in
