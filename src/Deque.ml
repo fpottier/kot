@@ -341,69 +341,51 @@ let inspect_first (type a) (f : a five_tuple) : a =
    with a deque [left]. It returns a 5-tuple that is equivalent to [f]
    and that is an acceptable argument for [naive_pop]. *)
 
+(* The pair [t, left] may have been produced either by [naive_pop] or
+   by [pop_nonempty]. In the former case, the deque [left] is invalid,
+   and must be repaired by a [push] operation. In the code below, the
+   [push] operations that (potentially) repair the data structure are
+   followed with [assert (check left; true)]. This assertion ensures
+   that the repair is successful. *)
+
 let[@inline] prepare_naive_pop_case_1 (type a)
   (f : a five_tuple) (t : a triple) (left : a triple deque)
 : a five_tuple =
   let { prefix; _ } = f in
   assert (B.length prefix = 3);
   let { first; child; last } = t in
-  (* The buffer [first] has length 3, 2, or 0.
-     This gives rise to three subcases. *)
-  let lfirst = B.length first in
-  assert (lfirst = 3 || lfirst = 2 || lfirst = 0);
-  match lfirst with
+  (* The buffer [first] has length 3 or 2.
+     This gives rise to two subcases. *)
+  assert (is_ordinary first);
 
-  | 3 ->
-      (* Move one element from [first], towards the left, into [prefix]. *)
-      let prefix, first = B.move_left_1_33 prefix first in
-      let t = triple first child last in
+  if B.has_length_3 first then
+    (* Move one element from [first], towards the left, into [prefix]. *)
+    let prefix, first = B.move_left_1_33 prefix first in
+    let t = triple first child last in
+    let left = push t left in
+    assert (check left; true);
+    { f with prefix; left }
+
+  else
+    (* Move all elements from [first], towards the left, into [prefix]. *)
+    let prefix = B.concat32 prefix first in
+    (* If [child] and [last] are both empty, then we are done. *)
+    if is_empty child && B.is_empty last then
+      (* Here, because [child] is empty and [first] does not have length 3,
+         the deque [left] cannot have been produced by [naive_pop]. Thus,
+         no repairing [push] is needed. *)
+      let () = assert (check left; true) in
+      { f with prefix; left }
+    (* Otherwise, *)
+    else
+      (* When [child] is nonempty, [last] is nonempty. *)
+      (* Therefore, here, [last] must be nonempty. *)
+      let () = assert (not (B.is_empty last)) in
+      let t = buffer last in
       let left = push t left in
       assert (check left; true);
+      let left = concat child left in
       { f with prefix; left }
-
-  | 2 ->
-      (* Move all elements from [first], towards the left, into [prefix]. *)
-      let prefix = B.concat32 prefix first in
-      (* If [child] and [last] are both empty, then we are done. *)
-      if is_empty child && B.is_empty last then
-        (* TODO there is no [push] operation here! so how is [left] repaired
-           if its invariant has been broken by [naive_pop]? *)
-        let () = assert (check left; true) in
-        { f with prefix; left }
-      (* Otherwise, *)
-      else
-        (* When [child] is nonempty, [last] is nonempty. *)
-        (* Therefore, here, [last] must be nonempty. *)
-        let () = assert (not (B.is_empty last)) in
-        let t = buffer last in
-        let left = push t left in
-        assert (check left; true);
-        let left = concat child left in
-        { f with prefix; left }
-
-  | _ (* 0 *) ->
-      assert (lfirst = 0);
-      (* Because [first] is empty, [child] is empty as well.
-         Therefore [last] must be nonempty. *)
-      assert (is_empty child);
-      assert (not (B.is_empty last));
-      (* The buffer [last] has length 3 or 2.
-         This gives rise to two subsubcases. *)
-      assert (B.length last = 3 || B.length last = 2);
-      if B.has_length_3 last then
-        (* Move one element from [last], towards the left, into [prefix]. *)
-        let prefix, last = B.move_left_1_33 prefix last in
-        let t = buffer last in
-        let left = push t left in
-        assert (check left; true);
-        { f with prefix; left }
-      else
-        (* Move all elements from [last], towards the left, into [prefix]. *)
-        let prefix = B.concat32 prefix last in
-        (* TODO there is no [push] operation here! so how is [left] repaired
-           if its invariant has been broken by [naive_pop]? *)
-        assert (check left; true);
-        { f with prefix; left }
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
@@ -414,13 +396,22 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
     r := f;
     naive_pop f
 
+(* TODO when writing symmetric code for [eject], remember that the
+   triple [t] must be normalized in the other direction *)
 and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
   let f = !r in
+  (* Inspect the first triple in [f]. *)
   let t = inspect_first f in
+  (* If this triple satisfies a certain mysterious condition, then extract it
+     using [naive_pop]; otherwise extract it using [pop_nonempty]. This use of
+     [naive_pop] is not "safe"; it produces a deque whose invariant does not
+     necessarily hold. This deque must be repaired by a [push] operation,
+     which replaces the triple [t] with a new triple. *)
+  (* The reader might wonder why we do not just call [pop_nonempty] always, as
+     it is unconditionally safe and functionally equivalent to [naive_pop].
+     The answer is, [pop_nonempty] is more expensive than [naive_pop].
+     Achieving the desired asymptotic complexity requires care here. *)
   if not (is_empty t.child) || B.has_length_3 t.first then
-    (* TODO when writing symmetric code for [eject], remember that the
-       triple [t] must be normalized in the other direction *)
-    (* TODO unclear why the previous test allows us to call [naive_pop] *)
     naive_pop f
   else
     pop_nonempty r
