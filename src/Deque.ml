@@ -68,48 +68,32 @@ type 'a t =
 
 (* The data structure obeys the following invariant. *)
 
-let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d ->
-  match d with
-  | None ->
-      ()
-  | Some r ->
-      let { prefix; left; middle; right; suffix } = !r in
-      (* Check each component of this 5-tuple. *)
-      B.iter check_elem prefix;
-      check_deque (check_triple check_elem) left;
-      B.iter check_elem middle;
-      check_deque (check_triple check_elem) right;
-      B.iter check_elem suffix;
-      (* Check the length constraints at this level. *)
-      if B.is_empty middle then begin
-        (* A 5-tuple whose middle buffer is empty is "suffix-only". *)
-        assert (B.length_is_between prefix 0 0);
-        assert (left = None);
-        assert (right = None);
-        assert (B.length_is_between suffix 1 8)
-      end
-      else begin
-        assert (B.length_is_between prefix 3 6);
-        assert (B.length middle = 2);
-        assert (B.length_is_between suffix 3 6);
-      end
+(* A 5-tuple must obey the following local constraint. *)
 
-and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
-  let { first; child; last } = t in
-  (* Check each component of this triple. *)
-  B.iter check_elem first;
-  check_deque (check_triple check_elem) child;
-  B.iter check_elem last;
-  (* Check the length constraints at this level. *)
-  check_triple_local t
+let check_five_tuple_local f =
+  let { prefix; left; middle; right; suffix } = f in
+  if B.is_empty middle then begin
+    (* A 5-tuple whose middle buffer is empty is "suffix-only". *)
+    assert (B.length_is_between prefix 0 0);
+    assert (left = None);
+    assert (right = None);
+    assert (B.length_is_between suffix 1 8)
+  end
+  else begin
+    assert (B.length_is_between prefix 3 6);
+    assert (B.length middle = 2);
+    assert (B.length_is_between suffix 3 6);
+  end
 
 (* Inside a triple, we say that the buffer [first] or [last] is ordinary
    if its size is 2 or 3. If it is not ordinary then it must be empty. *)
 
-and is_ordinary : type a. a buffer -> bool = fun b ->
+let is_ordinary b =
   B.length_is_between b 2 3
 
-and check_triple_local : type a. a triple -> unit = fun t ->
+(* A triple must obey the following local constraint. *)
+
+let check_triple_local t =
   let { first; child; last } = t in
   (* The buffer [first] is always ordinary. In the paper, this invariant
      is not imposed when a triple is constructed; instead, it is imposed
@@ -123,6 +107,36 @@ and check_triple_local : type a. a triple -> unit = fun t ->
       assert (is_ordinary last || B.is_empty last)
   | Some _ ->
       assert (is_ordinary last)
+
+(* [check_deque] and [check_triple] perform a recursive traversal and
+   check that every local constraint holds. *)
+
+let rec check_deque : type a. (a -> unit) -> a deque -> unit = fun check_elem d ->
+  match d with
+  | None ->
+      ()
+  | Some r ->
+      let f = !r in
+      let { prefix; left; middle; right; suffix } = f in
+      (* Check each component of this 5-tuple. *)
+      B.iter check_elem prefix;
+      check_deque (check_triple check_elem) left;
+      B.iter check_elem middle;
+      check_deque (check_triple check_elem) right;
+      B.iter check_elem suffix;
+      (* Check the local constraint at this node. *)
+      check_five_tuple_local f
+
+and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
+  let { first; child; last } = t in
+  (* Check each component of this triple. *)
+  B.iter check_elem first;
+  check_deque (check_triple check_elem) child;
+  B.iter check_elem last;
+  (* Check the local constraint at this node. *)
+  check_triple_local t
+
+(* The main function [check] can be invoked from the outside. *)
 
 let check d =
   check_deque (fun _x -> ()) d
