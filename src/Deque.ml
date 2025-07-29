@@ -436,21 +436,21 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
       (* Therefore [middle] has length 2. *)
       assert (B.length middle = 2);
       let t, right = pop_triple_nonempty r in
-    let { first = x; child = d'; last = y } = t in
-    begin match B.length x, B.length y with
+    let { first; child; last = y } = t in
+    begin match B.length first, B.length y with
     | 3, _ ->
       let a, m = B.pop middle in
       let p = B.inject prefix a in
-      let b, x' = B.pop x in
+      let b, first = B.pop first in
       let m' = B.inject m b in
-      let right = push (triple x' d' y) right in
+      let right = push (triple first child y) right in
       { f with prefix = p; middle = m'; right }
     | 2, _ ->
       let p = B.concat32 prefix middle in
-      let right = if is_empty d' && B.is_empty y
-          then right else concat d' (push (buffer y) right)
+      let right = if is_empty child && B.is_empty y
+          then right else concat child (push (buffer y) right)
       in
-      { f with prefix = p; middle = x; right }
+      { f with prefix = p; middle = first; right }
     | _ -> assert false
     end
   | None, None ->
