@@ -101,19 +101,28 @@ and check_triple : type a. (a -> unit) -> a triple -> unit = fun check_elem t ->
   check_deque (check_triple check_elem) child;
   B.iter check_elem last;
   (* Check the length constraints at this level. *)
-  let fo = B.length_is_between first 2 3 in
-  let lo = B.length_is_between  last 2 3 in
-  let fe = B.is_empty first in
-  let le = B.is_empty  last in
+  check_triple_local t
+
+(* Inside a triple, we say that the buffer [first] or [last] is ordinary
+   if its size is 2 or 3. If it is not ordinary then it must be empty. *)
+
+and is_ordinary : type a. a buffer -> bool = fun b ->
+  B.length_is_between b 2 3
+
+and check_triple_local : type a. a triple -> unit = fun t ->
+  let { first; child; last } = t in
+  (* The buffer [first] is always ordinary. In the paper, this invariant
+     is not imposed when a triple is constructed; instead, it is imposed
+     in some places when a triple is inspected (e.g., in cases 1 and 2
+     in the description of [pop]). *)
+  assert (is_ordinary first);
+  (* When [child] is empty, [last] is either ordinary or empty.
+     When [child] is nonempty, [last] is ordinary. *)
   match child with
   | None ->
-      (* When [child] is empty, either both [first] and [last] are ordinary
-         (which means that they have size 2 or 3) or one of them is empty
-         and the other is ordinary. *)
-      assert (fo && lo || fe && lo || fo && le)
+      assert (is_ordinary last || B.is_empty last)
   | Some _ ->
-      (* When [child] is nonempty, both [first] and [last] are ordinary. *)
-      assert (fo && lo)
+      assert (is_ordinary last)
 
 let check d =
   check_deque (fun _x -> ()) d
@@ -163,7 +172,15 @@ let[@inline] assemble prefix left middle right suffix : _ deque =
 (* [triple] constructs the triple [{ first; child; last }]. *)
 
 let[@inline] triple first child last : _ triple =
-  { first; child; last }
+  let t = { first; child; last } in
+  assert (check_triple_local t; true);
+  t
+
+(* [buffer] converts a nonempty buffer into a triple. *)
+
+let[@inline] buffer (type a) (b : a buffer) : a triple =
+  assert (not (B.is_empty b));
+  triple b empty B.empty
 
 (* -------------------------------------------------------------------------- *)
 
@@ -186,7 +203,7 @@ let rec push : type a. a -> a deque -> a deque = fun x c ->
       else
         if B.has_length_6 prefix then
           let prefix, prefix' = B.split642 prefix in
-          let left = push (triple prefix' empty B.empty) left in
+          let left = push (buffer prefix') left in
           r := { f with prefix; left };
           assemble_ (B.push x prefix) left middle right suffix
         else
@@ -211,7 +228,7 @@ let rec inject : type a. a deque -> a -> a deque = fun c x ->
       else
         if B.has_length_6 suffix then
           let suffix', suffix = B.split624 suffix in
-          let right = inject right (triple B.empty empty suffix') in
+          let right = inject right (buffer suffix') in
           r := { f with right; suffix };
           assemble_ prefix left middle right (B.inject suffix x)
         else
@@ -371,7 +388,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
         (* When [child] is nonempty, [last] is nonempty. *)
         (* Therefore, here, [last] must be nonempty. *)
         let () = assert (not (B.is_empty last)) in
-        let t = triple last empty B.empty in
+        let t = buffer last in
         let left = push t left in
         assert (check left; true);
         let left = concat child left in
@@ -389,7 +406,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       if B.has_length_3 last then
         (* Move one element from [last], towards the left, into [prefix]. *)
         let prefix, last = B.move_left_1_33 prefix last in
-        let t = triple first child last in
+        let t = buffer last in
         let left = push t left in
         assert (check left; true);
         { f with prefix; left }
@@ -448,7 +465,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
     | 2, _ ->
       let p = B.concat32 prefix middle in
       let r' = if is_empty d' && B.is_empty y
-          then r else concat d' (push (triple y empty B.empty) r)
+          then r else concat d' (push (buffer y) r)
       in
       { f with prefix = p; middle = x; right = r' }
     | 0, 3 ->
@@ -457,7 +474,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let p = B.inject prefix a in
       let b, y' = B.pop y in
       let m' = B.inject m b in
-      let r' = push (triple x d' y') r in
+      let r' = push (buffer y') r in
       { f with prefix = p; middle = m'; right = r' }
     | 0, 2 ->
       let p = B.concat32 prefix middle in
@@ -539,7 +556,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         if is_empty d' && B.is_empty x
           then { d with suffix = s'; right = l }
         else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-          let l' = concat (inject l (triple B.empty empty x)) d'
+          let l' = concat (inject l (buffer x)) d'
           in { d with suffix = s'; right = l' }
       | 3, 0 ->
         (* y is empty *therefore* d' is empty  *)
@@ -576,7 +593,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       | _, 2 ->
         let s = B.fold_right B.push middle suffix in
         let l' = if is_empty d' && B.is_empty x
-            then r else concat d' (push (triple x empty B.empty) r)
+            then r else concat d' (push (buffer x) r)
         in
         { d with suffix = s; middle = y; left = l' }
       | 3, 0 ->
