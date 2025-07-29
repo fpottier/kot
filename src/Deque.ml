@@ -325,19 +325,6 @@ let naive_pop (type a) (f : a five_tuple) : a * a deque =
     let x, prefix = B.pop prefix in
     x, assemble_ prefix left middle right suffix
 
-let first_nonempty_buffer (type a) (t : a triple) : a buffer =
-  let { first; child; last } = t in
-  if not (B.is_empty first) then
-    (* The buffer [first] is nonempty. *)
-    first
-  else begin
-    (* The buffer [first] is empty. The child deque must be empty as well,
-       and the buffer [last] must be nonempty. *)
-    assert (is_empty child);
-    assert (not (B.is_empty last));
-    last
-  end
-
 let inspect_first (type a) (f : a five_tuple) : a =
   let { prefix; left; middle; right; suffix } = f in
   if B.is_empty middle then
@@ -430,7 +417,9 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
 and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
   let f = !r in
   let t = inspect_first f in
-  if not (is_empty t.child) || B.has_length_3 (first_nonempty_buffer t) then
+  if not (is_empty t.child) || B.has_length_3 t.first then
+    (* TODO when writing symmetric code for [eject], remember that the
+       triple [t] must be normalized in the other direction *)
     (* TODO unclear why the previous test allows us to call [naive_pop] *)
     naive_pop f
   else
