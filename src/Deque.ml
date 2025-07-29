@@ -401,9 +401,9 @@ let[@inline] prepare_pop_case_2 (type a)
 
   if B.has_length_3 first then
     let m0, m1 = B.decompose_doubleton middle in
-    (* Move one element from [middle], to the left, into [prefix]. *)
+    (* Move one element from [middle], towards the left, into [prefix]. *)
     let prefix = B.inject prefix m0 in
-    (* Move one element from [first], to the left, into [middle]. *)
+    (* Move one element from [first], towards the left, into [middle]. *)
     let m2, first = B.pop first in
     let middle = B.doubleton m1 m2 in
     let t = triple first child last in
@@ -411,15 +411,18 @@ let[@inline] prepare_pop_case_2 (type a)
     { f with prefix; middle; right }
 
   else
+    (* Move all of [middle], towards the left, into [prefix]. *)
     let prefix = B.concat32 prefix middle in
+    (* Move [first] into [middle]. *)
+    let middle = first in
+    (* The rest is analogous to a similar subcase in [prepare_pop_case_1]. *)
     if is_empty child && B.is_empty last then
       let right = validate right in
-      let middle = first in
       { f with prefix; middle; right }
     else
-      let right = validate (push (buffer last) right) in
+      let t = buffer last in
+      let right = validate (push t right) in
       let right = concat child right in
-      let middle = first in
       { f with prefix; middle; right }
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
