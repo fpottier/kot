@@ -361,6 +361,9 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       let prefix = B.concat32 prefix first in
       (* If [child] and [last] are both empty, then we are done. *)
       if is_empty child && B.is_empty last then
+        (* TODO there is no [push] operation here! so how is [left] repaired
+           if its invariant has been broken by [naive_pop]? *)
+        let () = assert (check left; true) in
         { f with prefix; left }
       (* Otherwise, *)
       else
@@ -390,6 +393,9 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       else
         (* Move all elements from [last], towards the left, into [prefix]. *)
         let prefix = B.concat32 prefix last in
+        (* TODO there is no [push] operation here! so how is [left] repaired
+           if its invariant has been broken by [naive_pop]? *)
+        assert (check left; true);
         { f with prefix; left }
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
