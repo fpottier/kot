@@ -60,10 +60,6 @@ module type BUFFER8 = sig
      are [x] and [y]. *)
   val doubleton : 'a -> 'a -> 'a buffer
 
-  (**[decompose_doubleton b] requires the buffer [b] to have length 2.
-     It returns its two elements [x] and [y]. *)
-  val decompose_doubleton : 'a buffer -> 'a * 'a
-
   (**[has_length_3 b] is equivalent to [length b = 3]. *)
   val has_length_3 : 'a buffer -> bool
 

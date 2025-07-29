@@ -306,13 +306,6 @@ let[@inline] fold_right f b accu =
 let doubleton x y =
   B2 (x, y)
 
-let decompose_doubleton b =
-  match b with
-  | B2 (x, y) ->
-      x, y
-  | _ ->
-      assert false
-
 let has_length_3 b =
   match b with
   | B3 _ -> true
