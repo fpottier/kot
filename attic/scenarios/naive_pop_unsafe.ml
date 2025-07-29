@@ -1,8 +1,6 @@
 (* This is a scenario where [naive_pop f] is invoked and
    [naive_pop_safe f] does not hold. *)
 
-(* dune utop *)
-(* #use "play.ml" *)
           open Kot.Deque;;
           let rec batch_push n x xs =
             if n = 0 then xs else
