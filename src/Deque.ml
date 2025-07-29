@@ -347,8 +347,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
 
   | 3 ->
       (* Move one element from [first], towards the left, into [prefix]. *)
-      let x, first = B.pop first in
-      let prefix = B.inject prefix x in
+      let prefix, first = B.move_left_1_33 prefix first in
       let t = triple first child last in
       let left = push t left in
       { f with prefix; left }
@@ -383,8 +382,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       assert (B.length last = 3 || B.length last = 2);
       if B.has_length_3 last then
         (* Move one element from [last], towards the left, into [prefix]. *)
-        let x, last = B.pop last in
-        let prefix = B.inject prefix x in
+        let prefix, last = B.move_left_1_33 prefix last in
         let t = triple first child last in
         let left = push t left in
         { f with prefix; left }
