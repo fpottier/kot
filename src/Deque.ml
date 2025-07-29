@@ -385,7 +385,6 @@ let[@inline] prepare_pop_case_1 (type a)
     else
       (* When [child] is nonempty, [last] is nonempty. *)
       (* Therefore, here, [last] must be nonempty. *)
-      let () = assert (not (B.is_empty last)) in
       let t = buffer last in
       let left = validate (push t left) in
       let left = concat child left in
