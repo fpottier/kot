@@ -394,23 +394,24 @@ let[@inline] prepare_pop_case_2 (type a)
   assert (B.length prefix = 3);
   assert (B.length middle = 2);
   let { first; child; last } = t in
-  begin match B.length first, B.length last with
-  | 3, _ ->
+  assert (is_ordinary first);
+
+  if B.has_length_3 first then
     let a, middle = B.pop middle in
     let prefix = B.inject prefix a in
     let b, first = B.pop first in
     let middle = B.inject middle b in
     let right = push (triple first child last) right in
     { f with prefix; middle; right }
-  | 2, _ ->
+
+  else
     let prefix = B.concat32 prefix middle in
-    let right = if is_empty child && B.is_empty last
-        then right else concat child (push (buffer last) right)
+    let right =
+      if is_empty child && B.is_empty last then right
+      else concat child (push (buffer last) right)
     in
     let middle = first in
     { f with prefix; middle; right }
-  | _ -> assert false
-  end
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
