@@ -481,11 +481,13 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
       prepare_pop_case_2 f t right
 
   | None, None ->
-      (* Case 3 in the paper: [left] and [right] are empty. *)
-    if B.has_length_3 suffix
-      then let suffix = B.concat3x prefix (B.fold_left B.inject middle suffix)
-            in { f with middle = B.empty; prefix = B.empty; suffix }
-    else
+      (* Case 3: [left] and [right] are empty. *)
+      if B.has_length_3 suffix then
+        let suffix = B.concat3x prefix (B.concatx3 middle suffix) in
+        let middle = B.empty
+        and prefix = B.empty in
+        { f with middle; prefix; suffix }
+      else
       let a, m = B.pop middle in
       let prefix = B.inject prefix a in
       let a, suffix = B.pop suffix in
@@ -551,7 +553,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let rd' = inject l (triple x d' y') in
         { d with suffix = s'; right = rd' }
       | _, 2 ->
-        let s' = B.fold_right B.push y suffix in
+        let s' = B.concatx3 y suffix in
         if is_empty d' && B.is_empty x
           then { d with suffix = s'; right = l }
         else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
@@ -565,7 +567,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let rd' = inject l (triple x' d' y) in
         { d with suffix = s'; right = rd' }
       | 2, 0 ->
-        let s' = B.fold_right B.push x suffix in
+        let s' = B.concatx3 x suffix in
         (* here we know y and d' are empty *)
         { d with suffix = s'; right = l }
       | _ -> assert false
@@ -590,7 +592,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let l' = inject r (triple x d' y') in
         { d with prefix = s; middle = m'; left = l' }
       | _, 2 ->
-        let s = B.fold_right B.push middle suffix in
+        let s = B.concatx3 middle suffix in
         let l' = if is_empty d' && B.is_empty x
             then r else concat d' (push (buffer x) r)
         in
@@ -604,13 +606,13 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let l' = inject r (triple x' d' y) in
         { d with suffix = s; middle = m'; left = l' }
       | 2, 0 ->
-        let s = B.fold_right B.push middle suffix in
+        let s = B.concatx3 middle suffix in
         { d with suffix = s; middle = x; left = r }
       | _ -> assert false
       end
     | _ (* is_empty left, is_empty right *) ->
       if B.has_length_3 prefix
-        then let suffix = B.concat3x prefix (B.fold_left B.inject middle suffix)
+        then let suffix = B.concat3x prefix (B.concatx3 middle suffix)
               in { d with middle = B.empty; prefix = B.empty; suffix }
       else
         let m, a = B.eject middle in
