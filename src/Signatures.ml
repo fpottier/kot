@@ -86,6 +86,10 @@ module type BUFFER8 = sig
      must have length 3. The buffer [b2] must have length at most 5. *)
   val concat3x : 'a buffer -> 'a buffer -> 'a buffer
 
+  (**[concatx3 b1 b2] concatenates the buffers [b1] and [b2]. The buffer [b2]
+     must have length 3. The buffer [b1] must have length at most 5. *)
+  val concatx3 : 'a buffer -> 'a buffer -> 'a buffer
+
   (**[split23l] expects a buffer whose length is comprised between 2 and 5.
      This buffer is split into two buffers [b1] and [b2] such that [b1] has
      length 2 or 3 and [b2] has length 0 or 2 or 3. *)
