@@ -557,7 +557,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let rd' = inject l (triple x d' y') in
         { d with suffix = s'; right = rd' }
       | _, 2 ->
-        let s' = B.concatx3 y suffix in
+        let s' = B.concat23 y suffix in
         if is_empty d' && B.is_empty x
           then { d with suffix = s'; right = l }
         else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
@@ -571,7 +571,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let rd' = inject l (triple x' d' y) in
         { d with suffix = s'; right = rd' }
       | 2, 0 ->
-        let s' = B.concatx3 x suffix in
+        let s' = B.concat23 x suffix in
         (* here we know y and d' are empty *)
         { d with suffix = s'; right = l }
       | _ -> assert false
@@ -596,7 +596,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let l' = inject r (triple x d' y') in
         { d with prefix = s; middle = m'; left = l' }
       | _, 2 ->
-        let s = B.concatx3 middle suffix in
+        let s = B.concat23 middle suffix in
         let l' = if is_empty d' && B.is_empty x
             then r else concat d' (push (buffer x) r)
         in
@@ -610,7 +610,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let l' = inject r (triple x' d' y) in
         { d with suffix = s; middle = m'; left = l' }
       | 2, 0 ->
-        let s = B.concatx3 middle suffix in
+        let s = B.concat23 middle suffix in
         { d with suffix = s; middle = x; left = r }
       | _ -> assert false
       end
