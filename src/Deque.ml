@@ -426,16 +426,16 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
 
   | Some r, _ ->
       (* Case 1: [left] is a nonempty deque. *)
-      (* Pop one triple [t] out of [left],
+      (* Extract one triple [t] out of [left],
          then jump to the function that handles case 1. *)
       let t, left = pop_triple_nonempty r in
       prepare_pop_case_1 f t left
 
-  | None, Some right ->
-      (* Case 2 in the paper: [right] is nonempty. *)
+  | None, Some r ->
+      (* Case 2: [right] is nonempty. *)
       (* Therefore [middle] has length 2. *)
       assert (B.length middle = 2);
-      let t, r = pop_triple_nonempty right in
+      let t, right = pop_triple_nonempty r in
     let { first = x; child = d'; last = y } = t in
     begin match B.length x, B.length y with
     | 3, _ ->
@@ -443,14 +443,14 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
       let p = B.inject prefix a in
       let b, x' = B.pop x in
       let m' = B.inject m b in
-      let r' = push (triple x' d' y) r in
-      { f with prefix = p; middle = m'; right = r' }
+      let right = push (triple x' d' y) right in
+      { f with prefix = p; middle = m'; right }
     | 2, _ ->
       let p = B.concat32 prefix middle in
-      let r' = if is_empty d' && B.is_empty y
-          then r else concat d' (push (buffer y) r)
+      let right = if is_empty d' && B.is_empty y
+          then right else concat d' (push (buffer y) right)
       in
-      { f with prefix = p; middle = x; right = r' }
+      { f with prefix = p; middle = x; right }
     | _ -> assert false
     end
   | None, None ->
