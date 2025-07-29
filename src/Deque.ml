@@ -387,6 +387,31 @@ let[@inline] prepare_pop_case_1 (type a)
       let left = concat child left in
       { f with prefix; left }
 
+let[@inline] prepare_pop_case_2 (type a)
+  (f : a five_tuple) (t : a triple) (right : a triple deque)
+: a five_tuple =
+  let { prefix; middle; _ } = f in
+  assert (B.length prefix = 3);
+  assert (B.length middle = 2);
+  let { first; child; last } = t in
+  begin match B.length first, B.length last with
+  | 3, _ ->
+    let a, middle = B.pop middle in
+    let prefix = B.inject prefix a in
+    let b, first = B.pop first in
+    let middle = B.inject middle b in
+    let right = push (triple first child last) right in
+    { f with prefix; middle; right }
+  | 2, _ ->
+    let prefix = B.concat32 prefix middle in
+    let right = if is_empty child && B.is_empty last
+        then right else concat child (push (buffer last) right)
+    in
+    let middle = first in
+    { f with prefix; middle; right }
+  | _ -> assert false
+  end
+
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
   (* If [naive_pop] is safe now, then just do it. Otherwise, update
@@ -436,24 +461,8 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
       (* [middle] has length 2. *)
       assert (B.length middle = 2);
       let t, right = pop_triple_nonempty r in
-    let { first; child; last } = t in
-    begin match B.length first, B.length last with
-    | 3, _ ->
-      let a, middle = B.pop middle in
-      let prefix = B.inject prefix a in
-      let b, first = B.pop first in
-      let middle = B.inject middle b in
-      let right = push (triple first child last) right in
-      { f with prefix; middle; right }
-    | 2, _ ->
-      let prefix = B.concat32 prefix middle in
-      let right = if is_empty child && B.is_empty last
-          then right else concat child (push (buffer last) right)
-      in
-      let middle = first in
-      { f with prefix; middle; right }
-    | _ -> assert false
-    end
+      prepare_pop_case_2 f t right
+
   | None, None ->
       (* Case 3 in the paper: [left] and [right] are empty. *)
     if B.has_length_3 suffix
