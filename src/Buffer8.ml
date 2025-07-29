@@ -356,54 +356,6 @@ let concat323 b1 b2 b3 =
   | _, _, _ ->
       assert false
 
-let concat3x b1 b2 =
-  match b1 with
-  | B3 (x0, x1, x2) ->
-      begin match b2 with
-      | B0 ->
-          b1
-      | B1 x3 ->
-          B4 (x0, x1, x2, x3)
-      | B2 (x3, x4) ->
-          B5 (x0, x1, x2, x3, x4)
-      | B3 (x3, x4, x5) ->
-          B6 (x0, x1, x2, x3, x4, x5)
-      | B4 (x3, x4, x5, x6) ->
-          B7 (x0, x1, x2, x3, x4, x5, x6)
-      | B5 (x3, x4, x5, x6, x7) ->
-          B8 (x0, x1, x2, x3, x4, x5, x6, x7)
-      | B6 _
-      | B7 _
-      | B8 _ ->
-          assert false
-      end
-  | _ ->
-      assert false
-
-let concatx3 b1 b2 =
-  match b2 with
-  | B3 (x2, x1, x0) ->
-      begin match b1 with
-      | B0 ->
-          b2
-      | B1 x3 ->
-          B4 (x3, x2, x1, x0)
-      | B2 (x4, x3) ->
-          B5 (x4, x3, x2, x1, x0)
-      | B3 (x5, x4, x3) ->
-          B6 (x5, x4, x3, x2, x1, x0)
-      | B4 (x6, x5, x4, x3) ->
-          B7 (x6, x5, x4, x3, x2, x1, x0)
-      | B5 (x7, x6, x5, x4, x3) ->
-          B8 (x7, x6, x5, x4, x3, x2, x1, x0)
-      | B6 _
-      | B7 _
-      | B8 _ ->
-          assert false
-      end
-  | _ ->
-      assert false
-
 let split23l b =
   match b with
   | B2 _

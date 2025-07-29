@@ -78,16 +78,9 @@ module type BUFFER8 = sig
      [b1] and [b2] is unchanged. *)
   val move_left_1_33 : 'a buffer -> 'a buffer -> 'a buffer * 'a buffer
 
-
-  (**[concat3x b1 b2] concatenates the buffers [b1] and [b2]. The buffer [b1]
-     must have length 3. The buffer [b2] must have length at most 5. *)
-  val concat3x : 'a buffer -> 'a buffer -> 'a buffer
   (**[concat23] concatenates two buffers whose lengths are 2 and 3. *)
   val concat23 : 'a buffer -> 'a buffer -> 'a buffer
 
-  (**[concatx3 b1 b2] concatenates the buffers [b1] and [b2]. The buffer [b2]
-     must have length 3. The buffer [b1] must have length at most 5. *)
-  val concatx3 : 'a buffer -> 'a buffer -> 'a buffer
   (**[concat32] concatenates two buffers whose lengths are 3 and 2. *)
   val concat32 : 'a buffer -> 'a buffer -> 'a buffer
 
