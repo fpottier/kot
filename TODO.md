@@ -35,6 +35,9 @@
 
 ## Tests
 
+* Use the scenarios in `attic/scenarios`
+  as repeatable test cases.
+
 * In each buffer and deque data structure,
   test `map`, `fold_left`, `fold_right`.
 
