@@ -404,12 +404,9 @@ let[@inline] prepare_pop_case_2 (type a)
   assert (is_ordinary first);
 
   if B.has_length_3 first then
-    let m0, m1 = B.decompose_doubleton middle in
-    (* Move one element from [middle], towards the left, into [prefix]. *)
-    let prefix = B.inject prefix m0 in
-    (* Move one element from [first], towards the left, into [middle]. *)
-    let m2, first = B.pop first in
-    let middle = B.doubleton m1 m2 in
+    (* Move one element from [first], towards the left, into [middle],
+       and one element from [middle], towards the left, into [prefix]. *)
+    let prefix, middle, first = B.double_move_left_323 prefix middle first in
     let t = triple first child last in
     let right = validate (push t right) in
     { f with prefix; middle; right }
@@ -488,13 +485,9 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
         and prefix = B.empty in
         { f with middle; prefix; suffix }
       else
-        (* TODO [middle] is a doubleton *)
-        (* Move one element from [middle], towards the left, into [prefix]. *)
-        let a, middle = B.pop middle in
-        let prefix = B.inject prefix a in
-        (* Move one element from [suffix], towards the left, into [middle]. *)
-        let a, suffix = B.pop suffix in
-        let middle = B.inject middle a in
+        (* Move one element from [suffix], towards the left, into [middle],
+            and one element from [middle], towards the left, into [prefix]. *)
+        let prefix, middle, suffix = B.double_move_left_32x prefix middle suffix in
         { f with prefix; middle; suffix }
 
 let pop d =
