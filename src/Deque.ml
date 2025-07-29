@@ -397,11 +397,15 @@ let[@inline] prepare_pop_case_2 (type a)
   assert (is_ordinary first);
 
   if B.has_length_3 first then
-    let a, middle = B.pop middle in
-    let prefix = B.inject prefix a in
-    let b, first = B.pop first in
-    let middle = B.inject middle b in
-    let right = push (triple first child last) right in
+    let m0, m1 = B.decompose_doubleton middle in
+    (* Move one element from [middle], to the left, into [prefix]. *)
+    let prefix = B.inject prefix m0 in
+    (* Move one element from [first], to the left, into [middle]. *)
+    let m2, first = B.pop first in
+    let middle = B.doubleton m1 m2 in
+    let t = triple first child last in
+    let right = push t right in
+    assert (check right; true);
     { f with prefix; middle; right }
 
   else
