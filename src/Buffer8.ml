@@ -335,6 +335,13 @@ let move_left_1_33 b1 b2 =
   | _, _ ->
       assert false
 
+let concat23 b1 b2 =
+  match b1, b2 with
+  | B2 (x0, x1), B3 (x2, x3, x4) ->
+      B5 (x0, x1, x2, x3, x4)
+  | _, _ ->
+      assert false
+
 let concat32 b1 b2 =
   match b1, b2 with
   | B3 (x0, x1, x2), B2 (x3, x4) ->
