@@ -362,9 +362,6 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       (* If [child] and [last] are both empty, then we are done. *)
       if is_empty child && B.is_empty last then
         { f with prefix; left }
-      (* Here, the paper is phrased in a way that is slightly unclear.
-         The fragment "If, on the other hand, d' and y are not null"
-         should be replaced with just "Otherwise". *)
       (* Otherwise, *)
       else
         (* When [child] is nonempty, [last] is nonempty. *)
