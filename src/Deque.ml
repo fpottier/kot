@@ -628,7 +628,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let s = B.concat23 middle suffix in
         let l' =
           if is_empty d' && B.is_empty x then validate r
-          else concat d' (validate (push (buffer x) r)) (* TODO should be [inject r (buffer x)] *)
+          else concat (validate (inject r (buffer x))) d'
         in
         { d with suffix = s; middle = y; left = l' }
       | 3, 0 ->
