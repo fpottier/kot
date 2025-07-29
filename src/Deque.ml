@@ -413,14 +413,15 @@ let[@inline] prepare_pop_case_2 (type a)
 
   else
     let prefix = B.concat32 prefix middle in
-    let right =
-      if is_empty child && B.is_empty last then
-        validate right
-      else
-        concat child (validate (push (buffer last) right))
-    in
-    let middle = first in
-    { f with prefix; middle; right }
+    if is_empty child && B.is_empty last then
+      let right = validate right in
+      let middle = first in
+      { f with prefix; middle; right }
+    else
+      let right = validate (push (buffer last) right) in
+      let right = concat child right in
+      let middle = first in
+      { f with prefix; middle; right }
 
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
