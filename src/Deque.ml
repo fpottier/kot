@@ -127,6 +127,13 @@ and check_triple_local : type a. a triple -> unit = fun t ->
 let check d =
   check_deque (fun _x -> ()) d
 
+(* [validate d] checks that the deque [d] is valid and returns [d].
+   This check takes place only if runtime assertions are enabled. *)
+
+let[@inline] validate d =
+  assert (check d; true);
+  d
+
 (* -------------------------------------------------------------------------- *)
 
 (* The empty deque is represented by [None], and only by [None]. *)
@@ -345,8 +352,7 @@ let inspect_first (type a) (f : a five_tuple) : a =
    by [pop_nonempty]. In the former case, the deque [left] is invalid,
    and must be repaired by a [push] operation. In the code below, the
    [push] operations that (potentially) repair the data structure are
-   followed with [assert (check left; true)]. This assertion ensures
-   that the repair is successful. *)
+   followed with a call to [validate]. *)
 
 let[@inline] prepare_pop_case_1 (type a)
   (f : a five_tuple) (t : a triple) (left : a triple deque)
@@ -362,8 +368,7 @@ let[@inline] prepare_pop_case_1 (type a)
     (* Move one element from [first], towards the left, into [prefix]. *)
     let prefix, first = B.move_left_1_33 prefix first in
     let t = triple first child last in
-    let left = push t left in
-    assert (check left; true);
+    let left = validate (push t left) in
     { f with prefix; left }
 
   else
@@ -374,7 +379,7 @@ let[@inline] prepare_pop_case_1 (type a)
       (* Here, because [child] is empty and [first] does not have length 3,
          the deque [left] cannot have been produced by [naive_pop]. Thus,
          no repairing [push] is needed. *)
-      let () = assert (check left; true) in
+      let left = validate left in
       { f with prefix; left }
     (* Otherwise, *)
     else
@@ -382,8 +387,7 @@ let[@inline] prepare_pop_case_1 (type a)
       (* Therefore, here, [last] must be nonempty. *)
       let () = assert (not (B.is_empty last)) in
       let t = buffer last in
-      let left = push t left in
-      assert (check left; true);
+      let left = validate (push t left) in
       let left = concat child left in
       { f with prefix; left }
 
@@ -404,15 +408,16 @@ let[@inline] prepare_pop_case_2 (type a)
     let m2, first = B.pop first in
     let middle = B.doubleton m1 m2 in
     let t = triple first child last in
-    let right = push t right in
-    assert (check right; true);
+    let right = validate (push t right) in
     { f with prefix; middle; right }
 
   else
     let prefix = B.concat32 prefix middle in
     let right =
-      if is_empty child && B.is_empty last then right
-      else concat child (push (buffer last) right)
+      if is_empty child && B.is_empty last then
+        validate right
+      else
+        concat child (validate (push (buffer last) right))
     in
     let middle = first in
     { f with prefix; middle; right }
