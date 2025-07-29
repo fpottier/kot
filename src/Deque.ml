@@ -335,7 +335,7 @@ let inspect_first (type a) (f : a five_tuple) : a =
     (* This 5-tuple is not suffix-only. Its prefix must be nonempty. *)
     B.first prefix
 
-(* [prepare_naive_pop_case_1 f t left] requires the 5-tuple [f] to have
+(* [prepare_pop_case_1 f t left] requires the 5-tuple [f] to have
    a prefix buffer of length 3. Furthermore, it expects the left deque
    of [f] to have been already decomposed into one triple [t] followed
    with a deque [left]. It returns a 5-tuple that is equivalent to [f]
@@ -348,7 +348,7 @@ let inspect_first (type a) (f : a five_tuple) : a =
    followed with [assert (check left; true)]. This assertion ensures
    that the repair is successful. *)
 
-let[@inline] prepare_naive_pop_case_1 (type a)
+let[@inline] prepare_pop_case_1 (type a)
   (f : a five_tuple) (t : a triple) (left : a triple deque)
 : a five_tuple =
   let { prefix; _ } = f in
@@ -394,7 +394,7 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   if naive_pop_safe f then
     naive_pop f
   else
-    let f = prepare_naive_pop f in
+    let f = prepare_pop f in
     r := f;
     assert (naive_pop_safe f);
     naive_pop f
@@ -419,7 +419,7 @@ and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple
   else
     pop_nonempty r
 
-and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
+and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
   let { prefix; left; middle; right; suffix } = f in
   assert (B.length prefix = 3);
   match left, right with
@@ -429,7 +429,7 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
       (* Pop one triple [t] out of [left],
          then jump to the function that handles case 1. *)
       let t, left = pop_triple_nonempty r in
-      prepare_naive_pop_case_1 f t left
+      prepare_pop_case_1 f t left
 
   | None, Some right ->
       (* Case 2 in the paper: [right] is nonempty. *)
