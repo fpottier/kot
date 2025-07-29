@@ -258,7 +258,7 @@ let concat d1 d2 =
                             right = right2; suffix = suffix2 } = !r2 in
       match B.is_empty middle1, B.is_empty middle2 with
       | false, false ->
-          (* Extract the last element [d1] and the first element of [d2].
+          (* Extract the last element of [d1] and the first element of [d2].
              Form a middle buffer with them. *)
           let suffix1, x1 = B.eject suffix1
           and x2, prefix2 = B.pop prefix2 in
