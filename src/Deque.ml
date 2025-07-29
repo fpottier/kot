@@ -488,11 +488,13 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
         and prefix = B.empty in
         { f with middle; prefix; suffix }
       else
-      let a, m = B.pop middle in
-      let prefix = B.inject prefix a in
-      let a, suffix = B.pop suffix in
-      let middle = B.inject m a in
-      { f with prefix; middle; suffix }
+        (* Move one element from [middle], towards the left, into [prefix]. *)
+        let a, middle = B.pop middle in
+        let prefix = B.inject prefix a in
+        (* Move one element from [suffix], towards the left, into [middle]. *)
+        let a, suffix = B.pop suffix in
+        let middle = B.inject middle a in
+        { f with prefix; middle; suffix }
 
 let pop d =
   match d with
