@@ -1,15 +1,9 @@
 (* @12: Failure in an instruction. *)
           open Kot.Deque;;
-          let rec batch_push n x xs =
-            if n = 0 then xs else
-            let xs = push x xs in
-            batch_push (n-1) x xs;;
           let rec batch_inject n xs x =
             if n = 0 then xs else
             let xs = inject xs x in
             batch_inject (n-1) xs x;;
-          #require "monolith";;
-          module Sup = Monolith.Support;;
 (* @01 *) let x0 = empty;;
 (* @02 *) let x1 = batch_inject 19 x0 14;;
 (* @03 *) let x2 = concat x1 x1;;
