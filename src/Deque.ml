@@ -448,17 +448,6 @@ and prepare_naive_pop : type a. a five_tuple -> a five_tuple = fun f ->
           then r else concat d' (push (buffer y) r)
       in
       { f with prefix = p; middle = x; right = r' }
-    | 0, 3 ->
-      (* x is empty therefore d' is empty too *)
-      let a, m = B.pop middle in
-      let p = B.inject prefix a in
-      let b, y' = B.pop y in
-      let m' = B.inject m b in
-      let r' = push (buffer y') r in
-      { f with prefix = p; middle = m'; right = r' }
-    | 0, 2 ->
-      let p = B.concat32 prefix middle in
-      { f with prefix = p; middle = y; right = r }
     | _ -> assert false
     end
   | None, None ->
