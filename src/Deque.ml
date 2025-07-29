@@ -354,6 +354,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
       let prefix, first = B.move_left_1_33 prefix first in
       let t = triple first child last in
       let left = push t left in
+      assert (check left; true);
       { f with prefix; left }
 
   | 2 ->
@@ -372,6 +373,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
         let () = assert (not (B.is_empty last)) in
         let t = triple last empty B.empty in
         let left = push t left in
+        assert (check left; true);
         let left = concat child left in
         { f with prefix; left }
 
@@ -389,6 +391,7 @@ let[@inline] prepare_naive_pop_case_1 (type a)
         let prefix, last = B.move_left_1_33 prefix last in
         let t = triple first child last in
         let left = push t left in
+        assert (check left; true);
         { f with prefix; left }
       else
         (* Move all elements from [last], towards the left, into [prefix]. *)
