@@ -321,6 +321,13 @@ let has_length_8 b =
   | B8 _ -> true
   | _    -> false
 
+let move_left_1_33 b1 b2 =
+  match b1, b2 with
+  | B3 (x0, x1, x2), B3 (x3, x4, x5) ->
+      B4 (x0, x1, x2, x3), B2 (x4, x5)
+  | _, _ ->
+      assert false
+
 let concat32 b1 b2 =
   match b1, b2 with
   | B3 (x0, x1, x2), B2 (x3, x4) ->

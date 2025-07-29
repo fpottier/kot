@@ -69,6 +69,11 @@ module type BUFFER8 = sig
   (**[has_length_8 b] is equivalent to [length b = 8]. *)
   val has_length_8 : 'a buffer -> bool
 
+  (**[move_left_1_33 b1 b2] requires the buffers [b1] and [b2] to have length 3.
+     One element is moved from [b2] to [b1]. The concatenation of the buffers
+     [b1] and [b2] is unchanged. *)
+  val move_left_1_33 : 'a buffer -> 'a buffer -> 'a buffer * 'a buffer
+
   (**[concat32 b1 b2] concatenates the buffers [b1] and [b2]. The buffer [b1]
      must have length 3. The buffer [b2] must have length 2. *)
   val concat32 : 'a buffer -> 'a buffer -> 'a buffer
