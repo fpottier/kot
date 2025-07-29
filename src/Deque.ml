@@ -576,25 +576,31 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       | _, 3 ->
         let y', a = B.eject y in
         let s' = B.push a suffix in
-        let rd' = inject l (triple x d' y') in
+        let t = triple x d' y' in
+        let rd' = validate (inject l t) in
         { d with suffix = s'; right = rd' }
       | _, 2 ->
         let s' = B.concat23 y suffix in
-        if is_empty d' && B.is_empty x
-          then { d with suffix = s'; right = l }
-        else (* NOTE(Juliette): the paper is phrased in a way that contradicts this code but leads to errors *)
-          let l' = concat (inject l (buffer x)) d'
-          in { d with suffix = s'; right = l' }
+        if is_empty d' && B.is_empty x then
+          let l = validate l in
+          { d with suffix = s'; right = l }
+        else
+          let t = buffer x in
+          let l = validate (inject l t) in
+          let l' = concat l d' in
+          { d with suffix = s'; right = l' }
       | 3, 0 ->
         (* y is empty *therefore* d' is empty  *)
         assert (is_empty d');
         let x', a = B.eject x in
         let s' = B.push a suffix in
-        let rd' = inject l (triple x' d' y) in
+        let t = triple x' d' y in
+        let rd' = validate (inject l t) in
         { d with suffix = s'; right = rd' }
       | 2, 0 ->
         let s' = B.concat23 x suffix in
         (* here we know y and d' are empty *)
+        let l = validate l in
         { d with suffix = s'; right = l }
       | _ -> assert false
       end
@@ -615,12 +621,14 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let s = B.push a suffix in
         let y', a = B.eject y in
         let m' = B.push a m in
-        let l' = inject r (triple x d' y') in
+        let t = triple x d' y' in
+        let l' = validate (inject r t) in
         { d with prefix = s; middle = m'; left = l' }
       | _, 2 ->
         let s = B.concat23 middle suffix in
-        let l' = if is_empty d' && B.is_empty x
-            then r else concat d' (push (buffer x) r)
+        let l' =
+          if is_empty d' && B.is_empty x then validate r
+          else concat d' (validate (push (buffer x) r)) (* TODO should be [inject r (buffer x)] *)
         in
         { d with suffix = s; middle = y; left = l' }
       | 3, 0 ->
@@ -629,10 +637,11 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let s = B.push a suffix in
         let x', a = B.eject x in
         let m' = B.push a m in
-        let l' = inject r (triple x' d' y) in
+        let l' = validate (inject r (triple x' d' y)) in
         { d with suffix = s; middle = m'; left = l' }
       | 2, 0 ->
         let s = B.concat23 middle suffix in
+        let r = validate r in
         { d with suffix = s; middle = x; left = r }
       | _ -> assert false
       end
