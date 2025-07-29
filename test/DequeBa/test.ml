@@ -44,7 +44,19 @@ module C = struct
     let xs = inject xs x in
     batch_inject (n-1) xs x
 end
-let name = "Kot.Deque"
+
+let () =
+  dprintf "          open %s\n" "Kot.Deque";
+  dprintf
+{|          let rec batch_push n x xs =
+            if n = 0 then xs else
+            let xs = push x xs in
+            batch_push (n-1) x xs
+          let rec batch_inject n xs x =
+            if n = 0 then xs else
+            let xs = inject xs x in
+            batch_inject (n-1) xs x
+|}
 
 (* -------------------------------------------------------------------------- *)
 
@@ -103,9 +115,5 @@ let () =
 (* Start the engine! *)
 
 let () =
-  let prologue () =
-    dprintf "          open %s;;\n" name;
-    ()
-  in
   let fuel = 48 in
-  main ~prologue fuel
+  main fuel
