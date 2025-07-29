@@ -483,7 +483,7 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
   | None, None ->
       (* Case 3: [left] and [right] are empty. *)
       if B.has_length_3 suffix then
-        let suffix = B.concat3x prefix (B.concatx3 middle suffix) in
+        let suffix = B.concat323 prefix middle suffix in
         let middle = B.empty
         and prefix = B.empty in
         { f with middle; prefix; suffix }
@@ -536,7 +536,8 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
     naive_eject d
   else
   let balanced_deque = begin
-  assert(B.length suffix = 3);
+  assert (B.length middle = 2);
+  assert (B.length suffix = 3);
   match left, right with
     | _, Some right (* not empty *) ->
       let rightm = !right in
@@ -615,7 +616,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
       end
     | _ (* is_empty left, is_empty right *) ->
       if B.has_length_3 prefix
-        then let suffix = B.concat3x prefix (B.concatx3 middle suffix)
+        then let suffix = B.concat323 prefix middle suffix
               in { d with middle = B.empty; prefix = B.empty; suffix }
       else
         let m, a = B.eject middle in
