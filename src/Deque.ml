@@ -314,7 +314,7 @@ let concat d1 d2 =
 
 (* -------------------------------------------------------------------------- *)
 
-(* Extraction at the front end. *)
+(* Extraction at the front end (pop). *)
 
 (* [naive_pop_safe f] is a sufficient condition for [naive_pop f]
    to produce a valid deque. (See below.) *)
@@ -334,8 +334,7 @@ let[@inline] naive_pop_safe (f : 'a five_tuple) : bool =
    In the second scenario, [naive_pop_safe f] does not necessarily
    hold. [naive_pop f] returns a pair [(x, d)] where the deque [d]
    is not valid. Then, for every [x'], the operation [push x' d]
-   will produce a valid deque again. *)
-(* TODO this remains to be confirmed by the proof *)
+   produces a valid deque again. *)
 
 let naive_pop (type a) (f : a five_tuple) : a * a deque =
   let { prefix; left; middle; right; suffix } = f in
@@ -345,6 +344,8 @@ let naive_pop (type a) (f : a five_tuple) : a * a deque =
   else
     let x, prefix = B.pop prefix in
     x, assemble_ prefix left middle right suffix
+
+(* [inspect_first f] returns the first element of the 5-tuple [f]. *)
 
 let inspect_first (type a) (f : a five_tuple) : a =
   let { prefix; left; middle; right; suffix } = f in
@@ -408,6 +409,8 @@ let[@inline] prepare_pop_case_1 (type a)
       let left = concat child left in
       { f with prefix; left }
 
+(* [prepare_pop_case_2 f t right] is analogous. *)
+
 let[@inline] prepare_pop_case_2 (type a)
   (f : a five_tuple) (t : a triple) (right : a triple deque)
 : a five_tuple =
@@ -440,6 +443,8 @@ let[@inline] prepare_pop_case_2 (type a)
       let right = concat child right in
       { f with prefix; middle; right }
 
+(* [pop_nonempty r] pops an element out of a nonempty deque [r]. *)
+
 let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
   let f = !r in
   (* If [naive_pop] is safe now, then just do it. Otherwise, update
@@ -451,6 +456,10 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
     r := f;
     assert (naive_pop_safe f);
     naive_pop f
+
+(* [pop_triple_nonempty] is used in cases 1 and 2 of [prepare_pop]. It
+   extracts the first element out of a nonempty deque (of triples). This
+   element is extracted using either [naive_pop] or [pop_nonempty]. *)
 
 (* TODO when writing symmetric code for [eject], remember that the
    triple [t] must be normalized in the other direction *)
@@ -471,6 +480,10 @@ and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple
     naive_pop f
   else
     pop_nonempty r
+
+(* [prepare_pop f] expects a 5-tuple [f] such that [naive_pop_safe f]
+   does not hold and returns an equivalent 5-tuple [f'] such that
+   [naive_pop_safe f'] holds. *)
 
 and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
   assert (not (naive_pop_safe f));
@@ -503,6 +516,8 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
             and one element from [middle], towards the left, into [prefix]. *)
         let prefix, middle, suffix = B.double_move_left_32x prefix middle suffix in
         { f with prefix; middle; suffix }
+
+(* [pop d] pops an element out of a deque [d]. *)
 
 let pop d =
   match d with
