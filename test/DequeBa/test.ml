@@ -46,16 +46,16 @@ module C = struct
 end
 
 let () =
-  dprintf "          open %s\n" "Kot.Deque";
+  dprintf "          open %s;;\n" "Kot.Deque";
   dprintf
 {|          let rec batch_push n x xs =
             if n = 0 then xs else
             let xs = push x xs in
-            batch_push (n-1) x xs
+            batch_push (n-1) x xs;;
           let rec batch_inject n xs x =
             if n = 0 then xs else
             let xs = inject xs x in
-            batch_inject (n-1) xs x
+            batch_inject (n-1) xs x;;
 |}
 
 (* -------------------------------------------------------------------------- *)
