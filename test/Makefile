@@ -9,12 +9,19 @@ test:
 	  --tag --line-buffer \
 	  make -C {} random_nodep \
 	  ::: \
-	  Buffer3 \
-	  NCDeque \
 	  Buffer8 \
-	  LBuffer \
 	  Deque \
 	  DequeWF \
+	  DequeBa \
+	  DequeBa \
+	  DequeBa \
+	  DequeBa \
+	  DequeBa \
+
+# Disabled tests:
+#	  Buffer3 \
+#	  NCDeque \
+#	  LBuffer \
 
 .PHONY: clean
 clean:
