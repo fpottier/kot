@@ -74,6 +74,11 @@ module type BUFFER8 = sig
      [b1] and [b2] is unchanged. *)
   val move_left_1_33 : 'a buffer -> 'a buffer -> 'a buffer * 'a buffer
 
+  (**[move_right_1_33 b1 b2] requires the buffers [b1] and [b2] to have length 3.
+     One element is moved from [b1] to [b2]. The concatenation of the buffers
+     [b1] and [b2] is unchanged. *)
+  val move_right_1_33 : 'a buffer -> 'a buffer -> 'a buffer * 'a buffer
+
   (**[double_move_left_323] expects three buffers whose lengths are 3, 2,
      and 3. It moves one element from the middle buffer into the first
      buffer and one element from the last buffer into the middle buffer. *)

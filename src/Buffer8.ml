@@ -328,6 +328,13 @@ let move_left_1_33 b1 b2 =
   | _, _ ->
       assert false
 
+let move_right_1_33 b1 b2 =
+  match b1, b2 with
+  | B3 (x0, x1, x2), B3 (x3, x4, x5) ->
+      B2 (x0, x1), B4 (x2, x3, x4, x5)
+  | _, _ ->
+      assert false
+
 let double_move_left_323 b1 b2 b3 =
   match b1, b2, b3 with
   | B3 (x0, x1, x2), B2 (x3, x4), B3 (x5, x6, x7) ->
