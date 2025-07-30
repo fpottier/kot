@@ -615,19 +615,6 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
           let l = validate (inject l t) in
           let l' = concat l d' in
           { f with suffix = s'; right = l' }
-      | 3, 0 ->
-        (* y is empty *therefore* d' is empty  *)
-        assert (is_empty d');
-        let x', a = B.eject x in
-        let s' = B.push a suffix in
-        let t = normalize_triple x' d' y in
-        let rd' = validate (inject l t) in
-        { f with suffix = s'; right = rd' }
-      | 2, 0 ->
-        let s' = B.concat23 x suffix in
-        (* here we know y and d' are empty *)
-        let l = validate l in
-        { f with suffix = s'; right = l }
       | _ -> assert false
       end
     | Some left, None ->
@@ -657,18 +644,6 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
           else concat (validate (inject r (buffer x))) d'
         in
         { f with suffix = s; middle = y; left = l' }
-      | 3, 0 ->
-        (* x is empty therefore d' is empty too *)
-        let m, a = B.eject middle in
-        let s = B.push a suffix in
-        let x', a = B.eject x in
-        let m' = B.push a m in
-        let l' = validate (inject r (normalize_triple x' d' y)) in
-        { f with suffix = s; middle = m'; left = l' }
-      | 2, 0 ->
-        let s = B.concat23 middle suffix in
-        let r = validate r in
-        { f with suffix = s; middle = x; left = r }
       | _ -> assert false
       end
     | _ (* is_empty left, is_empty right *) ->
