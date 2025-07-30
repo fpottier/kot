@@ -602,6 +602,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
   match left, right with
 
   | _, Some r ->
+      (* Case 1. *)
       let right, t = eject_triple r in
       let { first; child; last } = t in
       assert (is_ordinary last);
@@ -623,6 +624,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
           { f with suffix; right }
 
   | Some r, None ->
+      (* Case 2. *)
       let left, t = eject_triple r in
       let { first; child; last } = t in
       assert (is_ordinary last);
@@ -642,7 +644,8 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         and middle = last in
         { f with suffix; middle; left }
 
-    | None, None ->
+  | None, None ->
+      (* Case 3. *)
       if B.has_length_3 prefix then
         let suffix = B.concat323 prefix middle suffix
         and middle = B.empty
