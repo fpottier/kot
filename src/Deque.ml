@@ -607,8 +607,8 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
       let { first; child; last } = t in
       assert (is_ordinary last);
       if B.has_length_3 last then
-        let last, a = B.eject last in
-        let suffix = B.push a suffix in
+        (* Move one element from [last], towards the right, into [suffix]. *)
+        let last, suffix = B.move_right_1_33 last suffix in
         let t = normalize_triple first child last in
         let right = validate (inject right t) in
         { f with suffix; right }
