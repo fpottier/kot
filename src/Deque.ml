@@ -457,11 +457,11 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
     assert (naive_pop_safe f);
     naive_pop f
 
-(* [pop_triple_nonempty] is used in cases 1 and 2 of [prepare_pop]. It
+(* [pop_triple] is used in cases 1 and 2 of [prepare_pop]. It
    extracts the first element out of a nonempty deque (of triples). This
    element is extracted using either [naive_pop] or [pop_nonempty]. *)
 
-and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
+and pop_triple : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
   let f = !r in
   (* Inspect the first triple in [f]. *)
   let t = inspect_first f in
@@ -494,12 +494,12 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
       (* Case 1: [left] is a nonempty deque. *)
       (* Extract one triple [t] out of [left],
          then jump to the function that handles case 1. *)
-      let t, left = pop_triple_nonempty r in
+      let t, left = pop_triple r in
       prepare_pop_case_1 f t left
 
   | None, Some r ->
       (* Case 2: [left] is empty; [right] is nonempty. *)
-      let t, right = pop_triple_nonempty r in
+      let t, right = pop_triple r in
       prepare_pop_case_2 f t right
 
   | None, None ->
