@@ -461,8 +461,6 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
    extracts the first element out of a nonempty deque (of triples). This
    element is extracted using either [naive_pop] or [pop_nonempty]. *)
 
-(* TODO when writing symmetric code for [eject], remember that the
-   triple [t] must be normalized in the other direction *)
 and pop_triple_nonempty : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
   let f = !r in
   (* Inspect the first triple in [f]. *)
