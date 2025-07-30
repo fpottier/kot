@@ -602,30 +602,30 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
   match left, right with
 
   | _, Some r ->
-      let l, t = eject_triple r in
+      let right, t = eject_triple r in
       let { first = x; child = d'; last = y } = t in
       begin match B.length x, B.length y with
       | _, 3 ->
         let y', a = B.eject y in
         let s' = B.push a suffix in
         let t = normalize_triple x d' y' in
-        let rd' = validate (inject l t) in
-        { f with suffix = s'; right = rd' }
+        let right = validate (inject right t) in
+        { f with suffix = s'; right }
       | _, 2 ->
         let s' = B.concat23 y suffix in
         if is_empty d' && B.is_empty x then
-          let l = validate l in
-          { f with suffix = s'; right = l }
+          let right = validate right in
+          { f with suffix = s'; right }
         else
           let t = buffer x in
-          let l = validate (inject l t) in
-          let l' = concat l d' in
-          { f with suffix = s'; right = l' }
+          let right = validate (inject right t) in
+          let right = concat right d' in
+          { f with suffix = s'; right }
       | _ -> assert false
       end
 
   | Some r, None ->
-      let r, t = eject_triple r in
+      let left, t = eject_triple r in
       let { first = x; child = d'; last = y } = t in
       begin match B.length x, B.length y with
       | _, 3 ->
@@ -634,15 +634,15 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let y', a = B.eject y in
         let m' = B.push a m in
         let t = normalize_triple x d' y' in
-        let l' = validate (inject r t) in
-        { f with suffix = s; middle = m'; left = l' }
+        let left = validate (inject left t) in
+        { f with suffix = s; middle = m'; left }
       | _, 2 ->
         let s = B.concat23 middle suffix in
-        let l' =
-          if is_empty d' && B.is_empty x then validate r
-          else concat (validate (inject r (buffer x))) d'
+        let left =
+          if is_empty d' && B.is_empty x then validate left
+          else concat (validate (inject left (buffer x))) d'
         in
-        { f with suffix = s; middle = y; left = l' }
+        { f with suffix = s; middle = y; left }
       | _ -> assert false
       end
 
