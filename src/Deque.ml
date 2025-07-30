@@ -576,13 +576,20 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a = fun ptr ->
 
 and eject_triple : type a. a triple nonempty_deque -> a triple deque * a triple = fun r ->
   let f = !r in
-  let t = antinormalize (inspect_last f) in
+  let t = inspect_last f in
+  (* We do not antinormalize the triple [t]. This saves an allocation.
+     We take this into account in the following test, where the third
+     disjunct identifies the case where the buffers [first] and [last]
+     have length 0 and 3. (In this disjunct, [child] must be empty.) *)
   let d, t =
-    if not (is_empty t.child) || B.has_length_3 t.last then
+    if not (is_empty t.child) || B.has_length_3 t.last
+       || B.is_empty t.last && B.has_length_3 t.first
+    then
       naive_eject f
     else
       eject_nonempty r
   in
+  (* We return an antinormalized triple. *)
   d, antinormalize t
 
 and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
