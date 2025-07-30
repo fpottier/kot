@@ -510,16 +510,16 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
   assert (B.length middle = 2);
   match left, right with
 
-  | Some r, _ ->
+  | Some left, _ ->
       (* Case 1: [left] is a nonempty deque. *)
       (* Extract one triple [t] out of [left],
          then jump to the function that handles case 1. *)
-      let t, left = pop_triple r in
+      let t, left = pop_triple left in
       prepare_pop_case_1 f t left
 
-  | None, Some r ->
+  | _, Some right ->
       (* Case 2: [left] is empty; [right] is nonempty. *)
-      let t, right = pop_triple r in
+      let t, right = pop_triple right in
       prepare_pop_case_2 f t right
 
   | None, None ->
