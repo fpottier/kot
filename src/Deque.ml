@@ -539,11 +539,10 @@ let[@inline] naive_eject_safe (type a) (f : a five_tuple) : bool =
   let { middle; suffix; _ } = f in
   B.is_empty middle || B.length suffix > 3
 
-let naive_eject : type a. a five_tuple -> a deque * a =
-  fun m ->
-  let { prefix; left; middle; right; suffix } = m in
-    let suffix, x = B.eject suffix in
-    assemble prefix left middle right suffix, x
+let naive_eject (type a) (f : a five_tuple) : a deque * a =
+  let { prefix; left; middle; right; suffix } = f in
+  let suffix, x = B.eject suffix in
+  assemble prefix left middle right suffix, x
 
 let last_nonempty tr =
   if not (B.is_empty tr.last)
