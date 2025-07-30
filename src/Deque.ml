@@ -526,8 +526,8 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
   | None, None ->
       (* Case 3: [left] and [right] are empty. *)
       if B.has_length_3 suffix then
-        let suffix = B.concat323 prefix middle suffix in
-        let middle = B.empty
+        let suffix = B.concat323 prefix middle suffix
+        and middle = B.empty
         and prefix = B.empty in
         { f with middle; prefix; suffix }
       else
@@ -647,9 +647,9 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
   assert (B.length suffix = 3);
   match left, right with
 
-  | _, Some r ->
-      (* Case 1. *)
-      let right, t = eject_triple r in
+  | _, Some right ->
+      (* Case 1: [right] is nonempty. *)
+      let right, t = eject_triple right in
       let { first; child; last } = t in
       assert (is_ordinary last);
       if B.has_length_3 last then
@@ -670,9 +670,9 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
           let right = concat right child in
           { f with right; suffix }
 
-  | Some r, None ->
-      (* Case 2. *)
-      let left, t = eject_triple r in
+  | Some left, None ->
+      (* Case 2: [left] is nonempty; [right] is empty. *)
+      let left, t = eject_triple left in
       let { first; child; last } = t in
       assert (is_ordinary last);
       if B.has_length_3 last then
@@ -697,7 +697,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
           { f with left; middle; suffix }
 
   | None, None ->
-      (* Case 3. *)
+      (* Case 3: [left] and [right] are empty. *)
       if B.has_length_3 prefix then
         let suffix = B.concat323 prefix middle suffix
         and middle = B.empty
@@ -709,6 +709,8 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let prefix, a = B.eject prefix in
         let middle = B.push a middle in
         { f with prefix; middle; suffix }
+
+(* [eject d] ejects an element out of a deque [d]. *)
 
 let eject d =
   match d with
