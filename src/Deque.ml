@@ -450,7 +450,7 @@ let[@inline] prepare_pop_case_2 (type a)
   else
     (* Move all of [middle], towards the left, into [prefix]. *)
     let prefix = B.concat32 prefix middle in
-    (* Move [first] into [middle]. *)
+    (* Move [first] towards the left into [middle]. *)
     let middle = first in
     (* The rest is analogous to a similar subcase in [prepare_pop_case_1]. *)
     if is_empty child && B.is_empty last then
@@ -682,13 +682,18 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let left = validate (inject left t) in
         { f with left; middle; suffix }
       else
-        let suffix = B.concat23 middle suffix
-        and middle = last
-        and left =
-          if is_empty child && B.is_empty first then validate left
-          else concat (validate (inject left (buffer first))) child
-        in
-        { f with left; middle; suffix }
+        (* Move all of [middle], towards the right, into [suffix]. *)
+        let suffix = B.concat23 middle suffix in
+        (* Move [last] towards the right into [middle]. *)
+        let middle = last in
+        if is_empty child && B.is_empty first then
+          let left = validate left in
+          { f with left; middle; suffix }
+        else
+          let t = buffer first in
+          let left = validate (inject left t) in
+          let left = concat left child in
+          { f with left; middle; suffix }
 
   | None, None ->
       (* Case 3. *)
