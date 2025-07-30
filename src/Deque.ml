@@ -704,10 +704,9 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         and prefix = B.empty in
         { f with prefix; middle; suffix }
       else
-        let middle, a = B.eject middle in
-        let suffix = B.push a suffix in
-        let prefix, a = B.eject prefix in
-        let middle = B.push a middle in
+        (* Move one element from [prefix], towards the right, into [middle],
+            and one element from [middle], towards the right, into [suffix]. *)
+        let prefix, middle, suffix = B.double_move_right_x23 prefix middle suffix in
         { f with prefix; middle; suffix }
 
 (* [eject d] ejects an element out of a deque [d]. *)
