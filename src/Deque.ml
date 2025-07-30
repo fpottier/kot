@@ -604,14 +604,14 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
   | _, Some r ->
       let right, t = eject_triple r in
       let { first = x; child = d'; last = y } = t in
-      begin match B.length x, B.length y with
-      | _, 3 ->
+      assert (is_ordinary y);
+      if B.has_length_3 y then
         let y', a = B.eject y in
         let s' = B.push a suffix in
         let t = normalize_triple x d' y' in
         let right = validate (inject right t) in
         { f with suffix = s'; right }
-      | _, 2 ->
+      else
         let s' = B.concat23 y suffix in
         if is_empty d' && B.is_empty x then
           let right = validate right in
@@ -621,14 +621,12 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
           let right = validate (inject right t) in
           let right = concat right d' in
           { f with suffix = s'; right }
-      | _ -> assert false
-      end
 
   | Some r, None ->
       let left, t = eject_triple r in
       let { first = x; child = d'; last = y } = t in
-      begin match B.length x, B.length y with
-      | _, 3 ->
+      assert (is_ordinary y);
+      if B.has_length_3 y then
         let m, a = B.eject middle in
         let s = B.push a suffix in
         let y', a = B.eject y in
@@ -636,15 +634,13 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let t = normalize_triple x d' y' in
         let left = validate (inject left t) in
         { f with suffix = s; middle = m'; left }
-      | _, 2 ->
+      else
         let s = B.concat23 middle suffix in
         let left =
           if is_empty d' && B.is_empty x then validate left
           else concat (validate (inject left (buffer x))) d'
         in
         { f with suffix = s; middle = y; left }
-      | _ -> assert false
-      end
 
     | None, None ->
       if B.has_length_3 prefix
