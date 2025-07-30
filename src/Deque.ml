@@ -643,14 +643,16 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         { f with suffix; middle; left }
 
     | None, None ->
-      if B.has_length_3 prefix
-        then let suffix = B.concat323 prefix middle suffix
-              in { f with middle = B.empty; prefix = B.empty; suffix }
+      if B.has_length_3 prefix then
+        let suffix = B.concat323 prefix middle suffix
+        and middle = B.empty
+        and prefix = B.empty in
+        { f with middle; prefix; suffix }
       else
-        let m, a = B.eject middle in
+        let middle, a = B.eject middle in
         let suffix = B.push a suffix in
         let prefix, a = B.eject prefix in
-        let middle = B.push a m in
+        let middle = B.push a middle in
         { f with prefix; middle; suffix }
 
 let eject d =
