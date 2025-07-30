@@ -190,12 +190,25 @@ let[@inline] assemble prefix left middle right suffix : _ deque =
   else
     assemble_ prefix left middle right suffix
 
-(* [triple_] constructs the triple [{ first; child; last }]. *)
+(* [triple_] constructs the triple [{ first; child; last }].
+   This triple must satisfy the invariant. *)
 
 let[@inline] triple_ first child last : _ triple =
   let t = { first; child; last } in
   assert (check_triple_local t; true);
   t
+
+(* [triple] constructs a triple that is equivalent to the triple
+   [{ first; child; last }] and that satisfies the invariant. *)
+
+let[@inline] triple first child last : _ triple =
+  if B.is_empty first then
+    let () = assert (is_empty child) in
+    let first = last
+    and last = B.empty in
+    triple_ first child last
+  else
+    triple_ first child last
 
 (* [buffer] converts a nonempty buffer into a triple. *)
 
@@ -543,14 +556,6 @@ let naive_eject (type a) (f : a five_tuple) : a deque * a =
   let suffix, x = B.eject suffix in
   assemble prefix left middle right suffix, x
 
-let normalize_triple first child last =
-  if B.is_empty first then
-    let () = assert (is_empty child) in
-    let first, last = last, B.empty in
-    { first; child; last }
-  else
-    { first; child; last }
-
 let antinormalize t =
   let { first; child; last } = t in
   if B.is_empty last then
@@ -609,7 +614,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
       if B.has_length_3 last then
         (* Move one element from [last], towards the right, into [suffix]. *)
         let last, suffix = B.move_right_1_33 last suffix in
-        let t = normalize_triple first child last in
+        let t = triple first child last in
         let right = validate (inject right t) in
         { f with right; suffix }
       else
@@ -633,7 +638,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let suffix = B.push a suffix in
         let last, a = B.eject last in
         let middle = B.push a middle in
-        let t = normalize_triple first child last in
+        let t = triple first child last in
         let left = validate (inject left t) in
         { f with left; middle; suffix }
       else
