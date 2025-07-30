@@ -349,8 +349,10 @@ let[@inline] naive_pop_safe (type a) (f : a five_tuple) : bool =
    Then, [naive_pop f] returns a valid deque.
 
    In the second scenario, [naive_pop_safe f] does not necessarily
-   hold. [naive_pop f] returns a pair [(x, d)] where the deque [d]
-   is not valid. Then, for every [x'], the operation [push x' d]
+   hold. [naive_pop f] returns a pair [(x, d)] where the deque [d] is
+   not necessarily valid. (The root 5-tuple, and only this 5-tuple,
+   can violate the local constraint; its prefix buffer can have 2
+   elements only.) Then, for every [x'], the operation [push x' d]
    produces a valid deque again. *)
 
 let naive_pop (type a) (f : a five_tuple) : a * a deque =
@@ -474,9 +476,9 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
     assert (naive_pop_safe f);
     naive_pop f
 
-(* [pop_triple] is used in cases 1 and 2 of [prepare_pop]. It
-   extracts the first element out of a nonempty deque (of triples). This
-   element is extracted using either [naive_pop] or [pop_nonempty]. *)
+(* [pop_triple] is used in cases 1 and 2 of [prepare_pop]. It extracts the
+   first element out of a nonempty deque (of triples). This element is
+   extracted using either [naive_pop] or [pop_nonempty]. *)
 
 and pop_triple : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
   let f = !r in
@@ -551,16 +553,17 @@ let pop_opt d =
 
 (* -------------------------------------------------------------------------- *)
 
-let[@inline] naive_eject_safe (type a) (f : a five_tuple) : bool =
-  let { middle; suffix; _ } = f in
-  B.is_empty middle || B.length suffix > 3
+(* Extraction at the rear end (eject). *)
 
-let naive_eject (type a) (f : a five_tuple) : a deque * a =
-  let { prefix; left; middle; right; suffix } = f in
-  let suffix, x = B.eject suffix in
-  assemble prefix left middle right suffix, x
+(* This code is largely symmetric with [pop]. One source of asymmetry lies in
+   the invariant that we impose on triples: when [child] is empty, the buffer
+   [last] is allowed to be empty, but the buffer [first] is not. In [pop],
+   this convention is convenient. In [eject], it is inconvenient; we want the
+   reverse convention. Thus, we introduce the function [antinormalize], which
+   imposes the reverse convention, and we use the smart constructor [triple]
+   to go back to the regular convention. *)
 
-let antinormalize t =
+let[@inline] antinormalize (type a) (t : a triple) : a triple =
   let { first; child; last } = t in
   if B.is_empty last then
     let () = assert (is_empty child) in
@@ -569,20 +572,49 @@ let antinormalize t =
   else
     t
 
+(* [naive_eject_safe f] is a sufficient condition for [naive_eject f]
+   to produce a valid deque. *)
+
+let[@inline] naive_eject_safe (type a) (f : a five_tuple) : bool =
+  let { middle; suffix; _ } = f in
+  B.is_empty middle || B.length suffix > 3
+
+(* [naive_eject] expects a 5-tuple [f], extracts its last element [x],
+   and returns the preceding elements as a deque [d]. *)
+
+(* Like [naive_pop], [naive_eject] can construct a deque whose root
+   5-tuple is invalid. *)
+
+(* Because a suffix buffer is never empty, [naive_eject] is slightly
+   simpler than [naive_pop]. *)
+
+let naive_eject (type a) (f : a five_tuple) : a deque * a =
+  let { prefix; left; middle; right; suffix } = f in
+  let suffix, x = B.eject suffix in
+  assemble prefix left middle right suffix, x
+
 (* [inspect_last f] returns the last element of the 5-tuple [f]. *)
 
 let[@inline] inspect_last (type a) (f : a five_tuple) : a =
   B.last f.suffix
 
-let rec eject_nonempty : type a. a nonempty_deque -> a deque * a = fun ptr ->
-  let f = !ptr in
+(* [eject_nonempty r] ejects an element out of a nonempty deque [r]. *)
+
+let rec eject_nonempty : type a. a nonempty_deque -> a deque * a = fun r ->
+  let f = !r in
   if naive_eject_safe f then
     naive_eject f
   else
     let f = prepare_eject f in
-    ptr := f;
+    r := f;
     assert (naive_eject_safe f);
     naive_eject f
+
+(* [eject_triple] is used in cases 1 and 2 of [prepare_eject]. It extracts
+   the last element out of a nonempty deque (of triples). This element is
+   extracted using either [naive_eject] or [eject_nonempty]. *)
+
+(* [eject_triple] returns an antinormalized triple. *)
 
 and eject_triple : type a. a triple nonempty_deque -> a triple deque * a triple = fun r ->
   let f = !r in
@@ -602,6 +634,10 @@ and eject_triple : type a. a triple nonempty_deque -> a triple deque * a triple 
   in
   (* We return an antinormalized triple. *)
   d, antinormalize t
+
+(* [prepare_eject f] expects a 5-tuple [f] such that [naive_eject_safe
+   f] does not hold and returns an equivalent 5-tuple [f'] such that
+   [naive_eject_safe f'] holds. *)
 
 and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
   assert (not (naive_eject_safe f));
