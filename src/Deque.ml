@@ -562,7 +562,7 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a = fun ptr ->
   else
     let f = prepare_eject f in
     ptr := f;
-    (* assert (naive_eject_safe f); *)
+    assert (naive_eject_safe f);
     naive_eject f
 
 and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
