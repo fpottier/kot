@@ -636,9 +636,12 @@ and eject_triple : type a. a triple nonempty_deque -> a triple deque * a triple 
   (* We return an antinormalized triple. *)
   d, antinormalize t
 
-(* [prepare_eject f] expects a 5-tuple [f] such that [naive_eject_safe
-   f] does not hold and returns an equivalent 5-tuple [f'] such that
+(* [prepare_eject f] expects a 5-tuple [f] such that [naive_eject_safe f]
+   does not hold and returns an equivalent 5-tuple [f'] such that
    [naive_eject_safe f'] holds. *)
+
+(* We do not isolate the functions [prepare_eject_case_1]
+   and [prepare_eject_case_2], although we could. *)
 
 and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
   assert (not (naive_eject_safe f));
