@@ -603,44 +603,44 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
 
   | _, Some r ->
       let right, t = eject_triple r in
-      let { first = x; child = d'; last = y } = t in
-      assert (is_ordinary y);
-      if B.has_length_3 y then
-        let y', a = B.eject y in
-        let s' = B.push a suffix in
-        let t = normalize_triple x d' y' in
+      let { first; child; last } = t in
+      assert (is_ordinary last);
+      if B.has_length_3 last then
+        let last, a = B.eject last in
+        let suffix = B.push a suffix in
+        let t = normalize_triple first child last in
         let right = validate (inject right t) in
-        { f with suffix = s'; right }
+        { f with suffix; right }
       else
-        let s' = B.concat23 y suffix in
-        if is_empty d' && B.is_empty x then
+        let suffix = B.concat23 last suffix in
+        if is_empty child && B.is_empty first then
           let right = validate right in
-          { f with suffix = s'; right }
+          { f with suffix; right }
         else
-          let t = buffer x in
+          let t = buffer first in
           let right = validate (inject right t) in
-          let right = concat right d' in
-          { f with suffix = s'; right }
+          let right = concat right child in
+          { f with suffix; right }
 
   | Some r, None ->
       let left, t = eject_triple r in
-      let { first = x; child = d'; last = y } = t in
-      assert (is_ordinary y);
-      if B.has_length_3 y then
-        let m, a = B.eject middle in
-        let s = B.push a suffix in
-        let y', a = B.eject y in
-        let m' = B.push a m in
-        let t = normalize_triple x d' y' in
+      let { first; child; last } = t in
+      assert (is_ordinary last);
+      if B.has_length_3 last then
+        let middle, a = B.eject middle in
+        let suffix = B.push a suffix in
+        let last, a = B.eject last in
+        let middle = B.push a middle in
+        let t = normalize_triple first child last in
         let left = validate (inject left t) in
-        { f with suffix = s; middle = m'; left }
+        { f with suffix; middle; left }
       else
-        let s = B.concat23 middle suffix in
-        let left =
-          if is_empty d' && B.is_empty x then validate left
-          else concat (validate (inject left (buffer x))) d'
-        in
-        { f with suffix = s; middle = y; left }
+        let suffix = B.concat23 middle suffix
+        and left =
+          if is_empty child && B.is_empty first then validate left
+          else concat (validate (inject left (buffer first))) child
+        and middle = last in
+        { f with suffix; middle; left }
 
     | None, None ->
       if B.has_length_3 prefix
