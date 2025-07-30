@@ -30,6 +30,14 @@ module R = struct
     if n = 0 then xs else
     let xs = inject xs x in
     batch_inject (n-1) xs x
+  let rec batch_pop xs n =
+    if n = 1 then pop xs
+    else let _, xs = pop xs in
+    batch_pop xs (n-1)
+  let rec batch_eject xs n =
+    if n = 1 then eject xs
+    else let xs, _ = eject xs in
+    batch_eject xs (n-1)
 end
 
 (* This is the candidate implementation. *)
@@ -43,6 +51,14 @@ module C = struct
     if n = 0 then xs else
     let xs = inject xs x in
     batch_inject (n-1) xs x
+  let rec batch_pop xs n =
+    if n = 1 then pop xs
+    else let _, xs = pop xs in
+    batch_pop xs (n-1)
+  let rec batch_eject xs n =
+    if n = 1 then eject xs
+    else let xs, _ = eject xs in
+    batch_eject xs (n-1)
 end
 
 let () =
@@ -56,6 +72,14 @@ let () =
             if n = 0 then xs else
             let xs = inject xs x in
             batch_inject (n-1) xs x;;
+          let rec batch_pop xs n =
+            if n = 1 then pop xs
+            else let _, xs = pop xs in
+            batch_pop xs (n-1);;
+          let rec batch_eject xs n =
+            if n = 1 then eject xs
+            else let xs, _ = eject xs in
+            batch_eject xs (n-1);;
 |}
 
 (* -------------------------------------------------------------------------- *)
@@ -79,10 +103,16 @@ let deque =
 let element =
   semi_open_interval 0 32
 
-(* The size of a batch. *)
+(* The size of a batch [push] or batch [inject]. *)
 
 let size =
-  lt 32
+  semi_open_interval 1 32
+
+(* The size of a batch [pop] or batch [eject]
+   is at most the length of the deque [d]. *)
+
+let range d =
+  closed_interval 1 (R.length d)
 
 (* -------------------------------------------------------------------------- *)
 
@@ -99,11 +129,11 @@ let () =
   let spec = size ^> deque ^> element ^> deque in
   declare "batch_inject" spec R.batch_inject C.batch_inject;
 
-  let spec = R.nonempty % deque ^> element *** deque in
-  declare "pop" spec R.pop C.pop;
+  let spec = deque ^>> fun d -> range d ^> element *** deque in
+  declare "batch_pop" spec R.batch_pop C.batch_pop;
 
-  let spec = R.nonempty % deque ^> deque *** element in
-  declare "eject" spec R.eject C.eject;
+  let spec = deque ^>> fun d -> range d ^> deque *** element in
+  declare "batch_eject" spec R.batch_eject C.batch_eject;
 
   let spec = deque ^> deque ^> deque in
   declare "concat" spec R.concat C.concat;
