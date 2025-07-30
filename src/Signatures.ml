@@ -95,6 +95,12 @@ module type BUFFER8 = sig
      last buffer into the middle buffer. *)
   val double_move_left_32x : 'a buffer -> 'a buffer -> 'a buffer -> 'a buffer * 'a buffer * 'a buffer
 
+  (**[double_move_right_x23] expects three buffers whose lengths are
+     [X], 2, and 3, where [X] is comprised between 4 and 6. It moves
+     one element from the first buffer into the middle buffer and one
+     element from the middle buffer into the last buffer. *)
+  val double_move_right_x23 : 'a buffer -> 'a buffer -> 'a buffer -> 'a buffer * 'a buffer * 'a buffer
+
   (**[concat23] concatenates two buffers whose lengths are 2 and 3. *)
   val concat23 : 'a buffer -> 'a buffer -> 'a buffer
 
