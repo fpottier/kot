@@ -633,7 +633,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let m' = B.push a m in
         let t = triple x d' y' in
         let l' = validate (inject r t) in
-        { f with prefix = s; middle = m'; left = l' }
+        { f with suffix = s; middle = m'; left = l' }
       | _, 2 ->
         let s = B.concat23 middle suffix in
         let l' =
