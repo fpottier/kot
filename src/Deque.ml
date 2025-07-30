@@ -658,6 +658,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let right = validate (inject right t) in
         { f with right; suffix }
       else
+        (* Move all elements from [last], towards the right, into [suffix]. *)
         let suffix = B.concat23 last suffix in
         if is_empty child && B.is_empty first then
           let right = validate right in
