@@ -182,7 +182,11 @@ let singleton x =
 
 let[@inline] assemble_ prefix left middle right suffix : _ deque =
   assert (not (B.is_empty middle && B.is_empty suffix));
-  Some (ref { prefix; left; middle; right; suffix })
+  let f = { prefix; left; middle; right; suffix } in
+  (* We cannot call [check_five_tuple_local f] here, because the
+     5-tuple [f] might be invalid. The functions [naive_pop] and
+     [naive_eject] can temporarily create invalid 5-tuples. *)
+  Some (ref f)
 
 let[@inline] assemble prefix left middle right suffix : _ deque =
   if B.is_empty middle && B.is_empty suffix then
