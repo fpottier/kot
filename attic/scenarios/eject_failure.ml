@@ -1,15 +1,22 @@
 (* @04: Failure in an instruction. *)
           open Kot.Deque;;
-          let rec batch_inject n xs x =
-            if n = 0 then xs else
-            let xs = inject xs x in
-            batch_inject (n-1) xs x;;
-          let rec batch_eject xs n =
-            if n = 1 then eject xs
-            else let xs, _ = eject xs in
-            batch_eject xs (n-1);;
 (* @01 *) let x0 = empty;;
-(* @02 *) let x1 = batch_inject 9 x0 29;;
+          let x1 = x0;;
+(* @02 *) let x1 = inject x1 1;;
+          let x1 = inject x1 2;;
+          let x1 = inject x1 3;;
+          let x1 = inject x1 4;;
+          let x1 = inject x1 5;;
+          let x1 = inject x1 6;;
+          let x1 = inject x1 7;;
+          let x1 = inject x1 8;;
+          let x1 = inject x1 9;;
 (* @03 *) let x2 = concat x1 x1;;
-(* @04 *) let x3, _ = batch_eject x2 6;;
+          let x3 = x2;;
+(* @04 *) let x3, e = eject x3;;
+          let x3, e = eject x3;;
+          let x3, e = eject x3;;
+          let x3, e = eject x3;;
+          let x3, e = eject x3;;
+          let x3, e = eject x3;;
           let () = check x3;;
