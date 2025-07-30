@@ -190,9 +190,9 @@ let[@inline] assemble prefix left middle right suffix : _ deque =
   else
     assemble_ prefix left middle right suffix
 
-(* [triple] constructs the triple [{ first; child; last }]. *)
+(* [triple_] constructs the triple [{ first; child; last }]. *)
 
-let[@inline] triple first child last : _ triple =
+let[@inline] triple_ first child last : _ triple =
   let t = { first; child; last } in
   assert (check_triple_local t; true);
   t
@@ -201,7 +201,7 @@ let[@inline] triple first child last : _ triple =
 
 let[@inline] buffer (type a) (b : a buffer) : a triple =
   assert (not (B.is_empty b));
-  triple b empty B.empty
+  triple_ b empty B.empty
 
 (* -------------------------------------------------------------------------- *)
 
@@ -283,12 +283,12 @@ let concat d1 d2 =
           let suffix1a, suffix1b = B.split23l suffix1 in
           (* Inject [middle1], [right1], and [suffix1a], as a triple,
              into [left1]. *)
-          let left1 = inject left1 (triple middle1 right1 suffix1a) in
+          let left1 = inject left1 (triple_ middle1 right1 suffix1a) in
           (* Unless it is empty, inject [suffix1b], as a triple,
              into [left1]. *)
           let left1 =
             if B.is_empty suffix1b then left1
-            else inject left1 (triple suffix1b empty B.empty)
+            else inject left1 (triple_ suffix1b empty B.empty)
           in
           (* The length of [prefix2] is between 2 and 5. Split it into two
              chunks of length 2 or 3 -- except the first chunk may have
@@ -296,12 +296,12 @@ let concat d1 d2 =
           let prefix2a, prefix2b = B.split23r prefix2 in
           (* Push [prefix2b], [left2], and [middle2], as a triple,
              into [right2]. *)
-          let right2 = push (triple prefix2b left2 middle2) right2 in
+          let right2 = push (triple_ prefix2b left2 middle2) right2 in
           (* Unless it is empty, push [prefix2a], as a triple,
              into [right2]. *)
           let right2 =
             if B.is_empty prefix2a then right2
-            else push (triple prefix2a empty B.empty) right2
+            else push (triple_ prefix2a empty B.empty) right2
           in
           (* Done. *)
           assemble_ prefix1 left1 middle right2 suffix2
@@ -386,7 +386,7 @@ let[@inline] prepare_pop_case_1 (type a)
   if B.has_length_3 first then
     (* Move one element from [first], towards the left, into [prefix]. *)
     let prefix, first = B.move_left_1_33 prefix first in
-    let t = triple first child last in
+    let t = triple_ first child last in
     let left = validate (push t left) in
     { f with prefix; left }
 
@@ -424,7 +424,7 @@ let[@inline] prepare_pop_case_2 (type a)
     (* Move one element from [first], towards the left, into [middle],
        and one element from [middle], towards the left, into [prefix]. *)
     let prefix, middle, first = B.double_move_left_323 prefix middle first in
-    let t = triple first child last in
+    let t = triple_ first child last in
     let right = validate (push t right) in
     { f with prefix; middle; right }
 
