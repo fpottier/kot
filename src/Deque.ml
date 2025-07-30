@@ -559,15 +559,10 @@ let antinormalize t =
   else
     t
 
-let last_nonempty tr =
-  if not (B.is_empty tr.last)
-  then Some tr.last
-  else if not (B.is_empty tr.first)
-  then Some tr.first
-  else None
+(* [inspect_last f] returns the last element of the 5-tuple [f]. *)
 
-let inspect_last : type a. a five_tuple -> a =
-  fun m -> B.last m.suffix
+let[@inline] inspect_last (type a) (f : a five_tuple) : a =
+  B.last f.suffix
 
 let rec eject_nonempty : type a. a nonempty_deque -> a deque * a = fun ptr ->
   let f = !ptr in
@@ -579,6 +574,17 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a = fun ptr ->
     assert (naive_eject_safe f);
     naive_eject f
 
+and eject_triple : type a. a triple nonempty_deque -> a triple deque * a triple = fun r ->
+  let f = !r in
+  let t = antinormalize (inspect_last f) in
+  let d, t =
+    if not (is_empty t.child) || B.has_length_3 t.last then
+      naive_eject f
+    else
+      eject_nonempty r
+  in
+  d, antinormalize t
+
 and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
   assert (not (naive_eject_safe f));
   let { prefix; left; middle; right; suffix } = f in
@@ -586,17 +592,9 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
   assert (B.length suffix = 3);
   match left, right with
 
-    | _, Some r ->
-      let rightm = !r in
-      let t = inspect_last rightm in
-      let l, t = match last_nonempty t with
-        | Some b when B.has_length_3 b
-            -> naive_eject rightm
-        | _ when not (is_empty t.child)
-            -> naive_eject rightm
-        | _ -> eject_nonempty r
-      in
-      let { first = x; child = d'; last = y } = antinormalize t in
+  | _, Some r ->
+      let l, t = eject_triple r in
+      let { first = x; child = d'; last = y } = t in
       begin match B.length x, B.length y with
       | _, 3 ->
         let y', a = B.eject y in
@@ -616,17 +614,10 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
           { f with suffix = s'; right = l' }
       | _ -> assert false
       end
-    | Some left, None ->
-      let leftm = !left in
-      let t = inspect_last leftm in
-      let (r, t) = match last_nonempty t with
-        | Some b when B.has_length_3 b
-            -> naive_eject leftm
-        | _ when not (is_empty t.child)
-            -> naive_eject leftm
-        | _ -> eject_nonempty left
-      in
-      let { first = x; child = d'; last = y } = antinormalize t in
+
+  | Some r, None ->
+      let r, t = eject_triple r in
+      let { first = x; child = d'; last = y } = t in
       begin match B.length x, B.length y with
       | _, 3 ->
         let m, a = B.eject middle in
