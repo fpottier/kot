@@ -535,6 +535,10 @@ let pop_opt d =
 
 (* -------------------------------------------------------------------------- *)
 
+let[@inline] naive_eject_safe (type a) (f : a five_tuple) : bool =
+  let { middle; suffix; _ } = f in
+  B.is_empty middle || B.length suffix > 3
+
 let naive_eject : type a. a five_tuple -> a deque * a =
   fun m ->
   let { prefix; left; middle; right; suffix } = m in
@@ -551,13 +555,19 @@ let last_nonempty tr =
 let inspect_last : type a. a five_tuple -> a =
   fun m -> B.last m.suffix
 
-let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
-  fun ptr ->
-  let { prefix; left; middle; right; suffix } as d = !ptr in
-  if B.is_empty middle || B.length suffix > 3 then
-    naive_eject d
+let rec eject_nonempty : type a. a nonempty_deque -> a deque * a = fun ptr ->
+  let f = !ptr in
+  if naive_eject_safe f then
+    naive_eject f
   else
-  let balanced_deque = begin
+    let f = prepare_eject f in
+    ptr := f;
+    (* assert (naive_eject_safe f); *)
+    naive_eject f
+
+and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
+  assert (not (naive_eject_safe f));
+  let { prefix; left; middle; right; suffix } = f in
   assert (B.length middle = 2);
   assert (B.length suffix = 3);
   match left, right with
@@ -578,17 +588,17 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let s' = B.push a suffix in
         let t = triple x d' y' in
         let rd' = validate (inject l t) in
-        { d with suffix = s'; right = rd' }
+        { f with suffix = s'; right = rd' }
       | _, 2 ->
         let s' = B.concat23 y suffix in
         if is_empty d' && B.is_empty x then
           let l = validate l in
-          { d with suffix = s'; right = l }
+          { f with suffix = s'; right = l }
         else
           let t = buffer x in
           let l = validate (inject l t) in
           let l' = concat l d' in
-          { d with suffix = s'; right = l' }
+          { f with suffix = s'; right = l' }
       | 3, 0 ->
         (* y is empty *therefore* d' is empty  *)
         assert (is_empty d');
@@ -596,12 +606,12 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let s' = B.push a suffix in
         let t = triple x' d' y in
         let rd' = validate (inject l t) in
-        { d with suffix = s'; right = rd' }
+        { f with suffix = s'; right = rd' }
       | 2, 0 ->
         let s' = B.concat23 x suffix in
         (* here we know y and d' are empty *)
         let l = validate l in
-        { d with suffix = s'; right = l }
+        { f with suffix = s'; right = l }
       | _ -> assert false
       end
     | Some left, None ->
@@ -623,14 +633,14 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let m' = B.push a m in
         let t = triple x d' y' in
         let l' = validate (inject r t) in
-        { d with prefix = s; middle = m'; left = l' }
+        { f with prefix = s; middle = m'; left = l' }
       | _, 2 ->
         let s = B.concat23 middle suffix in
         let l' =
           if is_empty d' && B.is_empty x then validate r
           else concat (validate (inject r (buffer x))) d'
         in
-        { d with suffix = s; middle = y; left = l' }
+        { f with suffix = s; middle = y; left = l' }
       | 3, 0 ->
         (* x is empty therefore d' is empty too *)
         let m, a = B.eject middle in
@@ -638,27 +648,23 @@ let rec eject_nonempty : type a. a nonempty_deque -> a deque * a =
         let x', a = B.eject x in
         let m' = B.push a m in
         let l' = validate (inject r (triple x' d' y)) in
-        { d with suffix = s; middle = m'; left = l' }
+        { f with suffix = s; middle = m'; left = l' }
       | 2, 0 ->
         let s = B.concat23 middle suffix in
         let r = validate r in
-        { d with suffix = s; middle = x; left = r }
+        { f with suffix = s; middle = x; left = r }
       | _ -> assert false
       end
     | _ (* is_empty left, is_empty right *) ->
       if B.has_length_3 prefix
         then let suffix = B.concat323 prefix middle suffix
-              in { d with middle = B.empty; prefix = B.empty; suffix }
+              in { f with middle = B.empty; prefix = B.empty; suffix }
       else
         let m, a = B.eject middle in
         let suffix = B.push a suffix in
         let prefix, a = B.eject prefix in
         let middle = B.push a m in
-        { d with prefix; middle; suffix }
-    end
-  in
-    ptr := balanced_deque;
-    naive_eject balanced_deque
+        { f with prefix; middle; suffix }
 
 let eject d =
   match d with
