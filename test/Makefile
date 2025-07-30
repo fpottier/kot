@@ -11,7 +11,6 @@ test:
 	  ::: \
 	  Buffer8 \
 	  Deque \
-	  DequeWF \
 	  DequeBa \
 	  DequeBa \
 	  DequeBa \
@@ -22,6 +21,7 @@ test:
 #	  Buffer3 \
 #	  NCDeque \
 #	  LBuffer \
+#	  DequeWF \
 
 # [make scenarios] assumes that [make test] has been run and that some crash
 # scenarios have been found by [DequeBa]. It shows a list of these scenarios.
