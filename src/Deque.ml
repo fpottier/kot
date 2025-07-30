@@ -585,15 +585,16 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
   assert (B.length middle = 2);
   assert (B.length suffix = 3);
   match left, right with
-    | _, Some right (* not empty *) ->
-      let rightm = !right in
+
+    | _, Some r ->
+      let rightm = !r in
       let t = inspect_last rightm in
       let l, t = match last_nonempty t with
         | Some b when B.has_length_3 b
             -> naive_eject rightm
         | _ when not (is_empty t.child)
             -> naive_eject rightm
-        | _ -> eject_nonempty right
+        | _ -> eject_nonempty r
       in
       let { first = x; child = d'; last = y } = antinormalize t in
       begin match B.length x, B.length y with
