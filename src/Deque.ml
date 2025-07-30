@@ -544,6 +544,23 @@ let naive_eject (type a) (f : a five_tuple) : a deque * a =
   let suffix, x = B.eject suffix in
   assemble prefix left middle right suffix, x
 
+let normalize_triple first child last =
+  if B.is_empty first then
+    let () = assert (is_empty child) in
+    let first, last = last, B.empty in
+    { first; child; last }
+  else
+    { first; child; last }
+
+let antinormalize t =
+  let { first; child; last } = t in
+  if B.is_empty last then
+    let () = assert (is_empty child) in
+    let first, last = B.empty, first in
+    { first; child; last }
+  else
+    t
+
 let last_nonempty tr =
   if not (B.is_empty tr.last)
   then Some tr.last
@@ -580,12 +597,12 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
             -> naive_eject rightm
         | _ -> eject_nonempty right
       in
-      let { first = x; child = d'; last = y } = t in
+      let { first = x; child = d'; last = y } = antinormalize t in
       begin match B.length x, B.length y with
       | _, 3 ->
         let y', a = B.eject y in
         let s' = B.push a suffix in
-        let t = triple x d' y' in
+        let t = normalize_triple x d' y' in
         let rd' = validate (inject l t) in
         { f with suffix = s'; right = rd' }
       | _, 2 ->
@@ -603,7 +620,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         assert (is_empty d');
         let x', a = B.eject x in
         let s' = B.push a suffix in
-        let t = triple x' d' y in
+        let t = normalize_triple x' d' y in
         let rd' = validate (inject l t) in
         { f with suffix = s'; right = rd' }
       | 2, 0 ->
@@ -623,14 +640,14 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
             -> naive_eject leftm
         | _ -> eject_nonempty left
       in
-      let { first = x; child = d'; last = y } = t in
+      let { first = x; child = d'; last = y } = antinormalize t in
       begin match B.length x, B.length y with
       | _, 3 ->
         let m, a = B.eject middle in
         let s = B.push a suffix in
         let y', a = B.eject y in
         let m' = B.push a m in
-        let t = triple x d' y' in
+        let t = normalize_triple x d' y' in
         let l' = validate (inject r t) in
         { f with suffix = s; middle = m'; left = l' }
       | _, 2 ->
@@ -646,7 +663,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let s = B.push a suffix in
         let x', a = B.eject x in
         let m' = B.push a m in
-        let l' = validate (inject r (triple x' d' y)) in
+        let l' = validate (inject r (normalize_triple x' d' y)) in
         { f with suffix = s; middle = m'; left = l' }
       | 2, 0 ->
         let s = B.concat23 middle suffix in
