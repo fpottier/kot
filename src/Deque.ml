@@ -433,8 +433,9 @@ let[@inline] prepare_pop_case_1 (type a)
 let[@inline] prepare_pop_case_2 (type a)
   (f : a five_tuple) (t : a triple) (right : a triple deque)
 : a five_tuple =
-  let { prefix; middle; _ } = f in
+  let { prefix; left; middle; _ } = f in
   assert (B.length prefix = 3);
+  assert (is_empty left);
   assert (B.length middle = 2);
   let { first; child; last } = t in
   assert (is_ordinary first);
