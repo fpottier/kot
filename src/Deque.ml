@@ -611,17 +611,17 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let last, suffix = B.move_right_1_33 last suffix in
         let t = normalize_triple first child last in
         let right = validate (inject right t) in
-        { f with suffix; right }
+        { f with right; suffix }
       else
         let suffix = B.concat23 last suffix in
         if is_empty child && B.is_empty first then
           let right = validate right in
-          { f with suffix; right }
+          { f with right; suffix }
         else
           let t = buffer first in
           let right = validate (inject right t) in
           let right = concat right child in
-          { f with suffix; right }
+          { f with right; suffix }
 
   | Some r, None ->
       (* Case 2. *)
@@ -635,14 +635,15 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let middle = B.push a middle in
         let t = normalize_triple first child last in
         let left = validate (inject left t) in
-        { f with suffix; middle; left }
+        { f with left; middle; suffix }
       else
         let suffix = B.concat23 middle suffix
+        and middle = last
         and left =
           if is_empty child && B.is_empty first then validate left
           else concat (validate (inject left (buffer first))) child
-        and middle = last in
-        { f with suffix; middle; left }
+        in
+        { f with left; middle; suffix }
 
   | None, None ->
       (* Case 3. *)
@@ -650,7 +651,7 @@ and prepare_eject : type a. a five_tuple -> a five_tuple = fun f ->
         let suffix = B.concat323 prefix middle suffix
         and middle = B.empty
         and prefix = B.empty in
-        { f with middle; prefix; suffix }
+        { f with prefix; middle; suffix }
       else
         let middle, a = B.eject middle in
         let suffix = B.push a suffix in
