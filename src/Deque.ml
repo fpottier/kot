@@ -494,8 +494,8 @@ and pop_triple : type a. a triple nonempty_deque -> a triple * a triple deque = 
      it is unconditionally safe and functionally equivalent to [naive_pop].
      The answer is, [pop_nonempty] is more expensive than [naive_pop].
      Achieving the desired asymptotic complexity requires care here. *)
-  let { first; child; _ } = t in
-  if not (is_empty child) || B.has_length_3 first then
+  let { first; last; _ } = t in
+  if not (B.is_empty last) || B.has_length_3 first then
     naive_pop f
   else
     pop_nonempty r
@@ -625,9 +625,8 @@ and eject_triple : type a. a triple nonempty_deque -> a triple deque * a triple 
      disjunct identifies the case where the buffers [first] and [last]
      have length 0 and 3. (In this disjunct, [child] must be empty.) *)
   let d, t =
-    let { first; child; last } = t in
-    if not (is_empty child) || B.has_length_3 last
-       || B.is_empty last && B.has_length_3 first
+    let { first; last; _ } = t in
+    if not (B.is_empty last) || B.has_length_3 first
     then
       naive_eject f
     else
