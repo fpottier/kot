@@ -394,7 +394,9 @@ let inspect_first (type a) (f : a five_tuple) : a =
 
 let[@inline] prepare_pop_case_1 (type a)
   (f : a five_tuple) (t : a triple) (left : a triple deque)
+   pop_nonempty_was_used
 : a five_tuple =
+  let[@inline] push t d = assert (not pop_nonempty_was_used); push t d in
   let { prefix; _ } = f in
   assert (B.length prefix = 3);
   let { first; child; last } = t in
@@ -432,7 +434,9 @@ let[@inline] prepare_pop_case_1 (type a)
 
 let[@inline] prepare_pop_case_2 (type a)
   (f : a five_tuple) (t : a triple) (right : a triple deque)
+  pop_nonempty_was_used
 : a five_tuple =
+  let[@inline] push t d = assert (not pop_nonempty_was_used); push t d in
   let { prefix; left; middle; _ } = f in
   assert (B.length prefix = 3);
   assert (is_empty left);
@@ -481,7 +485,7 @@ let rec pop_nonempty : type a. a nonempty_deque -> a * a deque = fun r ->
    first element out of a nonempty deque (of triples). This element is
    extracted using either [naive_pop] or [pop_nonempty]. *)
 
-and pop_triple : type a. a triple nonempty_deque -> a triple * a triple deque = fun r ->
+and pop_triple : type a. a triple nonempty_deque -> (a triple * a triple deque) * bool = fun r ->
   let f = !r in
   (* Inspect the first triple in [f]. *)
   let t = inspect_first f in
@@ -496,9 +500,9 @@ and pop_triple : type a. a triple nonempty_deque -> a triple * a triple deque = 
      Achieving the desired asymptotic complexity requires care here. *)
   let { first; last; _ } = t in
   if not (B.is_empty last) || B.has_length_3 first then
-    naive_pop f
+    naive_pop f, false
   else
-    pop_nonempty r
+    pop_nonempty r, true
 
 (* [prepare_pop f] expects a 5-tuple [f] such that [naive_pop_safe f]
    does not hold and returns an equivalent 5-tuple [f'] such that
@@ -515,13 +519,13 @@ and prepare_pop : type a. a five_tuple -> a five_tuple = fun f ->
       (* Case 1: [left] is a nonempty deque. *)
       (* Extract one triple [t] out of [left],
          then jump to the function that handles case 1. *)
-      let t, left = pop_triple left in
-      prepare_pop_case_1 f t left
+      let (t, left), pop_nonempty_was_used = pop_triple left in
+      prepare_pop_case_1 f t left pop_nonempty_was_used
 
   | _, Some right ->
       (* Case 2: [left] is empty; [right] is nonempty. *)
-      let t, right = pop_triple right in
-      prepare_pop_case_2 f t right
+      let (t, right), pop_nonempty_was_used = pop_triple right in
+      prepare_pop_case_2 f t right pop_nonempty_was_used
 
   | None, None ->
       (* Case 3: [left] and [right] are empty. *)
