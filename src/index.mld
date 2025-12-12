@@ -5,6 +5,10 @@ of {b persistent catenable deques}.
 It is based on the paper
 {{: http://www.aladdin.cs.cmu.edu/papers/pdfs/y2000/catenable.pdf} Simple Confluently Persistent Catenable Lists}
 by Haim Kaplan, Chris Okasaki, and Robert E. Tarjan (2000).
+It is also described in the paper
+{{: https://cambium.inria.fr/~fpottier/publis/ponsonnet-pottier-kot.pdf} Verified Persistent Catenable Deques}
+by Juliette Ponsonnet and François Pottier (2025).
+
 
 {1 API}
 
