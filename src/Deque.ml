@@ -813,6 +813,10 @@ and fold_right_triple : type a s. (a -> s -> s) -> a triple -> s -> s =
 (* -------------------------------------------------------------------------- *)
 
 (* Length. *)
-
 let[@inline] length d =
   fold_left (fun s _x -> s + 1) 0 d
+
+let config (d : 'a deque) : (int * int * int * int * int)  =
+    let f = !(Option.get d) in
+    B.length f.prefix, length f.left, B.length f.middle, length f.right, B.length f.suffix
+

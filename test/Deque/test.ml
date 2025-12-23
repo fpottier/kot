@@ -18,7 +18,7 @@ module R = Testlib.Reference
 
 (* This is the candidate implementation. *)
 module C = Kot.Deque
-let name = "Kot.Deque"
+(* let name = "Kot.Deque" *)
 
 (* -------------------------------------------------------------------------- *)
 
@@ -95,9 +95,33 @@ let () =
 (* Start the engine! *)
 
 let () =
-  let prologue () =
+  (*  let prologue () =
     dprintf "          open %s;;\n" name;
     ()
   in
-  let fuel = 128 in
-  main ~prologue fuel
+  let fuel = 128 in *)
+  Printf.printf "hello!!\n";
+  let d = C.empty in
+  let d = C.push 0 d in
+  let d = C.push 0 d in
+  let d = C.push 0 d in
+  let d = C.push 0 d in
+  let d = C.push 0 d in
+  let d = C.push 0 d in
+  let d = C.push 0 d in
+  let d = C.push 0 d in
+  let d = C.push 0 d in
+  let print_config d =
+      let (a,b,c,d,e) = C.config d in
+      Printf.printf "%d %d %d %d %d\n" a b c d e
+  in
+  print_config d;
+  for _ = 0 to 100 do
+      let _ = C.eject d in
+      print_config d;
+      let _ = C.pop d in
+      print_config d;
+  done;
+  
+  Printf.printf "goodbye!\n"
+  (*  main ~prologue fuel *)

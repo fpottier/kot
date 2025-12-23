@@ -114,3 +114,5 @@ val fold_right : ('a -> 's -> 's) -> 'a t -> 's -> 's
 
 (*[check d] checks that the internal invariant of the deque [d] holds. *)
 val check : 'a t -> unit
+
+val config : 'a t -> int * int * int * int * int
